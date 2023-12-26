@@ -1,0 +1,9 @@
+/node_modules
+/.nyc_output
+/release_notes.*
+/release
+/coverage
+/.scannerwork
+/config/secrets.js
+.vscode
+.env
