@@ -2,18 +2,20 @@ module.exports = (fastify) => {
   const { Checklist, MainTask, SubTask } = fastify.db
   async function getCheckList(roleid, branchid, limit) {
     try {
-      const checkList = await Checklist.findAll({
+      const queryConfig = {
         where: { branch_id: branchid, role_id: roleid },
         include: [{
-          model: MainTask,
-          as: 'mainTasks',
-          include: [{
-            limit: limit,
-            model: SubTask,
-            as: 'subTasks'
-          }]
+            model: MainTask,
+            as: 'mainTasks',
+            include: [{
+                model: SubTask,
+                as: 'subTasks',
+                ...(limit && { limit: limit })  // Incluye 'limit' solo si está definido
+            }]
         }]
-      })
+    };
+
+    const checkList = await Checklist.findAll(queryConfig);
       console.log(checkList)
       if(!checkList) {
         throw new Error('No checklist')
