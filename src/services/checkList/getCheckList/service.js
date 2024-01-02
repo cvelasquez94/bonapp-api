@@ -1,6 +1,6 @@
 module.exports = (fastify) => {
   const { Checklist, MainTask, SubTask } = fastify.db
-  async function getCheckList(roleid, branchid, limit) {
+  async function getCheckList(roleid, branchid, limit, status) {
     try {
       const queryConfig = {
         where: { branch_id: branchid, role_id: roleid },
