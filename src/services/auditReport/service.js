@@ -4,39 +4,19 @@ const nodemailer = require('nodemailer');
 const fetch = require('node-fetch');
 const Jimp = require('jimp');
 async function getOCIBufferedImage(imageUrl) {
-  console.log('getOCIBufferedImage')
-  // Realizar la petición GET para la imagen
   const response = await fetch(imageUrl, {
     method: 'GET',
     headers: {
       'Authorization': 'Basic U1JWX2JvbmFwcDo3SVZKdW4xNC48TH1URVBJaEIzKQ==' // Asegúrate de incluir la autorización correcta
     }
   });
-
-  console.log('response', JSON.stringify(response))
   
   if (!response.ok) {
     throw new Error(`Failed to fetch image: ${response.statusText}`);
   }
-  // Convertir la respuesta en un buffer de imagen
-  const imageBuffer = await response.buffer();
-  console.log('imageBuffer')
-  // Leer la imagen con Jimp
-  const image = await Jimp.read(imageBuffer);
-  console.log('Jimp.read')
 
-  // Cambiar el tamaño de la imagen a un ancho de 250 px manteniendo la proporción
-  image.resize(250, Jimp.AUTO);
-  console.log('Jimp.resize')
-
-  // Reducir la calidad de la imagen al 60%
-  image.quality(100);
-  console.log('Jimp.quality')
-
-  console.log('getOCIBufferedImage end')
-
-  // Obtener el buffer de la imagen procesada
-  return await image.getBufferAsync(Jimp.MIME_JPEG);
+  // Convertir a ArrayBuffer y luego a Buffer
+  return response.buffer();
 }
 
 
