@@ -25,7 +25,7 @@ async function getOCIBufferedImage(imageUrl) {
   image.resize(250, Jimp.AUTO);
 
   // Reducir la calidad de la imagen al 60%
-  image.quality(60);
+  image.quality(100);
 
   // Obtener el buffer de la imagen procesada
   return await image.getBufferAsync(Jimp.MIME_JPEG);
@@ -142,7 +142,6 @@ module.exports = (fastify) => {
             const imageBuffer = await getOCIBufferedImage(ociImageUrl);
             
             // Agregar la imagen al PDF
-            console.log('imageBuffer',imageBuffer)
             doc.image(imageBuffer, {
               fit: [250, 300], // Ajustar según el tamaño deseado
               align: 'center',
