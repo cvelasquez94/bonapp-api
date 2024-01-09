@@ -23,6 +23,7 @@
     "fastify-jwt": "^2.4.0",
     "firebase": "^9.19.0",
     "firebase-admin": "^11.5.0",
+    "jimp": "^0.22.10",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "mysql2": "^3.3.2",

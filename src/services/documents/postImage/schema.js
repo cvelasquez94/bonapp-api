@@ -17,10 +17,14 @@ const schema = {
             type: 'string',
             description: 'description to long',
         },
-        staskInstanceId: {
+        staskInstance_id: {
             type: 'integer',
             description: '',
-        }
+        },
+        user_id: {
+          type: 'integer',
+          description: '',
+      }
       }
     },
     response: {

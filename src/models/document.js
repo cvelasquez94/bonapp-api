@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     desc: DataTypes.STRING,
     size: DataTypes.STRING,
     url: DataTypes.STRING,
-    staskInstance_id: DataTypes.INTEGER
+    staskInstance_id: DataTypes.INTEGER,
+    user_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Document',

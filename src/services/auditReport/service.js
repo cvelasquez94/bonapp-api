@@ -1,10 +1,56 @@
 const PDFDocument = require('pdfkit');
 const { ReadableStreamBuffer } = require('stream-buffers');
 const nodemailer = require('nodemailer');
+const fetch = require('node-fetch');
+const Jimp = require('jimp');
+async function getOCIBufferedImage(imageUrl) {
+  // Realizar la petición GET para la imagen
+  const response = await fetch(imageUrl, {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Basic U1JWX2JvbmFwcDo3SVZKdW4xNC48TH1URVBJaEIzKQ==' // Asegúrate de incluir la autorización correcta
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.statusText}`);
+  }
+  // Convertir la respuesta en un buffer de imagen
+  const imageBuffer = await response.buffer();
+
+  // Leer la imagen con Jimp
+  const image = await Jimp.read(imageBuffer);
+
+  // Cambiar el tamaño de la imagen a un ancho de 250 px manteniendo la proporción
+  image.resize(250, Jimp.AUTO);
+
+  // Reducir la calidad de la imagen al 60%
+  image.quality(60);
+
+  // Obtener el buffer de la imagen procesada
+  return await image.getBufferAsync(Jimp.MIME_JPEG);
+}
+
 
 module.exports = (fastify) => {
-  const { SubTask, STaskInstance, MainTask, Checklist } = fastify.db;
+  const { SubTask, STaskInstance, MainTask, Checklist, Document } = fastify.db;
 
+  async function getAllDocuments(userId) {
+    // Aquí obtendrías todos los registros de la tabla Documents
+    // Por ejemplo:
+    return await Document.findAll({where: { user_id: userId }});
+  }
+
+  // Función para mapear los nombres de las imágenes a los IDs de las subtasks
+  function mapImagesToSubtasks(documents) {
+    const imageMap = {};
+    documents.forEach(doc => {
+      const parts = doc.name.split('_'); // Esto asume que el nombre sigue el formato "item_ID_user_USERID_TIMESTAMP"
+      const subtaskId = parts[1]; // Obtener el ID de la subtask
+      imageMap[subtaskId] = doc.name; // Asociar el nombre de la imagen con el ID de la subtask
+    });
+    return imageMap;
+  }
   async function createPDFAndSendEmail(data, email) {
     const { userId } = data;
     const checkList = await Checklist.findAll({
@@ -35,7 +81,7 @@ module.exports = (fastify) => {
       ],
     });
 
-    const pdfBuffer = await new Promise((resolve, reject) => {
+    const pdfBuffer = await new Promise(async (resolve, reject) => {
       const doc = new PDFDocument();
       const buffers = [];
       doc.on('data', buffers.push.bind(buffers));
@@ -47,21 +93,24 @@ module.exports = (fastify) => {
       // Agregar contenido al PDF
       let scoreAcum = 0;
       let scoreCant = 0;
-      checkList.forEach((task) => {
+      const documents = await getAllDocuments(userId);
+      const imageMap = mapImagesToSubtasks(documents);
+      console.log(JSON.stringify(imageMap))
+      for (const task of checkList) {
         doc.fontSize(25).text(task.dataValues.name, {
           width: 410,
           align: 'center',
         });
         doc.moveDown();
 
-        task.mainTasks.forEach((mainTask) => {
+        for (const mainTask of task.mainTasks) {
           doc.fontSize(15).text(mainTask.dataValues.name, {
             width: 410,
             align: 'left',
           });
           doc.moveDown();
 
-          mainTask.subTasks.forEach((subTask) => {
+          for (const subTask of mainTask.subTasks) {
             doc.fontSize(10).text(subTask.dataValues.name, {
               width: 410,
               align: 'left',
@@ -85,12 +134,30 @@ module.exports = (fastify) => {
               width: 410,
               align: 'left',
             });
+            
+            const imageName = imageMap[subTask.id]
+          if(imageName) {    
+            const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${imageName}` // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
+            // Obtener la imagen como un buffer
+            const imageBuffer = await getOCIBufferedImage(ociImageUrl);
+            
+            // Agregar la imagen al PDF
+            console.log('imageBuffer',imageBuffer)
+            doc.image(imageBuffer, {
+              fit: [250, 300], // Ajustar según el tamaño deseado
+              align: 'center',
+              valign: 'center'
+            });
+          }
+            
+            // Asumiendo que quieres un espacio después de la imagen
+            doc.moveDown(2);
 
             doc.moveDown();
             doc.moveDown();
-          });
-        });
-      });
+          };
+        };
+      };
       doc.moveDown();
 
       doc.fontSize(12).text(`PUNTAJE OBTENIDO : ${scoreAcum}`, {
@@ -143,7 +210,7 @@ module.exports = (fastify) => {
         },
       ],
     };
-
+    console.log('mailOptions')
     // Enviar correo
     await transporter.sendMail(mailOptions);
   }
