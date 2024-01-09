@@ -12,13 +12,15 @@ async function getOCIBufferedImage(imageUrl) {
       'Authorization': 'Basic U1JWX2JvbmFwcDo3SVZKdW4xNC48TH1URVBJaEIzKQ==' // Asegúrate de incluir la autorización correcta
     }
   });
+
+  console.log('response', JSON.stringify(response))
   
   if (!response.ok) {
     throw new Error(`Failed to fetch image: ${response.statusText}`);
   }
   // Convertir la respuesta en un buffer de imagen
   const imageBuffer = await response.buffer();
-
+  console.log('imageBuffer')
   // Leer la imagen con Jimp
   const image = await Jimp.read(imageBuffer);
 
