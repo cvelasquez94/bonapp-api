@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const fetch = require('node-fetch');
 const Jimp = require('jimp');
 async function getOCIBufferedImage(imageUrl) {
+  console.log('getOCIBufferedImage')
   // Realizar la petición GET para la imagen
   const response = await fetch(imageUrl, {
     method: 'GET',
@@ -26,6 +27,7 @@ async function getOCIBufferedImage(imageUrl) {
 
   // Reducir la calidad de la imagen al 60%
   image.quality(100);
+  console.log('getOCIBufferedImage end')
 
   // Obtener el buffer de la imagen procesada
   return await image.getBufferAsync(Jimp.MIME_JPEG);
@@ -50,7 +52,7 @@ module.exports = (fastify) => {
       imageMap[subtaskId] = doc.name; // Asociar el nombre de la imagen con el ID de la subtask
     });
     return imageMap;
-  }
+  }  // to do validar que las imagenes sean del dia/today
   async function createPDFAndSendEmail(data, email) {
     const { userId } = data;
     const checkList = await Checklist.findAll({
