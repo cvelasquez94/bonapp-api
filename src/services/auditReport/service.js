@@ -23,12 +23,16 @@ async function getOCIBufferedImage(imageUrl) {
   console.log('imageBuffer')
   // Leer la imagen con Jimp
   const image = await Jimp.read(imageBuffer);
+  console.log('Jimp.read')
 
   // Cambiar el tamaño de la imagen a un ancho de 250 px manteniendo la proporción
   image.resize(250, Jimp.AUTO);
+  console.log('Jimp.resize')
 
   // Reducir la calidad de la imagen al 60%
   image.quality(100);
+  console.log('Jimp.quality')
+
   console.log('getOCIBufferedImage end')
 
   // Obtener el buffer de la imagen procesada
