@@ -28,6 +28,7 @@ async function app() {
   fastify.register(require('../services/checkList/postSTaskInstance'), { prefix: fastify.config.prefix })
   fastify.register(require('../services/auditReport'), { prefix: fastify.config.prefix })
   fastify.register(require('../services/checkList/getCheckListFilter'), { prefix: fastify.config.prefix })
+  fastify.register(require('../services/checkList/getIncompleteAndCompleteS'), { prefix: fastify.config.prefix })
   fastify.register(require('../services/documents/postImage'), { prefix: fastify.config.prefix })
   fastify.ready(err => {
     if (err) throw err

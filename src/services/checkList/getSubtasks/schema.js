@@ -13,6 +13,9 @@ const schema = {
       },
       userId: {
         type: 'integer'
+      },
+      checkListId: {
+        type: 'integer'
       }
     }
   },

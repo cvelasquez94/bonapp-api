@@ -1,9 +1,9 @@
 module.exports = (fastify) => {
   const { Checklist, MainTask, SubTask, STaskInstance } = fastify.db;
-  async function getSubTasks(roleid, branchid, limit, userId) {
+  async function getSubTasks(roleid, branchid, limit, userId, checkListId) {
     try {
       const checkLists = await Checklist.findAll({
-        where: { branch_id: branchid, role_id: roleid },
+        where: { branch_id: branchid, role_id: roleid, id: checkListId},
         include: [
           {
             model: MainTask,
