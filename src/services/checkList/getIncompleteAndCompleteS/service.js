@@ -23,7 +23,7 @@ module.exports = (fastify) => {
                     model: STaskInstance,
                     as: 'sTaskInstances',
                     where: {
-                      user_id: 10,
+                      user_id: userId,
                     },
                     required: false, // Esto hace que la inclusión sea una left outer join
                   },
