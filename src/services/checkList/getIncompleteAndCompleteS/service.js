@@ -1,9 +1,7 @@
-const { Op } = require('sequelize')
 module.exports = (fastify) => {
   const { Checklist, MainTask, SubTask, STaskInstance } = fastify.db
 
   async function getCheckList(roleId, userId) {
-    console.log(userId)
     try {
       const checkList = await Checklist.findAll({
         where: { role_id: roleId},
@@ -19,13 +17,12 @@ module.exports = (fastify) => {
                 required: true,
                 include: [
                   {
-                    // Incluye el modelo STaskInstance aquí
                     model: STaskInstance,
                     as: 'sTaskInstances',
                     where: {
                       user_id: userId,
                     },
-                    required: false, // Esto hace que la inclusión sea una left outer join
+                    required: false,
                   },
                 ],
               },
@@ -34,13 +31,13 @@ module.exports = (fastify) => {
         ],
       });
 
-      const checklistsMap = checkList.map(checklist => {
+      const checklistsMap = checkList.map(check => {
         // Inicializar los arrays para subtasks completas e incompletas
         let subtasksComplete = [];
         let subtasksIncomplete = [];
       
         // Iterar sobre las mainTasks y sus subTasks
-        checklist.mainTasks.forEach(mainTask => {
+        check.mainTasks.forEach(mainTask => {
           mainTask.subTasks.forEach(subTask => {
             if (subTask.sTaskInstances && subTask.sTaskInstances.length > 0) {
               // La subTask está completa
@@ -52,11 +49,13 @@ module.exports = (fastify) => {
           });
         });
       
-        // Devolver un objeto con los datos de checklist y los arrays de subtasks
+        // Devolver un objeto con los datos de check y los arrays de subtasks
         return {
-          id: checklist.id,
-          name: checklist.name,
-          desc: checklist.desc,
+          id: check.id,
+          name: check.name,
+          desc: check.desc,
+          type: check.type,
+          schedule_start: check.schedule_start,
           subtasksComplete,
           subtasksIncomplete // ... otros datos de checklist que necesites ...
         };
