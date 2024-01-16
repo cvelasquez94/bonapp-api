@@ -29,7 +29,11 @@ module.exports = (fastify) => {
   }
   async function createPdfReport(userId, checkList) {
     const pdfBuffer = await new Promise(async (resolve, reject) => {
-      const doc = new PDFDocument({ bufferPages: true });
+      const doc = new PDFDocument({
+        bufferPages: true,
+        margin: 50,
+        size: 'A4',
+      });
       const buffers = [];
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => {
@@ -44,18 +48,44 @@ module.exports = (fastify) => {
       const documents = await getAllDocuments(userId);
       const imageMap = mapImagesToSubtasks(documents);
       console.log(JSON.stringify(imageMap));
+
+      // const posX = doc.page.margins.left;
+      // doc.fontSize(15).text(`Puntaje Obtenido: \n 51`, posX, 50, {
+      //   align: 'left',
+      // });
+      // doc.fontSize(15).text(`Puntaje Máximo aplicable: \n 54`, posX + 100, 50, {
+      //   align: 'left',
+      // });
+      // doc.fontSize(12).text(`Porcentaje Final: 94.4%`, posX + 100, 50, {
+      //   align: 'right',
+      // });
+      //doc.restore;
+
+      // these examples are easier to see with a large line width
+      //doc.lineWidth(2);
+
       for (const task of checkList) {
-        doc.fontSize(25).text(task.dataValues.name, {
+        doc.moveDown();
+        doc.fontSize(25).fillColor('#0B1193').text(task.dataValues.name, {
           width: 410,
           align: 'center',
         });
         doc.moveDown();
 
         for (const mainTask of task.mainTasks) {
-          doc.fontSize(15).text(mainTask.dataValues.name, {
-            width: 410,
-            align: 'left',
-          });
+          doc
+            .lineCap('round')
+            .moveTo(doc.page.margins.left, doc.y)
+            .lineTo(doc.page.width - doc.page.margins.left, doc.y)
+            .stroke('#FFB833');
+          doc.moveDown();
+          doc
+            .fontSize(15)
+            .text(mainTask.dataValues.name, {
+              width: 410,
+              align: 'left',
+            })
+            .fillColor('#0B1193');
           doc.moveDown();
 
           for (const subTask of mainTask.subTasks) {
@@ -67,6 +97,7 @@ module.exports = (fastify) => {
               subTask.sTaskInstances?.length > 0
                 ? subTask.sTaskInstances[0].comment
                 : '';
+            doc.moveDown();
             doc.fontSize(10).text(`Comentario: ${comment}`, {
               width: 410,
               align: 'left',
@@ -83,6 +114,7 @@ module.exports = (fastify) => {
               align: 'left',
             });
 
+            doc.moveDown();
             const imageName = imageMap[subTask.id];
             if (imageName) {
               const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${imageName}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
@@ -90,37 +122,64 @@ module.exports = (fastify) => {
               const imageBuffer = await getOCIBufferedImage(ociImageUrl);
 
               // Agregar la imagen al PDF
-              doc.image(imageBuffer, {
-                fit: [250, 300], // Ajustar según el tamaño deseado
-                align: 'center',
+              doc.image(imageBuffer, (doc.page.width - 200) / 2, doc.y, {
+                //fit: [250, 300], // Ajustar según el tamaño deseado
+                align: 'right',
                 valign: 'center',
+                width: 200,
+                height: 100,
               });
+              doc.moveDown();
             }
 
             // Asumiendo que quieres un espacio después de la imagen
-            doc.moveDown(2);
+            // doc.moveDown(2);
 
-            doc.moveDown();
-            doc.moveDown();
+            // doc.moveDown();
+            // doc.moveDown();
           }
         }
       }
       doc.moveDown();
 
-      doc.fontSize(12).text(`PUNTAJE OBTENIDO : ${scoreAcum}`, {
-        width: 410,
-        align: 'left',
-      });
-      doc.fontSize(12).text(`PUNTAJE MAXIMO APLICABLE : ${scoreCant * 2}`, {
-        width: 410,
-        align: 'left',
-      });
-      doc
-        .fontSize(12)
-        .text(`PORCENTAJE FINAL : ${(scoreAcum / (scoreCant * 2)) * 100}%`, {
-          width: 410,
-          align: 'left',
-        });
+      // const sizeColumnPts = doc.page.width / 3 - doc.page.margins.left * 2;
+      // console.log(
+      //   sizeColumnPts,
+      //   ' total ',
+      //   doc.page.width,
+      //   doc.page.margins.left
+      // );
+      // doc
+      //   .fontSize(13)
+      //   .text(`PUNTAJE OBTENIDO : \n ${scoreAcum} `, doc.page.margins, 20, {
+      //     width: sizeColumnPts,
+      //   })
+      //   .text(
+      //     `PUNTAJE MAXIMO APLICABLE : \n ${scoreCant * 2}`,
+      //     sizeColumnPts,
+      //     20,
+      //     { width: sizeColumnPts }
+      //   )
+      //   .text(
+      //     `PORCENTAJE FINAL : \n ${(scoreAcum / (scoreCant * 2)) * 100}%`,
+      //     sizeColumnPts * 2,
+      //     20,
+      //     { width: sizeColumnPts }
+      //   );
+      // doc.fontSize(12).text(`PUNTAJE OBTENIDO : ${scoreAcum}`, {
+      //   width: 410,
+      //   align: 'left',
+      // });
+      // doc.fontSize(12).text(`PUNTAJE MAXIMO APLICABLE : ${scoreCant * 2}`, {
+      //   width: 410,
+      //   align: 'left',
+      // });
+      // doc
+      //   .fontSize(12)
+      //   .text(`PORCENTAJE FINAL : ${(scoreAcum / (scoreCant * 2)) * 100}%`, {
+      //     width: 410,
+      //     align: 'left',
+      //   });
 
       // FOOTER
       // see the range of buffered pages
