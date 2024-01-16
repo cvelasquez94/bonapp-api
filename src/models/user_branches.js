@@ -1,7 +1,5 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class user_branches extends Model {
     /**
@@ -10,15 +8,21 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      user_branches.belongsTo(models.Branches, {
+        foreignKey: 'branch_id', // Asegúrate de que 'checkList_id' sea el nombre correcto de la columna de la FK
+        as: 'branches', // Esto es opcional, pero ayuda a definir cómo llamar a la asociación
+      });
     }
   }
-  user_branches.init({
-    user_id: DataTypes.INTEGER,
-    branch_id: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'user_branches',
-  });
+  user_branches.init(
+    {
+      user_id: DataTypes.INTEGER,
+      branch_id: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: 'user_branches',
+    }
+  );
   return user_branches;
 };
