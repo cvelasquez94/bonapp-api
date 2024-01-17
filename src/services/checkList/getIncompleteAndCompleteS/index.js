@@ -8,7 +8,7 @@ const route = async (fastify, opts, next) => {
   fastify.get('/getIncompleteAndCompleteS', { schema }, async(request, reply) => {
     const { roleid, branchid, limit, status, userId } = request.query
     console.log(roleid, branchid ,status, userId )
-    const checkList = await getCheckList(roleid, userId)
+    const checkList = await getCheckList(roleid, userId,branchid)
     if (checkList == null) {
       reply.status(404).send({ message: 'not checklist' })
     } else {
