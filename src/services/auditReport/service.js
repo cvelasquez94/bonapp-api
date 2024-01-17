@@ -20,14 +20,85 @@ async function getOCIBufferedImage(imageUrl) {
 }
 
 module.exports = (fastify) => {
-  const { SubTask, STaskInstance, MainTask, Checklist, Document } = fastify.db;
+  const {
+    SubTask,
+    STaskInstance,
+    MainTask,
+    Checklist,
+    Document,
+    User,
+    Branches,
+  } = fastify.db;
 
   async function getAllDocuments(userId) {
     // Aquí obtendrías todos los registros de la tabla Documents
     // Por ejemplo:
     return await Document.findAll({ where: { user_id: userId } });
   }
-  async function createPdfReport(userId, checkList) {
+  async function setScoringReport(doc, checkList) {
+    const colorText = '#13375B';
+    const colorLine = '#F6BE61';
+    let sumScore = 0;
+    let maxScore = 0;
+    checkList.forEach((check) => {
+      check.dataValues.mainTasks.forEach((main) => {
+        main.dataValues.subTasks.forEach((sub) => {
+          sub.dataValues.sTaskInstances.forEach((stack) => {
+            sumScore += stack.dataValues.score || 0;
+            maxScore++;
+          });
+        });
+      });
+    });
+    doc
+      .font('Helvetica')
+      .fontSize(13)
+      .text(`Puntaje \n Obtenido:`, doc.x, 260, {
+        align: 'left',
+      });
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(40)
+      .fillColor(colorLine)
+      .text(sumScore, doc.x, 300, {
+        align: 'left',
+      });
+    doc
+      .font('Helvetica')
+      .fontSize(13)
+      .fillColor(colorText)
+      .text(`Puntaje \n Máximo aplicable:`, doc.x, 260, {
+        align: 'center',
+      });
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(40)
+      .fillColor(colorLine)
+      .text(`${maxScore * 2}`, doc.x, 300, {
+        align: 'center',
+      });
+    doc
+      .font('Helvetica')
+      .fontSize(13)
+      .fillColor(colorText)
+      .text(`Porcentaje \n Final:`, doc.x, 260, {
+        align: 'right',
+      });
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(40)
+      .fillColor(colorLine)
+      .text(`${parseInt((sumScore / (maxScore * 2)) * 100)}%`, doc.x, 300, {
+        align: 'right',
+      });
+  }
+  async function createPdfReport(userId, checkList, branchId) {
+    const colorText = '#13375B';
+    const colorLine = '#F6BE61';
+
+    const nomUser = await User.findOne({ where: { id: userId } });
+    const nameBranch = await Branches.findOne({ where: { id: branchId } });
+
     const pdfBuffer = await new Promise(async (resolve, reject) => {
       const doc = new PDFDocument({
         bufferPages: true,
@@ -47,74 +118,112 @@ module.exports = (fastify) => {
 
       const documents = await getAllDocuments(userId);
       const imageMap = mapImagesToSubtasks(documents);
-      console.log(JSON.stringify(imageMap));
-
-      // const posX = doc.page.margins.left;
-      // doc.fontSize(15).text(`Puntaje Obtenido: \n 51`, posX, 50, {
-      //   align: 'left',
-      // });
-      // doc.fontSize(15).text(`Puntaje Máximo aplicable: \n 54`, posX + 100, 50, {
-      //   align: 'left',
-      // });
-      // doc.fontSize(12).text(`Porcentaje Final: 94.4%`, posX + 100, 50, {
-      //   align: 'right',
-      // });
-      //doc.restore;
-
-      // these examples are easier to see with a large line width
-      //doc.lineWidth(2);
-
+      const today = new Date();
+      doc
+        .fontSize(10)
+        .fillColor(colorText)
+        .text(`Fecha : ${today.toLocaleDateString()}`, doc.x, 50, {
+          align: 'left',
+        });
+      doc.image(
+        'static/images/logoBonApp.png',
+        (doc.page.width - 140) / 2,
+        50,
+        {
+          width: 140,
+          height: 80,
+          //align: 'center',
+        }
+      );
+      doc
+        .fontSize(10)
+        .text(`Hora : ${today.getHours()}:${today.getMinutes()}`, doc.x, 50, {
+          align: 'right',
+        });
+      doc.moveDown(7);
       for (const task of checkList) {
         doc.moveDown();
-        doc.fontSize(25).fillColor('#0B1193').text(task.dataValues.name, {
-          width: 410,
-          align: 'center',
-        });
-        doc.moveDown();
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(25)
+          .fillColor(colorText)
+          .text(task.dataValues.name, {
+            align: 'center',
+          });
+        doc
+          .font('Helvetica')
+          .fontSize(18)
+          .fillColor(colorText)
+          .text(`${nameBranch.dataValues.name}`, {
+            align: 'center',
+          });
+        doc
+          .font('Helvetica')
+          .fontSize(15)
+          .fillColor(colorText)
+          .text(
+            `${nomUser.dataValues.firstName} ${nomUser.dataValues.lastName} `,
+            {
+              align: 'center',
+            }
+          );
 
+        await setScoringReport(doc, checkList);
+
+        //doc.moveDown();
+        let listMain = 1;
+        let listSub = 1;
         for (const mainTask of task.mainTasks) {
           doc
             .lineCap('round')
             .moveTo(doc.page.margins.left, doc.y)
             .lineTo(doc.page.width - doc.page.margins.left, doc.y)
-            .stroke('#FFB833');
+            .stroke(colorLine);
           doc.moveDown();
           doc
             .fontSize(15)
-            .text(mainTask.dataValues.name, {
-              width: 410,
+            .fillColor(colorText)
+            .text(`${listMain}. ${mainTask.dataValues.name}`, {
               align: 'left',
-            })
-            .fillColor('#0B1193');
+            });
+          listMain++;
+          listSub = 1;
           doc.moveDown();
 
           for (const subTask of mainTask.subTasks) {
-            doc.fontSize(10).text(subTask.dataValues.name, {
-              width: 410,
-              align: 'left',
-            });
+            doc
+              .font('Helvetica')
+              .fontSize(10)
+              .fillColor(colorText)
+              .text(`${listSub}. ${subTask.dataValues.name}`, {
+                align: 'left',
+                indent: 20,
+                textIndent: 20,
+              });
+
+            listSub++;
             const comment =
               subTask.sTaskInstances?.length > 0
                 ? subTask.sTaskInstances[0].comment
                 : '';
             doc.moveDown();
-            doc.fontSize(10).text(`Comentario: ${comment}`, {
-              width: 410,
-              align: 'left',
-            });
+            if (comment)
+              doc
+                .fontSize(10)
+                .text(`Comentario: ${comment}`, { align: 'left', indent: 20 });
+
             const score =
               subTask.sTaskInstances?.length > 0
                 ? subTask.sTaskInstances[0].score
                 : 0;
             scoreAcum += score;
             scoreCant++;
-            //doc.moveDown();
-            doc.fontSize(10).text(`Score: ${score}`, {
-              width: 410,
-              align: 'left',
-            });
-
+            doc
+              .font('Helvetica-Bold')
+              .fontSize(10)
+              .text(`Score: ${score}`, { align: 'left', indent: 20 });
             doc.moveDown();
+
             const imageName = imageMap[subTask.id];
             if (imageName) {
               const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${imageName}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
@@ -122,64 +231,30 @@ module.exports = (fastify) => {
               const imageBuffer = await getOCIBufferedImage(ociImageUrl);
 
               // Agregar la imagen al PDF
-              doc.image(imageBuffer, (doc.page.width - 200) / 2, doc.y, {
-                //fit: [250, 300], // Ajustar según el tamaño deseado
-                align: 'right',
-                valign: 'center',
-                width: 200,
-                height: 100,
-              });
+
+              // logica para agregar salto de pagina cuando supere el alto de pagina
+              if (doc.page.height - doc.y - doc.page.margins.bottom < 200)
+                doc.addPage();
+              doc
+                .image(
+                  imageBuffer,
+                  (doc.page.width - doc.page.margins.bottom * 2 - 200) / 2,
+                  doc.y,
+                  {
+                    //fit: [200, 200],
+                    align: 'center',
+                    valign: 'center',
+                    width: 300,
+                    height: 200,
+                  }
+                )
+                .stroke();
               doc.moveDown();
             }
-
-            // Asumiendo que quieres un espacio después de la imagen
-            // doc.moveDown(2);
-
-            // doc.moveDown();
-            // doc.moveDown();
           }
         }
       }
       doc.moveDown();
-
-      // const sizeColumnPts = doc.page.width / 3 - doc.page.margins.left * 2;
-      // console.log(
-      //   sizeColumnPts,
-      //   ' total ',
-      //   doc.page.width,
-      //   doc.page.margins.left
-      // );
-      // doc
-      //   .fontSize(13)
-      //   .text(`PUNTAJE OBTENIDO : \n ${scoreAcum} `, doc.page.margins, 20, {
-      //     width: sizeColumnPts,
-      //   })
-      //   .text(
-      //     `PUNTAJE MAXIMO APLICABLE : \n ${scoreCant * 2}`,
-      //     sizeColumnPts,
-      //     20,
-      //     { width: sizeColumnPts }
-      //   )
-      //   .text(
-      //     `PORCENTAJE FINAL : \n ${(scoreAcum / (scoreCant * 2)) * 100}%`,
-      //     sizeColumnPts * 2,
-      //     20,
-      //     { width: sizeColumnPts }
-      //   );
-      // doc.fontSize(12).text(`PUNTAJE OBTENIDO : ${scoreAcum}`, {
-      //   width: 410,
-      //   align: 'left',
-      // });
-      // doc.fontSize(12).text(`PUNTAJE MAXIMO APLICABLE : ${scoreCant * 2}`, {
-      //   width: 410,
-      //   align: 'left',
-      // });
-      // doc
-      //   .fontSize(12)
-      //   .text(`PORCENTAJE FINAL : ${(scoreAcum / (scoreCant * 2)) * 100}%`, {
-      //     width: 410,
-      //     align: 'left',
-      //   });
 
       // FOOTER
       // see the range of buffered pages
@@ -194,7 +269,7 @@ module.exports = (fastify) => {
         doc
           .fontSize(10)
           .text(
-            `Pagina ${i + 1} de ${range.count}`,
+            `Página ${i + 1} de ${range.count}`,
             doc.page.width / 2 - 40,
             doc.page.height - 50,
             {
@@ -223,7 +298,7 @@ module.exports = (fastify) => {
     return imageMap;
   } // to do validar que las imagenes sean del dia/today
   async function createPDFAndSendEmail(data, email) {
-    const { userId } = data;
+    const { userId, branchId } = data;
     const checkList = await Checklist.findAll({
       include: [
         {
@@ -252,7 +327,8 @@ module.exports = (fastify) => {
       ],
     });
 
-    const pdfReport = await createPdfReport(userId, checkList);
+    if (checkList.length == 0) throw new Error('checkList no encontrados');
+    const pdfReport = await createPdfReport(userId, checkList, branchId);
 
     console.log('fastify.config ', fastify.config.email.user);
 
@@ -277,7 +353,7 @@ module.exports = (fastify) => {
         },
       ],
     };
-    console.log('mailOptions');
+    console.log('SEND MAIL....');
     // Enviar correo
     await transporter.sendMail(mailOptions);
   }
