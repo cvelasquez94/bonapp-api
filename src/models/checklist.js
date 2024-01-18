@@ -1,7 +1,5 @@
-'use strict'
-const {
-  Model
-} = require('sequelize')
+'use strict';
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Checklist extends Model {
     /**
@@ -14,22 +12,29 @@ module.exports = (sequelize, DataTypes) => {
       // Cada Checklist puede tener muchas MainTasks
       Checklist.hasMany(models.MainTask, {
         foreignKey: 'checkList_id',
-        as: 'mainTasks' // Esto es opcional, pero ayuda a definir cómo llamar a la asociación
-      })
+        as: 'mainTasks', // Esto es opcional, pero ayuda a definir cómo llamar a la asociación
+      });
+      Checklist.hasMany(models.ReportTo, {
+        foreignKey: 'checklist_id',
+        as: 'CheckListReportTo',
+      });
     }
   }
-  Checklist.init({
-    role_id: DataTypes.INTEGER,
-    name: DataTypes.STRING,
-    desc: DataTypes.STRING,
-    type: DataTypes.STRING,
-    enable: DataTypes.BOOLEAN,
-    schedule_start: DataTypes.DATE,
-    schedule_end: DataTypes.DATE,
-    branch_id: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Checklist',
-  })
-  return Checklist
-}
+  Checklist.init(
+    {
+      role_id: DataTypes.INTEGER,
+      name: DataTypes.STRING,
+      desc: DataTypes.STRING,
+      type: DataTypes.STRING,
+      enable: DataTypes.BOOLEAN,
+      schedule_start: DataTypes.DATE,
+      schedule_end: DataTypes.DATE,
+      branch_id: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: 'Checklist',
+    }
+  );
+  return Checklist;
+};
