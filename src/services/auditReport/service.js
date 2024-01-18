@@ -27,10 +27,7 @@ module.exports = (fastify) => {
     Checklist,
     Document,
     User,
-<<<<<<< HEAD
     Branches,
-=======
->>>>>>> b1ac9076cb357d71382bed2ce9dac2fe67030a16
     ReportTo,
     Role,
   } = fastify.db;
@@ -43,25 +40,21 @@ module.exports = (fastify) => {
   async function getDestinatarioAndMails(arrayIdChecklist) {
     // obtenemos todo los roles con el array de id checklist
     const rolesList = await ReportTo.findAll({
+      attributes: ['Role.id', 'Role.name'],
       include: [{ model: Role, as: 'Role', required: true }],
       where: { checklist_id: arrayIdChecklist },
+      group: ['Role.id', 'Role.name'],
     });
-    // distintc de roles con sus name (destinatarios)
-    const arrayUniqueRoles = [
-      ...new Map(rolesList.map((item) => [item['role_id'], item])).values(),
-    ];
 
     //get mails
     const usersRolesDb = await User.findAll({
       attributes: ['email'],
       where: {
-        role_id: arrayUniqueRoles.map(
-          (item) => item.dataValues.Role.dataValues.id
-        ),
+        role_id: rolesList.map((item) => item.dataValues.Role.dataValues.id),
       },
     });
     const emails = usersRolesDb.map((item) => item.dataValues.email).join(',');
-    const destinatarios = arrayUniqueRoles
+    const destinatarios = rolesList
       .map((item) => item.dataValues.Role.dataValues.name)
       .join(',');
     return {
@@ -75,7 +68,6 @@ module.exports = (fastify) => {
     // Por ejemplo:
     return await Document.findAll({ where: { user_id: userId } });
   }
-<<<<<<< HEAD
   async function setScoringReport(doc, checkList) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
@@ -140,50 +132,6 @@ module.exports = (fastify) => {
     const nomUser = await User.findOne({ where: { id: userId } });
     const nameBranch = await Branches.findOne({ where: { id: branchId } });
 
-=======
-
-  // Función para mapear los nombres de las imágenes a los IDs de las subtasks
-  function mapImagesToSubtasks(documents) {
-    const imageMap = {};
-    documents.forEach((doc) => {
-      const parts = doc.name.split('_'); // Esto asume que el nombre sigue el formato "item_ID_user_USERID_TIMESTAMP"
-      const subtaskId = parts[1]; // Obtener el ID de la subtask
-      imageMap[subtaskId] = doc.name; // Asociar el nombre de la imagen con el ID de la subtask
-    });
-    return imageMap;
-  } // to do validar que las imagenes sean del dia/today
-
-  async function createPDFAndSendEmail(data, email) {
-    const { userId } = data;
-    const checkList = await Checklist.findAll({
-      include: [
-        {
-          model: MainTask,
-          as: 'mainTasks',
-          required: true,
-          include: [
-            {
-              model: SubTask,
-              as: 'subTasks',
-              required: true,
-              include: [
-                {
-                  // Incluye el modelo STaskInstance aquí
-                  model: STaskInstance,
-                  as: 'sTaskInstances',
-                  where: {
-                    user_id: userId,
-                  },
-                  required: true, // Esto hace que la inclusión sea una left outer join
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    });
-    let destinatarios;
->>>>>>> b1ac9076cb357d71382bed2ce9dac2fe67030a16
     const pdfBuffer = await new Promise(async (resolve, reject) => {
       const doc = new PDFDocument({
         bufferPages: true,
@@ -203,29 +151,12 @@ module.exports = (fastify) => {
 
       const documents = await getAllDocuments(userId);
       const imageMap = mapImagesToSubtasks(documents);
-<<<<<<< HEAD
       const today = new Date();
       doc
         .fontSize(10)
         .fillColor(colorText)
         .text(`Fecha : ${today.toLocaleDateString()}`, doc.x, 50, {
           align: 'left',
-=======
-
-      const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
-      destinatarios = await getDestinatarioAndMails(arrayIdChecklist);
-
-      doc.fontSize(20).text(`DESTINATARIOS : ${destinatarios.destinatarios}`, {
-        width: 410,
-        align: 'left',
-      });
-      doc.moveDown();
-
-      for (const task of checkList) {
-        doc.fontSize(25).text(task.dataValues.name, {
-          width: 410,
-          align: 'center',
->>>>>>> b1ac9076cb357d71382bed2ce9dac2fe67030a16
         });
       doc.image(
         'static/images/logoBonApp.png',
@@ -331,7 +262,6 @@ module.exports = (fastify) => {
                 : 0;
             scoreAcum += score;
             scoreCant++;
-<<<<<<< HEAD
             doc
               .font('Helvetica-Bold')
               .fontSize(13)
@@ -365,39 +295,11 @@ module.exports = (fastify) => {
                 .stroke();
               doc.moveDown();
             }
-=======
-            //doc.moveDown();
-            doc.fontSize(10).text(`Score: ${score}`, {
-              width: 410,
-              align: 'left',
-            });
-
-            const imageName = imageMap[subTask.id];
-            if (imageName) {
-              const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${imageName}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
-              // Obtener la imagen como un buffer
-              const imageBuffer = await getOCIBufferedImage(ociImageUrl);
-
-              // Agregar la imagen al PDF
-              doc.image(imageBuffer, {
-                fit: [250, 300], // Ajustar según el tamaño deseado
-                align: 'center',
-                valign: 'center',
-              });
-            }
-
-            // Asumiendo que quieres un espacio después de la imagen
-            doc.moveDown(2);
-
-            doc.moveDown();
-            doc.moveDown();
->>>>>>> b1ac9076cb357d71382bed2ce9dac2fe67030a16
           }
         }
       }
       doc.moveDown();
 
-<<<<<<< HEAD
       // FOOTER
       // see the range of buffered pages
       const range = doc.bufferedPageRange(); // => { start: 0, count: 2 }
@@ -424,28 +326,11 @@ module.exports = (fastify) => {
       // manually flush pages that have been buffered
       doc.flushPages();
 
-=======
-      doc.fontSize(12).text(`PUNTAJE OBTENIDO : ${scoreAcum}`, {
-        width: 410,
-        align: 'left',
-      });
-      doc.fontSize(12).text(`PUNTAJE MAXIMO APLICABLE : ${scoreCant * 2}`, {
-        width: 410,
-        align: 'left',
-      });
-      doc
-        .fontSize(12)
-        .text(`PORCENTAJE FINAL : ${(scoreAcum / (scoreCant * 2)) * 100}%`, {
-          width: 410,
-          align: 'left',
-        });
->>>>>>> b1ac9076cb357d71382bed2ce9dac2fe67030a16
       doc.end();
     });
     return pdfBuffer;
   }
 
-<<<<<<< HEAD
   // Función para mapear los nombres de las imágenes a los IDs de las subtasks
   function mapImagesToSubtasks(documents) {
     const imageMap = {};
@@ -503,16 +388,8 @@ module.exports = (fastify) => {
 
     const mailOptions = {
       from: fastify.config.email.user,
-      to: destinatarios.emails,
-      //gito: fastify.config.email.audit,
-=======
-    const mailAuditor = await getMailAuditor(userId); //TODO: agregar el mail auditor al envio
-    console.log('destinatarios: ', destinatarios);
-    console.log('mailAuditor:', mailAuditor);
-    const mailOptions = {
-      from: fastify.config.email.user,
-      to: destinatarios.emails,
->>>>>>> b1ac9076cb357d71382bed2ce9dac2fe67030a16
+      //to: destinatarios.emails,
+      to: fastify.config.email.audit,
       subject: 'Informe PDF',
       text: 'Aquí está tu informe.',
       attachments: [
@@ -525,7 +402,9 @@ module.exports = (fastify) => {
 
     console.log(
       '----------- Send mail ------------- FROM ',
-      fastify.config.email.user
+      fastify.config.email.user,
+      'Destintarios',
+      destinatarios
     );
 
     // Configuración de nodemailer
