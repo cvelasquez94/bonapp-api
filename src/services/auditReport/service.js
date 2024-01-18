@@ -28,7 +28,6 @@ module.exports = (fastify) => {
     Document,
     User,
     Branches,
-  } = fastify.db;
     ReportTo,
     Role,
   } = fastify.db;
@@ -130,7 +129,7 @@ module.exports = (fastify) => {
         align: 'right',
       });
   }
-  async function createPdfReport(userId, checkList, branchId) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
 
@@ -179,6 +178,7 @@ module.exports = (fastify) => {
           align: 'right',
         });
       doc.moveDown(7);
+
       for (const task of checkList) {
         doc.moveDown();
         doc
@@ -208,6 +208,15 @@ module.exports = (fastify) => {
 
         await setScoringReport(doc, checkList);
 
+        doc
+          .fillColor(colorText)
+          .fontSize(14)
+          .text(`DESTINATARIOS : ${destinatarios.destinatarios}`, {
+            width: 410,
+            align: 'left',
+          });
+        doc.moveDown();
+
         //doc.moveDown();
         let listMain = 1;
         let listSub = 1;
@@ -218,10 +227,11 @@ module.exports = (fastify) => {
             .lineTo(doc.page.width - doc.page.margins.left, doc.y)
             .stroke(colorLine);
           doc.moveDown();
+
           doc
-            .fontSize(15)
+            .fontSize(13)
             .fillColor(colorText)
-            .text(`${listMain}. ${mainTask.dataValues.name}`, {
+            .text(`${mainTask.dataValues.name}`, {
               align: 'left',
             });
           listMain++;
@@ -231,12 +241,12 @@ module.exports = (fastify) => {
           for (const subTask of mainTask.subTasks) {
             doc
               .font('Helvetica')
-              .fontSize(10)
+              .fontSize(13)
               .fillColor(colorText)
-              .text(`${listSub}. ${subTask.dataValues.name}`, {
+              .text(`${listSub}) ${subTask.dataValues.name}`, {
                 align: 'left',
-                indent: 20,
-                textIndent: 20,
+                // indent: 20,
+                // textIndent: 20,
               });
 
             listSub++;
@@ -247,7 +257,7 @@ module.exports = (fastify) => {
             doc.moveDown();
             if (comment)
               doc
-                .fontSize(10)
+                .fontSize(13)
                 .text(`Comentario: ${comment}`, { align: 'left', indent: 20 });
 
             const score =
@@ -258,7 +268,7 @@ module.exports = (fastify) => {
             scoreCant++;
             doc
               .font('Helvetica-Bold')
-              .fontSize(10)
+              .fontSize(13)
               .text(`Score: ${score}`, { align: 'left', indent: 20 });
             doc.moveDown();
 
@@ -367,118 +377,23 @@ module.exports = (fastify) => {
     });
 
     if (checkList.length == 0) throw new Error('checkList no encontrados');
-    const pdfReport = await createPdfReport(userId, checkList, branchId);
-    let destinatarios;
-    const pdfBuffer = await new Promise(async (resolve, reject) => {
-      const doc = new PDFDocument();
-      const buffers = [];
-      doc.on('data', buffers.push.bind(buffers));
-      doc.on('end', () => {
-        const pdfData = Buffer.concat(buffers);
-        resolve(pdfData);
-      });
 
-      // Agregar contenido al PDF
-      let scoreAcum = 0;
-      let scoreCant = 0;
-      const documents = await getAllDocuments(userId);
-      const imageMap = mapImagesToSubtasks(documents);
-
-      const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
-      destinatarios = await getDestinatarioAndMails(arrayIdChecklist);
-
-      doc.fontSize(20).text(`DESTINATARIOS : ${destinatarios.destinatarios}`, {
-        width: 410,
-        align: 'left',
-      });
-      doc.moveDown();
-
-      for (const task of checkList) {
-        doc.fontSize(25).text(task.dataValues.name, {
-          width: 410,
-          align: 'center',
-        });
-        doc.moveDown();
-
-        for (const mainTask of task.mainTasks) {
-          doc.fontSize(15).text(mainTask.dataValues.name, {
-            width: 410,
-            align: 'left',
-          });
-          doc.moveDown();
-
-          for (const subTask of mainTask.subTasks) {
-            doc.fontSize(10).text(subTask.dataValues.name, {
-              width: 410,
-              align: 'left',
-            });
-            const comment =
-              subTask.sTaskInstances?.length > 0
-                ? subTask.sTaskInstances[0].comment
-                : '';
-            doc.fontSize(10).text(`Comentario: ${comment}`, {
-              width: 410,
-              align: 'left',
-            });
-            const score =
-              subTask.sTaskInstances?.length > 0
-                ? subTask.sTaskInstances[0].score
-                : 0;
-            scoreAcum += score;
-            scoreCant++;
-            //doc.moveDown();
-            doc.fontSize(10).text(`Score: ${score}`, {
-              width: 410,
-              align: 'left',
-            });
-
-            const imageName = imageMap[subTask.id];
-            if (imageName) {
-              const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${imageName}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
-              // Obtener la imagen como un buffer
-              const imageBuffer = await getOCIBufferedImage(ociImageUrl);
-
-              // Agregar la imagen al PDF
-              doc.image(imageBuffer, {
-                fit: [250, 300], // Ajustar según el tamaño deseado
-                align: 'center',
-                valign: 'center',
-              });
-            }
-
-            // Asumiendo que quieres un espacio después de la imagen
-            doc.moveDown(2);
-
-            doc.moveDown();
-            doc.moveDown();
-          }
-        }
-      }
-      doc.moveDown();
-
-      doc.fontSize(12).text(`PUNTAJE OBTENIDO : ${scoreAcum}`, {
-        width: 410,
-        align: 'left',
-      });
-      doc.fontSize(12).text(`PUNTAJE MAXIMO APLICABLE : ${scoreCant * 2}`, {
-        width: 410,
-        align: 'left',
-      });
-      doc
-        .fontSize(12)
-        .text(`PORCENTAJE FINAL : ${(scoreAcum / (scoreCant * 2)) * 100}%`, {
-          width: 410,
-          align: 'left',
-        });
-      doc.end();
-    });
+    const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
+    const destinatarios = await getDestinatarioAndMails(arrayIdChecklist);
+    const pdfReport = await createPdfReport(
+      userId,
+      checkList,
+      branchId,
+      destinatarios
+    );
 
     const mailAuditor = await getMailAuditor(userId); //TODO: agregar el mail auditor al envio
-    console.log('destinatarios: ', destinatarios);
     console.log('mailAuditor:', mailAuditor);
+
     const mailOptions = {
       from: fastify.config.email.user,
       to: destinatarios.emails,
+      //gito: fastify.config.email.audit,
       subject: 'Informe PDF',
       text: 'Aquí está tu informe.',
       attachments: [
@@ -488,7 +403,6 @@ module.exports = (fastify) => {
         },
       ],
     };
-    console.log('SEND MAIL....');
 
     console.log(
       '----------- Send mail ------------- FROM ',
