@@ -18,7 +18,7 @@ const schema = {
   },
   response: {
     200: {
-      description: 'Bad request',
+      description: 'Valid user login',
       type: 'object',
       properties: {
         id: { type: 'integer'},
@@ -26,7 +26,9 @@ const schema = {
         lastName: { type: 'string' },
         avatar: { type: 'string' },
         role_id: { type: 'integer' },
-        token: { type: 'string' }
+        token: { type: 'string' },
+        branch_id: { type: 'integer' },
+        branch_name: { type: 'string' }
       }
     },
     400: {

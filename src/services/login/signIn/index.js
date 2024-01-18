@@ -21,6 +21,8 @@ const route = async (fastify, opts, next) => {
           lastName: user.lastName,
           role_id: user.role_id,
           avatar: user.avatar,
+          branch_id: user.branch_id,
+          branch_name: user.branch_name,
           token
         })
     }

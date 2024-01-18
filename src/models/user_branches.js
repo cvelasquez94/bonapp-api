@@ -11,7 +11,11 @@ module.exports = (sequelize, DataTypes) => {
       user_branches.belongsTo(models.Branches, {
         foreignKey: 'branch_id', // Asegúrate de que 'checkList_id' sea el nombre correcto de la columna de la FK
         as: 'branches', // Esto es opcional, pero ayuda a definir cómo llamar a la asociación
-      });
+      })
+
+      user_branches.belongsTo(models.User, {
+        foreignKey: 'user_id'
+      })
     }
   }
   user_branches.init(
@@ -23,6 +27,6 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: 'user_branches',
     }
-  );
+  )
   return user_branches;
 };
