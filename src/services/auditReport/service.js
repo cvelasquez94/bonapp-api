@@ -388,8 +388,8 @@ module.exports = (fastify) => {
 
     const mailOptions = {
       from: fastify.config.email.user,
-      //to: destinatarios.emails,
-      to: fastify.config.email.audit,
+      to: destinatarios.emails,
+      //to: fastify.config.email.audit,
       subject: 'Informe PDF',
       text: 'Aquí está tu informe.',
       attachments: [
