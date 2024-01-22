@@ -343,8 +343,11 @@ module.exports = (fastify) => {
   } // to do validar que las imagenes sean del dia/today
 
   async function createPDFAndSendEmail(data, email) {
-    const { userId, branchId } = data;
+    const { userId, branchId, checkListId } = data;
     const checkList = await Checklist.findAll({
+      where: {
+        id: checkListId,
+      },
       include: [
         {
           model: MainTask,
