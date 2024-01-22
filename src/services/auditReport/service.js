@@ -28,7 +28,40 @@ module.exports = (fastify) => {
     Document,
     User,
     Branches,
+    ReportTo,
+    Role,
   } = fastify.db;
+
+  async function getMailAuditor(userId) {
+    const userAudit = await User.findOne({ where: { id: userId } });
+    console.log('mail user audit: ', userAudit.dataValues.email);
+    return userAudit.dataValues.email;
+  }
+  async function getDestinatarioAndMails(arrayIdChecklist) {
+    // obtenemos todo los roles con el array de id checklist
+    const rolesList = await ReportTo.findAll({
+      attributes: ['Role.id', 'Role.name'],
+      include: [{ model: Role, as: 'Role', required: true }],
+      where: { checklist_id: arrayIdChecklist },
+      group: ['Role.id', 'Role.name'],
+    });
+
+    //get mails
+    const usersRolesDb = await User.findAll({
+      attributes: ['email'],
+      where: {
+        role_id: rolesList.map((item) => item.dataValues.Role.dataValues.id),
+      },
+    });
+    const emails = usersRolesDb.map((item) => item.dataValues.email).join(',');
+    const destinatarios = rolesList
+      .map((item) => item.dataValues.Role.dataValues.name)
+      .join(',');
+    return {
+      emails,
+      destinatarios,
+    };
+  }
 
   async function getAllDocuments(userId) {
     // Aquí obtendrías todos los registros de la tabla Documents
@@ -92,7 +125,7 @@ module.exports = (fastify) => {
         align: 'right',
       });
   }
-  async function createPdfReport(userId, checkList, branchId) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
 
@@ -141,6 +174,7 @@ module.exports = (fastify) => {
           align: 'right',
         });
       doc.moveDown(7);
+
       for (const task of checkList) {
         doc.moveDown();
         doc
@@ -170,6 +204,15 @@ module.exports = (fastify) => {
 
         await setScoringReport(doc, checkList);
 
+        doc
+          .fillColor(colorText)
+          .fontSize(14)
+          .text(`DESTINATARIOS : ${destinatarios.destinatarios}`, {
+            width: 410,
+            align: 'left',
+          });
+        doc.moveDown();
+
         //doc.moveDown();
         let listMain = 1;
         let listSub = 1;
@@ -180,10 +223,11 @@ module.exports = (fastify) => {
             .lineTo(doc.page.width - doc.page.margins.left, doc.y)
             .stroke(colorLine);
           doc.moveDown();
+
           doc
-            .fontSize(15)
+            .fontSize(13)
             .fillColor(colorText)
-            .text(`${listMain}. ${mainTask.dataValues.name}`, {
+            .text(`${mainTask.dataValues.name}`, {
               align: 'left',
             });
           listMain++;
@@ -193,12 +237,12 @@ module.exports = (fastify) => {
           for (const subTask of mainTask.subTasks) {
             doc
               .font('Helvetica')
-              .fontSize(10)
+              .fontSize(13)
               .fillColor(colorText)
-              .text(`${listSub}. ${subTask.dataValues.name}`, {
+              .text(`${listSub}) ${subTask.dataValues.name}`, {
                 align: 'left',
-                indent: 20,
-                textIndent: 20,
+                // indent: 20,
+                // textIndent: 20,
               });
 
             listSub++;
@@ -209,7 +253,7 @@ module.exports = (fastify) => {
             doc.moveDown();
             if (comment)
               doc
-                .fontSize(10)
+                .fontSize(13)
                 .text(`Comentario: ${comment}`, { align: 'left', indent: 20 });
 
             const score =
@@ -220,7 +264,7 @@ module.exports = (fastify) => {
             scoreCant++;
             doc
               .font('Helvetica-Bold')
-              .fontSize(10)
+              .fontSize(13)
               .text(`Score: ${score}`, { align: 'left', indent: 20 });
             doc.moveDown();
 
@@ -297,6 +341,7 @@ module.exports = (fastify) => {
     });
     return imageMap;
   } // to do validar que las imagenes sean del dia/today
+
   async function createPDFAndSendEmail(data, email) {
     const { userId, branchId } = data;
     const checkList = await Checklist.findAll({
@@ -328,22 +373,23 @@ module.exports = (fastify) => {
     });
 
     if (checkList.length == 0) throw new Error('checkList no encontrados');
-    const pdfReport = await createPdfReport(userId, checkList, branchId);
 
-    console.log('fastify.config ', fastify.config.email.user);
+    const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
+    const destinatarios = await getDestinatarioAndMails(arrayIdChecklist);
+    const pdfReport = await createPdfReport(
+      userId,
+      checkList,
+      branchId,
+      destinatarios
+    );
 
-    // Configuración de nodemailer
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: fastify.config.email.user,
-        pass: fastify.config.email.pass,
-      },
-    });
+    const mailAuditor = await getMailAuditor(userId); //TODO: agregar el mail auditor al envio
+    console.log('mailAuditor:', mailAuditor);
 
     const mailOptions = {
       from: fastify.config.email.user,
-      to: fastify.config.email.audit,
+      to: destinatarios.emails,
+      //to: fastify.config.email.audit,
       subject: 'Informe PDF',
       text: 'Aquí está tu informe.',
       attachments: [
@@ -353,7 +399,22 @@ module.exports = (fastify) => {
         },
       ],
     };
-    console.log('SEND MAIL....');
+
+    console.log(
+      '----------- Send mail ------------- FROM ',
+      fastify.config.email.user,
+      'Destintarios',
+      destinatarios
+    );
+
+    // Configuración de nodemailer
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: fastify.config.email.user,
+        pass: fastify.config.email.pass,
+      },
+    });
     // Enviar correo
     await transporter.sendMail(mailOptions);
   }
