@@ -18,7 +18,7 @@ const schema = {
         type: 'string'
       },
       userId: {
-        type: 'string'
+        type: 'integer'
       },
       dateNow: {
         type: 'string'
