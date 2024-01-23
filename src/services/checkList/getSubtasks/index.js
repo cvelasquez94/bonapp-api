@@ -6,9 +6,9 @@ const route = async (fastify, opts, next) => {
   const { getSubTasks } = require('./service')(fastify)
 
   fastify.get('/getSubTasks', { schema }, async(request, reply) => {
-    const { roleid, branchid, limit, userId, checkListId } = request.query
-    console.log(roleid, branchid, userId, checkListId)
-    const subTasks = await getSubTasks(roleid, branchid, limit, userId, checkListId)
+    const { roleid, branchid, limit, userId, checkListId, dateNow } = request.query
+    console.log(roleid, branchid, userId, checkListId, dateNow)
+    const subTasks = await getSubTasks(roleid, branchid, limit, userId, checkListId, dateNow)
     if (subTasks == null) {
       reply.status(404).send({ message: 'not checklist' })
     } else {

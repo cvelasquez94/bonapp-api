@@ -1,8 +1,19 @@
 module.exports = (fastify) => {
   const { Checklist, MainTask, SubTask, STaskInstance } = fastify.db
-
-  async function getCheckList(roleId, userId, branchId) {
+  const { Op } = require("sequelize");
+  async function getCheckList(roleId, userId, branchId, dateTime) {
     try {
+      var dateTimeStr = ''
+      var dateSplit = {};
+      //TODO : en front al formatear string date ddMMyyyy
+      if(dateTime){
+        dateSplit = dateTime.split('-')
+      }
+      if (dateSplit.length == 3) {
+        dateTimeStr = dateSplit[0].padStart(2, "0")+"-"+dateSplit[1].padStart(2, "0")+"-"+dateSplit[2].padStart(4, "0")
+      }
+      //console.log('str',dateTimeStr)
+      
       const checkList = await Checklist.findAll({
         where: { role_id: roleId, branch_id: branchId, enable: true},
         include: [
@@ -20,7 +31,13 @@ module.exports = (fastify) => {
                     model: STaskInstance,
                     as: 'sTaskInstances',
                     where: {
-                      user_id: userId,
+                      [Op.and]: [
+                        { user_id: userId },
+                        STaskInstance.sequelize.where(
+                                STaskInstance.sequelize.fn('DATE_FORMAT', STaskInstance.sequelize.col('dateTime')
+                                                          ,'%d-%m-%Y'),
+                                                      dateTimeStr),
+                      ]
                     },
                     required: false,
                   },
