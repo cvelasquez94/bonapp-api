@@ -3,7 +3,7 @@ module.exports = (fastify) => {
   async function getCheckList(roleid, branchid, limit, status) {
     try {
       const queryConfig = {
-        where: { branch_id: branchid, role_id: roleid },
+        where: { branch_id: branchid, role_id: roleid, enable: true},
         include: [{
             model: MainTask,
             as: 'mainTasks',

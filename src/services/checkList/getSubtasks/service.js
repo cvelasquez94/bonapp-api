@@ -28,7 +28,7 @@ module.exports = (fastify) => {
           },
         ],
       });
-      console.log(checkLists);
+      console.log(JSON.stringify(checkLists));
       // Aplana los resultados para obtener solo subTasks
       let subTasks = [];
       checkLists.forEach((checklist) => {
@@ -39,6 +39,12 @@ module.exports = (fastify) => {
               subTask.sTaskInstances?.length > 0
                 ? subTask.sTaskInstances[0].status
                 : null;
+
+            subTask.dataValues.comment =
+              subTask.sTaskInstances?.length > 0
+                ? subTask.sTaskInstances[0].comment
+                : null;
+                
             subTasks.push(subTask);
           });
         });
