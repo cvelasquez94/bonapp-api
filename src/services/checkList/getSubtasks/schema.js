@@ -29,6 +29,7 @@ const schema = {
           id: { type: 'integer' },
           name: { type: 'string' },
           desc: { type: 'string' },
+          comment: { type: 'string' },
           expiration: { type: ['string', 'null'] },
           status: { type: 'string' },
           mainTask_id: { type: 'integer' },
