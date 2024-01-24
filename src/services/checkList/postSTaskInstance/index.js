@@ -7,8 +7,8 @@ const route = async (fastify, opts, next) => {
 
   fastify.post('/postSubTask', { schema }, async(request, reply) => {
     try {
-      const { subTaskId, userId, status, dateTime, comment, score, photo } = request.body;
-      const newSTaskInstance = await createSTaskInstance({ subTaskId, userId, status, dateTime, comment, score, photo });
+      const { subTaskId, userId, status, dateTime, comment, score, photo, dateNow } = request.body;
+      const newSTaskInstance = await createSTaskInstance({ subTaskId, userId, status, dateTime, comment, score, photo, dateNow });
       
       return reply.status(201).send(newSTaskInstance);
     } catch (error) {

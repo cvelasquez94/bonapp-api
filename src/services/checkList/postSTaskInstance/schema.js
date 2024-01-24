@@ -35,6 +35,10 @@ const schema = {
       photo: {
         type: 'string',
         description: 'URL to a photo related to the subtask'
+      },
+      dateNow: {
+        type: 'string',
+        description: 'Business date of the completed subtask'
       }
     }
   },
