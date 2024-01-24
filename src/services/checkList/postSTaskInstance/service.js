@@ -1,15 +1,33 @@
 const {  } = require('../../../models')
+const { Op } = require("sequelize");
 
 module.exports = (fastify) => {
   const { STaskInstance } = fastify.db
-  async function createSTaskInstance({ subTaskId, userId, status, dateTime, comment, score, photo }) {
+  async function createSTaskInstance({ subTaskId, userId, status, dateTime, comment, score, photo, dateNow}) {
     try {
+      var dateTimeStr = ''
+      var dateSplit = {};
+      //TODO : en front al formatear string date ddMMyyyy
+      if(dateNow){
+        dateSplit = dateNow.split('/')
+      }
+      if (dateSplit.length == 3) {
+        dateTimeStr = dateSplit[0].padStart(2, "0")+"-"+dateSplit[1].padStart(2, "0")+"-"+dateSplit[2].padStart(4, "0")
+      }
+      //console.log('str',dateTimeStr)
 
       // Busca un registro existente
       const existingInstance = await STaskInstance.findOne({
         where: {
-          subTask_id: subTaskId,
-          user_id: userId
+          [Op.and]: [
+                  { subTask_id: subTaskId,
+                    user_id: userId
+                  },
+                  STaskInstance.sequelize.where(
+                          STaskInstance.sequelize.fn('DATE_FORMAT', STaskInstance.sequelize.col('dateTime')
+                                                    ,'%d-%m-%Y'),
+                                                dateTimeStr),
+          ]
         }
       });
 
