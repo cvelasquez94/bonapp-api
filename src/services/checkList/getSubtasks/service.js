@@ -7,7 +7,7 @@ module.exports = (fastify) => {
       var dateSplit = {};
       //TODO : en front al formatear string date ddMMyyyy
       if(dateTime){
-        dateSplit = dateTime.split('-')
+        dateSplit = dateTime.split('/')
       }
       if (dateSplit.length == 3) {
         dateTimeStr = dateSplit[0].padStart(2, "0")+"-"+dateSplit[1].padStart(2, "0")+"-"+dateSplit[2].padStart(4, "0")
@@ -62,7 +62,7 @@ module.exports = (fastify) => {
               subTask.sTaskInstances?.length > 0
                 ? subTask.sTaskInstances[0].comment
                 : null;
-                
+
             subTasks.push(subTask);
           });
         });

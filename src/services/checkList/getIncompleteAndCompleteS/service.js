@@ -7,7 +7,7 @@ module.exports = (fastify) => {
       var dateSplit = {};
       //TODO : en front al formatear string date ddMMyyyy
       if(dateTime){
-        dateSplit = dateTime.split('-')
+        dateSplit = dateTime.split('/')
       }
       if (dateSplit.length == 3) {
         dateTimeStr = dateSplit[0].padStart(2, "0")+"-"+dateSplit[1].padStart(2, "0")+"-"+dateSplit[2].padStart(4, "0")
