@@ -1,21 +1,34 @@
 module.exports = (fastify) => {
   const { Checklist, MainTask, SubTask, STaskInstance } = fastify.db;
-  const { Op } = require("sequelize");
-  async function getSubTasks(roleid, branchid, limit, userId, checkListId, dateTime) {
+  const { Op } = require('sequelize');
+
+  async function getSubTasks(
+    roleid,
+    branchid,
+    limit,
+    userId,
+    checkListId,
+    dateTime
+  ) {
     try {
-      var dateTimeStr = ''
+      var dateTimeStr = '';
       var dateSplit = {};
       //TODO : en front al formatear string date ddMMyyyy
-      if(dateTime){
-        dateSplit = dateTime.split('/')
+      if (dateTime) {
+        dateSplit = dateTime.split('/');
       }
       if (dateSplit.length == 3) {
-        dateTimeStr = dateSplit[0].padStart(2, "0")+"-"+dateSplit[1].padStart(2, "0")+"-"+dateSplit[2].padStart(4, "0")
+        dateTimeStr =
+          dateSplit[0].padStart(2, '0') +
+          '-' +
+          dateSplit[1].padStart(2, '0') +
+          '-' +
+          dateSplit[2].padStart(4, '0');
       }
       //console.log('str',dateTimeStr)
-      
+
       const checkLists = await Checklist.findAll({
-        where: { branch_id: branchid, role_id: roleid, id: checkListId},
+        where: { branch_id: branchid, role_id: roleid, id: checkListId },
         include: [
           {
             model: MainTask,
@@ -33,12 +46,16 @@ module.exports = (fastify) => {
                       [Op.and]: [
                         { user_id: userId },
                         STaskInstance.sequelize.where(
-                                STaskInstance.sequelize.fn('DATE_FORMAT', STaskInstance.sequelize.col('dateTime')
-                                                          ,'%d-%m-%Y'),
-                                                      dateTimeStr),
-                      ]
+                          STaskInstance.sequelize.fn(
+                            'DATE_FORMAT',
+                            STaskInstance.sequelize.col('dateTime'),
+                            '%d-%m-%Y'
+                          ),
+                          dateTimeStr
+                        ),
+                      ],
                     },
-                  required: false, // Esto hace que la inclusión sea una left outer join
+                    required: false, // Esto hace que la inclusión sea una left outer join
                   },
                 ],
               },
