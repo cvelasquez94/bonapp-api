@@ -48,6 +48,9 @@ async function app() {
   fastify.register(require('../services/checkList/getIncompleteAndCompleteS'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/checkList/getStatisticsCheckList'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/documents/postImage'), {
     prefix: fastify.config.prefix,
   });
