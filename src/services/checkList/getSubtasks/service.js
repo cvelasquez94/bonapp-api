@@ -28,7 +28,7 @@ module.exports = (fastify) => {
       //console.log('str',dateTimeStr)
 
       const checkLists = await Checklist.findAll({
-        where: { branch_id: branchid, role_id: roleid, id: checkListId },
+        where: { branch_id: branchid, id: checkListId },
         include: [
           {
             model: MainTask,
