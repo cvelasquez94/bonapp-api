@@ -4,7 +4,7 @@ module.exports = (fastify) => {
   const { Op } = require('sequelize');
   async function getCheckList(roleId, userId, branchId, dateTime) {
     try {
-      var dateTimeStr = '';
+      var dateTimeStr = '', dateTimeMMYYYY = '';
       var dateSplit = {};
       //TODO : en front al formatear string date ddMMyyyy
       if (dateTime) {
@@ -14,6 +14,11 @@ module.exports = (fastify) => {
         dateTimeStr =
           dateSplit[0].padStart(2, '0') +
           '-' +
+          dateSplit[1].padStart(2, '0') +
+          '-' +
+          dateSplit[2].padStart(4, '0');
+        
+        dateTimeMMYYYY =
           dateSplit[1].padStart(2, '0') +
           '-' +
           dateSplit[2].padStart(4, '0');
@@ -52,14 +57,18 @@ module.exports = (fastify) => {
                     where: {
                       [Op.and]: [
                         { user_id: userId },
-                        STaskInstance.sequelize.where(
-                          STaskInstance.sequelize.fn(
-                            'DATE_FORMAT',
-                            STaskInstance.sequelize.col('dateTime'),
-                            '%d-%m-%Y'
-                          ),
-                          dateTimeStr
-                        ),
+                        //STaskInstance.sequelize.where(
+                          STaskInstance.sequelize.literal(`CASE
+    WHEN Checklist.type = 'audit' THEN DATE_FORMAT(dateTime, '%m-%Y') = '`+dateTimeMMYYYY+`'
+    ELSE DATE_FORMAT(dateTime, '%d-%m-%Y') = '`+dateTimeStr+`'
+END`)
+                          //STaskInstance.sequelize.fn(
+                          //  'DATE_FORMAT',
+                          //  STaskInstance.sequelize.col('dateTime'),
+                          //  '%d-%m-%Y'
+                          //),
+                          //dateTimeStr
+                       // ),
                       ],
                     },
                     required: false,
