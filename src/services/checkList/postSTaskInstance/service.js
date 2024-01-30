@@ -17,18 +17,12 @@ module.exports = (fastify) => {
       let dateTimeStr = '';
       let dateSplit = {};
       //TODO : en front al formatear string date ddMMyyyy
-      if (dateTime) {
-        dateSplit = dateTime.split('/');
-      }
-      if (dateSplit.length == 3) {
-        dateTimeStr =
-          dateSplit[0].padStart(2, '0') +
-          '-' +
-          dateSplit[1].padStart(2, '0') +
-          '-' +
-          dateSplit[2].padStart(4, '0');
-      }
-      //console.log('str',dateTimeStr)
+      const today = new Date();
+      dateTimeStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}-${today.getFullYear()} `;
+
+      console.log('str',dateTimeStr)
 
       // Busca un registro existente
       const existingInstance = await STaskInstance.findOne({
