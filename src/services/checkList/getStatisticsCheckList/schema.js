@@ -23,7 +23,7 @@ const schema = {
       items: {
         type: 'object',
         properties: {
-          id: { type: 'integer' },
+          count: { type: 'integer' },
           desc: { type: 'string' },
         },
       },

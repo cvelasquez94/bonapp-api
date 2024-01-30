@@ -60,11 +60,18 @@ module.exports = (fastify) => {
         where: { branch_id: branchId, enable: true },
       });
 
+      let sumTaskClose = 0;
+      checkList.map((item) => {
+        item.dataValues.mainTasks.map((item) => {
+          sumTaskClose += item.dataValues.subTasks.length;
+        });
+      });
+
       if (checkList.length) {
         return [
           {
-            id: checkList.length,
-            desc: 'checklist finalizadas',
+            count: sumTaskClose,
+            desc: `checklist finalizadas en ${dateTimeStr}`,
           },
         ];
       }
