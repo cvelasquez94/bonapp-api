@@ -36,8 +36,8 @@ module.exports = (fastify) => {
       }
 
       
-      console.log('user', JSON.stringify(user))
-      console.log('user2', user.dataValues.user_branches[0].branches.dataValues)
+      //console.log('user', JSON.stringify(user))
+      //console.log('user2', user.dataValues.user_branches[0].branches.dataValues)
 
       const branch_id = user.dataValues.user_branches[0].branch_id;
 
