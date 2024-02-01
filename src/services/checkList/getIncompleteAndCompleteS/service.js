@@ -1,11 +1,46 @@
 module.exports = (fastify) => {
-  const { Checklist, MainTask, SubTask, STaskInstance } = fastify.db
-
-  async function getCheckList(roleId, userId, branchId) {
+  const { Checklist, MainTask, SubTask, STaskInstance, RoleUser, Role } =
+    fastify.db;
+  const { Op } = require('sequelize');
+  async function getCheckList(roleId, userId, branchId, dateTime) {
     try {
+      var dateTimeStr = '', dateTimeMMYYYY = '';
+      var dateSplit = {};
+      //TODO : en front al formatear string date ddMMyyyy
+      if (dateTime) {
+        dateSplit = dateTime.split('/');
+      }
+      if (dateSplit.length == 3) {
+        dateTimeStr =
+          dateSplit[0].padStart(2, '0') +
+          '-' +
+          dateSplit[1].padStart(2, '0') +
+          '-' +
+          dateSplit[2].padStart(4, '0');
+        
+        dateTimeMMYYYY =
+          dateSplit[1].padStart(2, '0') +
+          '-' +
+          dateSplit[2].padStart(4, '0');
+      }
+      //console.log('str',dateTimeStr)
+
       const checkList = await Checklist.findAll({
-        where: { role_id: roleId, branch_id: branchId, enable: true},
+        where: { branch_id: branchId, enable: true },
         include: [
+          {
+            model: Role,
+            as: 'role',
+            required: true,
+            include: [
+              {
+                model: RoleUser,
+                as: 'roleUser',
+                required: true,
+                where: { user_id: userId },
+              },
+            ],
+          },
           {
             model: MainTask,
             as: 'mainTasks',
@@ -20,7 +55,21 @@ module.exports = (fastify) => {
                     model: STaskInstance,
                     as: 'sTaskInstances',
                     where: {
-                      user_id: userId,
+                      [Op.and]: [
+                        { user_id: userId },
+                        //STaskInstance.sequelize.where(
+                          STaskInstance.sequelize.literal(`CASE
+    WHEN Checklist.type = 'audit' THEN DATE_FORMAT(dateTime, '%m-%Y') = '`+dateTimeMMYYYY+`'
+    ELSE DATE_FORMAT(dateTime, '%d-%m-%Y') = '`+dateTimeStr+`'
+END`)
+                          //STaskInstance.sequelize.fn(
+                          //  'DATE_FORMAT',
+                          //  STaskInstance.sequelize.col('dateTime'),
+                          //  '%d-%m-%Y'
+                          //),
+                          //dateTimeStr
+                       // ),
+                      ],
                     },
                     required: false,
                   },
@@ -31,14 +80,15 @@ module.exports = (fastify) => {
         ],
       });
 
-      const checklistsMap = checkList.map(check => {
+      const checklistsMap = checkList.map((check) => {
         // Inicializar los arrays para subtasks completas e incompletas
+        // console.log(check, ' ------------ ');
         let subtasksComplete = [];
         let subtasksIncomplete = [];
-      
+
         // Iterar sobre las mainTasks y sus subTasks
-        check.mainTasks.forEach(mainTask => {
-          mainTask.subTasks.forEach(subTask => {
+        check.mainTasks.forEach((mainTask) => {
+          mainTask.subTasks.forEach((subTask) => {
             if (subTask.sTaskInstances && subTask.sTaskInstances.length > 0) {
               // La subTask está completa
               subtasksComplete.push(subTask);
@@ -48,29 +98,30 @@ module.exports = (fastify) => {
             }
           });
         });
-      
+
         // Devolver un objeto con los datos de check y los arrays de subtasks
         return {
           id: check.id,
+          role_id: check.role_id,
           name: check.name,
           desc: check.desc,
           type: check.type,
           schedule_start: check.schedule_start,
           subtasksComplete,
-          subtasksIncomplete // ... otros datos de checklist que necesites ...
+          subtasksIncomplete, // ... otros datos de checklist que necesites ...
         };
       });
-  
-      if(!checklistsMap) {
-        throw new Error('No checklist')
+
+      if (!checklistsMap) {
+        throw new Error('No checklist');
       }
-      return checklistsMap
+      return checklistsMap;
     } catch (error) {
-      throw new Error(error)
+      throw new Error(error);
     }
   }
 
   return {
-    getCheckList
-  }
-}
+    getCheckList,
+  };
+};

@@ -1,9 +1,40 @@
 module.exports = (fastify) => {
   const { Checklist, MainTask, SubTask, STaskInstance } = fastify.db;
-  async function getSubTasks(roleid, branchid, limit, userId, checkListId) {
+  const { Op } = require('sequelize');
+
+  async function getSubTasks(
+    roleid,
+    branchid,
+    limit,
+    userId,
+    checkListId,
+    dateTime
+  ) {
     try {
+      var dateTimeStr = '';
+      let dateTimeMMYYYY;
+      var dateSplit = {};
+      //TODO : en front al formatear string date ddMMyyyy
+      if (dateTime) {
+        dateSplit = dateTime.split('/');
+      }
+      if (dateSplit.length == 3) {
+        dateTimeStr =
+          dateSplit[0].padStart(2, '0') +
+          '-' +
+          dateSplit[1].padStart(2, '0') +
+          '-' +
+          dateSplit[2].padStart(4, '0');
+
+          dateTimeMMYYYY =
+          dateSplit[1].padStart(2, '0') +
+          '-' +
+          dateSplit[2].padStart(4, '0');
+      }
+      //console.log('str',dateTimeStr)
+
       const checkLists = await Checklist.findAll({
-        where: { branch_id: branchid, role_id: roleid, id: checkListId},
+        where: { branch_id: branchid, id: checkListId },
         include: [
           {
             model: MainTask,
@@ -18,7 +49,13 @@ module.exports = (fastify) => {
                     model: STaskInstance,
                     as: 'sTaskInstances',
                     where: {
-                      user_id: userId, // Filtra por userId
+                      [Op.and]: [
+                        { user_id: userId },
+                        STaskInstance.sequelize.literal(`CASE
+    WHEN Checklist.type = 'audit' THEN DATE_FORMAT(dateTime, '%m-%Y') = '`+dateTimeMMYYYY+`'
+    ELSE DATE_FORMAT(dateTime, '%d-%m-%Y') = '`+dateTimeStr+`'
+END`)
+                      ],
                     },
                     required: false, // Esto hace que la inclusión sea una left outer join
                   },
@@ -44,7 +81,9 @@ module.exports = (fastify) => {
               subTask.sTaskInstances?.length > 0
                 ? subTask.sTaskInstances[0].comment
                 : null;
-                
+
+            subTask.dataValues.sTaskInstances = subTask.sTaskInstances
+
             subTasks.push(subTask);
           });
         });

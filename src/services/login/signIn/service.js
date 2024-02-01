@@ -1,58 +1,62 @@
 module.exports = (fastify) => {
-  const { User, user_branches, Branches } = fastify.db
+  const { User, RoleUser, Branches, user_branches } = fastify.db;
   async function signIn(email, pwd) {
     try {
-     const user = await User.findOne(
-        { 
-        where: { email, pwd } 
-        ,subQuery: false
-        ,include: [
+      const user = await User.findOne({
+        where: { email, pwd },
+        include: [
           {
-            attributes: ['branch_id'],
+            model: RoleUser,
+            as: 'roleUser',
+            required: true,
+          },
+        
+          {
             model: user_branches,
-            as: 'user_branches',
-            
+            as: 'user_branches',            
             required: false,
             include: [
               {
-                attributes: ['name'],
+                attributes: ['name','patent_url'],
                 model: Branches,
                 as: 'branches',
                 required: true,
               }
           ]
-          }
-      ],
-      order: [
-        [user_branches, 'updatedAt', 'DESC']
-      ],
-    //raw: true
-    })
-      if(!user) {
-        throw new Error('No user')
+          
+          },
+        ],
+        order: [
+          [user_branches, 'updatedAt', 'DESC']
+        ],
+      });
+
+      if (!user) {
+        throw new Error('No user');
       }
 
       
+      console.log('user', JSON.stringify(user))
+      console.log('user2', user.dataValues.user_branches[0].branches.dataValues)
 
-if (user.dataValues.user_branches.length > 0){
-  user.branch_id = user.dataValues.user_branches[0].dataValues.branch_id
-  user.branch_name = user.dataValues.user_branches[0].dataValues.branches.dataValues.name
-}
-/*else{
-  user.branch_id = null
-  user.branch_name = null
-}
-*/
+      const branch_id = user.dataValues.user_branches[0].branch_id;
 
-   
+      const roles = user.dataValues.roleUser.map((item) => {
+        return item.dataValues.role_id;
+      });
 
-      return user
+      const branches = user.dataValues.user_branches.map((user_branches) => {
+        //return {user_branches: branch_id, user_branches: branches.name, user_branches: branches.patent_url};
+        return {branch_id: user_branches.dataValues.branch_id, branch_name: user_branches.dataValues.branches.name, patent_url: user_branches.dataValues.branches.patent_url}
+      });
+
+      return { ...user, roles, branches, branch_id};
     } catch (error) {
-      throw new Error(error)
+      throw new Error(error);
     }
   }
 
   return {
-    signIn
-  }
-}
+    signIn,
+  };
+};

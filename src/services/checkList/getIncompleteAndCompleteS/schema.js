@@ -19,6 +19,9 @@ const schema = {
       },
       userId: {
         type: 'integer'
+      },
+      dateNow: {
+        type: 'string'
       }
     }
   },

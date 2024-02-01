@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
         as: 'user_branches', // Esto es opcional, pero ayuda a definir cómo llamar a la asociación
       })
       // define association here
+      //User.belongsToMany(models.Role, { through: models.RoleUser });
+      User.hasMany(models.RoleUser, {
+        foreignKey: 'user_id',
+        as: 'roleUser',
+      });
     }
   }
   User.init(
