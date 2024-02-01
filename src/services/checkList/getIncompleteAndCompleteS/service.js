@@ -4,7 +4,8 @@ module.exports = (fastify) => {
   const { Op } = require('sequelize');
   async function getCheckList(roleId, userId, branchId, dateTime) {
     try {
-      var dateTimeStr = '', dateTimeMMYYYY = '';
+      var dateTimeStr = '',
+        dateTimeMMYYYY = '';
       var dateSplit = {};
       //TODO : en front al formatear string date ddMMyyyy
       if (dateTime) {
@@ -17,11 +18,9 @@ module.exports = (fastify) => {
           dateSplit[1].padStart(2, '0') +
           '-' +
           dateSplit[2].padStart(4, '0');
-        
+
         dateTimeMMYYYY =
-          dateSplit[1].padStart(2, '0') +
-          '-' +
-          dateSplit[2].padStart(4, '0');
+          dateSplit[1].padStart(2, '0') + '-' + dateSplit[2].padStart(4, '0');
       }
       //console.log('str',dateTimeStr)
 
@@ -58,17 +57,23 @@ module.exports = (fastify) => {
                       [Op.and]: [
                         { user_id: userId },
                         //STaskInstance.sequelize.where(
-                          STaskInstance.sequelize.literal(`CASE
-    WHEN Checklist.type = 'audit' THEN DATE_FORMAT(dateTime, '%m-%Y') = '`+dateTimeMMYYYY+`'
-    ELSE DATE_FORMAT(dateTime, '%d-%m-%Y') = '`+dateTimeStr+`'
-END`)
-                          //STaskInstance.sequelize.fn(
-                          //  'DATE_FORMAT',
-                          //  STaskInstance.sequelize.col('dateTime'),
-                          //  '%d-%m-%Y'
-                          //),
-                          //dateTimeStr
-                       // ),
+                        STaskInstance.sequelize.literal(
+                          `CASE
+    WHEN Checklist.type = 'audit' THEN DATE_FORMAT(dateTime, '%m-%Y') = '` +
+                            dateTimeMMYYYY +
+                            `'
+    ELSE DATE_FORMAT(dateTime, '%d-%m-%Y') = '` +
+                            dateTimeStr +
+                            `'
+END`
+                        ),
+                        //STaskInstance.sequelize.fn(
+                        //  'DATE_FORMAT',
+                        //  STaskInstance.sequelize.col('dateTime'),
+                        //  '%d-%m-%Y'
+                        //),
+                        //dateTimeStr
+                        // ),
                       ],
                     },
                     required: false,
@@ -83,12 +88,18 @@ END`)
       const checklistsMap = checkList.map((check) => {
         // Inicializar los arrays para subtasks completas e incompletas
         // console.log(check, ' ------------ ');
+        let isFinalized = false;
         let subtasksComplete = [];
         let subtasksIncomplete = [];
 
         // Iterar sobre las mainTasks y sus subTasks
         check.mainTasks.forEach((mainTask) => {
           mainTask.subTasks.forEach((subTask) => {
+            if (!isFinalized)
+              isFinalized = subTask.dataValues.sTaskInstances.some(
+                (item) => item.dataValues.comment === 'finalized'
+              );
+
             if (subTask.sTaskInstances && subTask.sTaskInstances.length > 0) {
               // La subTask está completa
               subtasksComplete.push(subTask);
@@ -98,6 +109,11 @@ END`)
             }
           });
         });
+        if (
+          subtasksIncomplete.length === 0 &&
+          check.dataValues.type === 'audit'
+        )
+          isFinalized = true;
 
         // Devolver un objeto con los datos de check y los arrays de subtasks
         return {
@@ -106,6 +122,7 @@ END`)
           name: check.name,
           desc: check.desc,
           type: check.type,
+          isFinalized: isFinalized,
           schedule_start: check.schedule_start,
           subtasksComplete,
           subtasksIncomplete, // ... otros datos de checklist que necesites ...
