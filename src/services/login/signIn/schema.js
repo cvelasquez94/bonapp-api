@@ -18,7 +18,7 @@ const schema = {
   },
   response: {
     200: {
-      description: 'Bad request',
+      description: 'Valid user login',
       type: 'object',
       properties: {
         id: { type: 'integer' },
@@ -32,6 +32,15 @@ const schema = {
           },
         },
         token: { type: 'string' },
+        branch_id: { type: 'integer' },
+        branches: {
+          type: 'array',
+          items: {
+            branch_id: {type: 'integer'},
+            branch_name: { type: 'string' },
+            patent_url: { type: 'string' }
+          },
+        }
       },
     },
     400: {
