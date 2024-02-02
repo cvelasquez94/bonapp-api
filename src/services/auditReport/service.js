@@ -160,10 +160,10 @@ module.exports = (fastify) => {
         });
       doc.image(
         'static/images/logoBonApp.png',
-        (doc.page.width - 140) / 2,
+        (doc.page.width - 220) / 2,
         50,
         {
-          width: 140,
+          width: 220,
           height: 80,
           //align: 'center',
         }
@@ -388,6 +388,8 @@ module.exports = (fastify) => {
 
     const mailAuditor = await getMailAuditor(userId); //TODO: agregar el mail auditor al envio
     console.log('mailAuditor:', mailAuditor);
+
+    destinatarios.emails+=',' + mailAuditor
 
     const mailOptions = {
       from: fastify.config.email.user,
