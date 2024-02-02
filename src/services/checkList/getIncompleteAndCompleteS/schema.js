@@ -6,24 +6,24 @@ const schema = {
     type: 'object',
     properties: {
       branchid: {
-        type: 'string'
+        type: 'string',
       },
       roleid: {
-        type: 'string'
+        type: 'string',
       },
       limit: {
-        type: 'integer'
+        type: 'integer',
       },
       status: {
-        type: 'string'
+        type: 'string',
       },
       userId: {
-        type: 'integer'
+        type: 'integer',
       },
       dateNow: {
-        type: 'string'
-      }
-    }
+        type: 'string',
+      },
+    },
   },
   response: {
     200: {
@@ -37,6 +37,7 @@ const schema = {
           name: { type: 'string' },
           desc: { type: 'string' },
           type: { type: 'string' },
+          isFinalized: { type: 'boolean' },
           enable: { type: 'boolean' },
           schedule_start: { type: ['string', 'null'] },
           schedule_end: { type: ['string', 'null'] },
@@ -55,9 +56,9 @@ const schema = {
                 mainTask_id: { type: 'integer' },
                 status: { tupe: 'string' },
                 createdAt: { type: 'string' },
-                updatedAt: { type: 'string' }
-              }
-            }
+                updatedAt: { type: 'string' },
+              },
+            },
           },
           subtasksIncomplete: {
             type: 'array',
@@ -71,46 +72,46 @@ const schema = {
                 mainTask_id: { type: 'integer' },
                 status: { tupe: 'string' },
                 createdAt: { type: 'string' },
-                updatedAt: { type: 'string' }
-              }
-            }
+                updatedAt: { type: 'string' },
+              },
+            },
           },
-        }
-      }
+        },
+      },
     },
     400: {
       description: 'Bad request',
       type: 'object',
       properties: {
         error: { type: 'string' },
-        message: { type: 'string' }
-      }
+        message: { type: 'string' },
+      },
     },
     401: {
       description: 'Invalid username or password',
       type: 'object',
       properties: {
         error: { type: 'string' },
-        message: { type: 'string' }
-      }
+        message: { type: 'string' },
+      },
     },
     404: {
       description: 'Could not provision',
       type: 'object',
       properties: {
         error: { type: 'string' },
-        message: { type: 'string' }
-      }
+        message: { type: 'string' },
+      },
     },
     500: {
       description: 'Generic server error',
       type: 'object',
       properties: {
         error: { type: 'string' },
-        message: { type: 'string' }
-      }
-    }
-  }
-}
+        message: { type: 'string' },
+      },
+    },
+  },
+};
 
-module.exports = schema
+module.exports = schema;
