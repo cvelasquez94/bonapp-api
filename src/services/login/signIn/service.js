@@ -36,9 +36,6 @@ module.exports = (fastify) => {
       }
 
       
-      //console.log('user', JSON.stringify(user))
-      //console.log('user2', user.dataValues.user_branches[0].branches.dataValues)
-
       const branch_id = user.dataValues.user_branches[0].branch_id;
 
       const roles = user.dataValues.roleUser.map((item) => {
@@ -46,11 +43,10 @@ module.exports = (fastify) => {
       });
 
       const branches = user.dataValues.user_branches.map((user_branches) => {
-        //return {user_branches: branch_id, user_branches: branches.name, user_branches: branches.patent_url};
         return {branch_id: user_branches.dataValues.branch_id, branch_name: user_branches.dataValues.branches.name, patent_url: user_branches.dataValues.branches.patent_url}
       });
 
-      return { ...user, roles, branches, branch_id};
+      return { ...user.dataValues, roles, branches, branch_id};
     } catch (error) {
       throw new Error(error);
     }
