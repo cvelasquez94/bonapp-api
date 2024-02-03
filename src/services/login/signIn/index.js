@@ -26,6 +26,8 @@ const route = async (fastify, opts, next) => {
         branch_id: user.branch_id,
         branches: user.branches,
         token,
+        auditor: user.auditor,
+        checklister: user.checklister,
       });
     }
   });

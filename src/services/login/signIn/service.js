@@ -1,5 +1,5 @@
 module.exports = (fastify) => {
-  const { User, RoleUser, Branches, user_branches } = fastify.db;
+  const { User, RoleUser, Branches, user_branches, Checklist } = fastify.db;
   async function signIn(email, pwd) {
     try {
       const user = await User.findOne({
@@ -36,17 +36,28 @@ module.exports = (fastify) => {
       }
 
       
-      const branch_id = user.dataValues.user_branches[0].branch_id;
+    const branch_id = user.dataValues.user_branches[0].branch_id;
 
-      const roles = user.dataValues.roleUser.map((item) => {
+    const roles = user.dataValues.roleUser.map((item) => {
         return item.dataValues.role_id;
       });
 
-      const branches = user.dataValues.user_branches.map((user_branches) => {
+    const checklists = await Checklist.findAll({
+        where: { role_id: roles },
+        attributes: [Checklist.sequelize.fn('DISTINCT', Checklist.sequelize.col('type')) ,'type'], //['type']
+    });
+
+    let auditor, checklister = false;
+
+    auditor = checklists.some(x => x.type ==='audit')
+    checklister = checklists.some(x => x.type ==='checklist')
+
+    const branches = user.dataValues.user_branches.map((user_branches) => {
         return {branch_id: user_branches.dataValues.branch_id, branch_name: user_branches.dataValues.branches.name, patent_url: user_branches.dataValues.branches.patent_url}
       });
 
-      return { ...user.dataValues, roles, branches, branch_id};
+    return { ...user.dataValues, roles, branches, branch_id, auditor, checklister};
+
     } catch (error) {
       throw new Error(error);
     }

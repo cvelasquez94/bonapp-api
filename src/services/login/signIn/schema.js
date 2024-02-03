@@ -40,7 +40,9 @@ const schema = {
             branch_name: { type: 'string' },
             patent_url: { type: 'string' }
           },
-        }
+        },
+        auditor: { type: 'boolean' },
+        checklister: { type: 'boolean' },
       },
     },
     400: {
