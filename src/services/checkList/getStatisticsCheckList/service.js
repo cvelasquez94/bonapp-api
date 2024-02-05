@@ -67,15 +67,13 @@ module.exports = (fastify) => {
         });
       });
 
-      if (checkList.length) {
         return [
           {
             count: sumTaskClose,
             desc: `checklist finalizadas en ${dateTimeStr}`,
           },
         ];
-      }
-      return [];
+        
     } catch (error) {
       throw new Error(error);
     }

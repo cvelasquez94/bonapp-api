@@ -38,7 +38,9 @@ const schema = {
           items: {
             branch_id: {type: 'integer'},
             branch_name: { type: 'string' },
-            patent_url: { type: 'string' }
+            patent_url: { type: 'string' },
+            restaurant_id: {type: 'integer'},
+            restaurant_name: { type: 'string' },
           },
         }
       },

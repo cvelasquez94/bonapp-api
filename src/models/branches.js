@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'branch_id',
         as: 'user_branches', // Esto es opcional, pero ayuda a definir cómo llamar a la asociación
       });
+      Branches.belongsTo(models.Restaurant, {
+        foreignKey: 'restaurant_id',
+        as: 'Restaurant',
+      });
     }
   }
   Branches.init(
