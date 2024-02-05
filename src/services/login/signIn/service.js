@@ -1,5 +1,5 @@
 module.exports = (fastify) => {
-  const { User, RoleUser, Branches, user_branches } = fastify.db;
+  const { User, RoleUser, Branches, user_branches, Restaurant } = fastify.db;
   async function signIn(email, pwd) {
     try {
       const user = await User.findOne({
@@ -21,6 +21,13 @@ module.exports = (fastify) => {
                 model: Branches,
                 as: 'branches',
                 required: true,
+                include: [
+                  {
+                    attributes: ['id','name'],
+                    model: Restaurant,
+                    as: 'Restaurant',
+                  }
+              ]
               }
           ]
           
@@ -42,8 +49,16 @@ module.exports = (fastify) => {
         return item.dataValues.role_id;
       });
 
+      
+
       const branches = user.dataValues.user_branches.map((user_branches) => {
-        return {branch_id: user_branches.dataValues.branch_id, branch_name: user_branches.dataValues.branches.name, patent_url: user_branches.dataValues.branches.patent_url}
+        return {
+          branch_id: user_branches.dataValues.branch_id, 
+          branch_name: user_branches.dataValues.branches.name, 
+          patent_url: user_branches.dataValues.branches.patent_url,
+          restaurant_id: user_branches.dataValues.branches.Restaurant.id,
+          restaurant_name: user_branches.dataValues.branches.Restaurant.name,
+        }
       });
 
       return { ...user.dataValues, roles, branches, branch_id};

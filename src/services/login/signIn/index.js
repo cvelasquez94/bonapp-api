@@ -8,7 +8,7 @@ const route = async (fastify, opts, next) => {
   fastify.post('/signIn', { schema }, async (request, reply) => {
     const { email, pwd } = request.body;
     const user = await signIn(email, pwd);
-    //    console.log(user);
+        //console.log(user);
     if (user == null) {
       reply.status(401).send({ message: 'Invalid username or password' });
     } else {
