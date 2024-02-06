@@ -4,6 +4,8 @@ const nodemailer = require('nodemailer');
 const fetch = require('node-fetch');
 const Jimp = require('jimp');
 const { Op } = require('sequelize');
+let nameBranch;
+
 async function getOCIBufferedImage(imageUrl) {
   const response = await fetch(imageUrl, {
     method: 'GET',
@@ -31,6 +33,8 @@ module.exports = (fastify) => {
     Branches,
     ReportTo,
     Role,
+    RoleUser,
+    Restaurant,
   } = fastify.db;
 
   async function getMailAuditor(userId) {
@@ -50,14 +54,21 @@ module.exports = (fastify) => {
     //get mails
     const usersRolesDb = await User.findAll({
       attributes: ['email'],
-      where: {
-        role_id: rolesList.map((item) => item.dataValues.Role.dataValues.id),
-      },
+      include: [
+        {
+          model: RoleUser,
+          as: 'roleUser',
+          required: true,
+          where: {
+            role_id: rolesList.map((item) => item.dataValues.Role.dataValues.id),
+          },
+        }],
+      
     });
     const emails = usersRolesDb.map((item) => item.dataValues.email).join(',');
     const destinatarios = rolesList
       .map((item) => item.dataValues.Role.dataValues.name)
-      .join(',');
+      .join(", ");
     return {
       emails,
       destinatarios,
@@ -67,7 +78,25 @@ module.exports = (fastify) => {
   async function getAllDocuments(userId) {
     // Aquí obtendrías todos los registros de la tabla Documents
     // Por ejemplo:
-    return await Document.findAll({ where: { user_id: userId } });
+    
+    const today = new Date();
+    const dateTimeStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${today.getFullYear()} `;
+
+    return await Document.findAll({ where: {
+                    [Op.and]: [
+                      { user_id: userId },
+                      Document.sequelize.where(
+                        Document.sequelize.fn(
+                          'DATE_FORMAT',
+                          Document.sequelize.col('createdAt'),
+                          '%d-%m-%Y'
+                        ),
+                        dateTimeStr
+                      ),
+                    ],
+                  } });
   }
   async function setScoringReport(doc, checkList) {
     const colorText = '#13375B';
@@ -87,7 +116,7 @@ module.exports = (fastify) => {
     doc
       .font('Helvetica')
       .fontSize(13)
-      .text(`Puntaje \n Obtenido:`, doc.x, 260, {
+      .text(`Puntaje \nObtenido:`, doc.x, 260, {
         align: 'left',
       });
     doc
@@ -126,13 +155,14 @@ module.exports = (fastify) => {
         align: 'right',
       });
   }
+
   async function createPdfReport(userId, checkList, branchId, destinatarios) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
 
     const nomUser = await User.findOne({ where: { id: userId } });
-    const nameBranch = await Branches.findOne({ where: { id: branchId } });
-
+    nameBranch = await Branches.findOne({ where: { id: branchId }, include: [{ model: Restaurant, as: 'Restaurant', required: true}] });
+    
     const pdfBuffer = await new Promise(async (resolve, reject) => {
       const doc = new PDFDocument({
         bufferPages: true,
@@ -156,22 +186,23 @@ module.exports = (fastify) => {
       doc
         .fontSize(10)
         .fillColor(colorText)
-        .text(`Fecha : ${today.toLocaleDateString()}`, doc.x, 50, {
+        .text(`Fecha: ${today.toLocaleDateString()}`, doc.x, 50, {
           align: 'left',
         });
       doc.image(
-        'static/images/logoBonApp.png',
-        (doc.page.width - 220) / 2,
+        await getOCIBufferedImage(nameBranch.dataValues.patent_url),
+        (doc.page.width - 90) / 2,
         50,
         {
-          width: 220,
-          height: 80,
+          width: 90,
+          height: 90,
           //align: 'center',
         }
       );
+      
       doc
         .fontSize(10)
-        .text(`Hora : ${today.getHours()}:${today.getMinutes()}`, doc.x, 50, {
+        .text(`Hora: ${today.getHours().toString().padStart(2, '0')}:${today.getMinutes().toString().padStart(2, '0')}`, doc.x, 50, {
           align: 'right',
         });
       doc.moveDown(7);
@@ -208,8 +239,8 @@ module.exports = (fastify) => {
         doc
           .fillColor(colorText)
           .fontSize(14)
-          .text(`DESTINATARIOS : ${destinatarios.destinatarios}`, {
-            width: 410,
+          .text(`DESTINATARIOS: ${destinatarios.destinatarios.replace(", SYSTEM","")}`, {
+            //width: 410,
             align: 'left',
           });
         doc.moveDown();
@@ -402,17 +433,29 @@ module.exports = (fastify) => {
       destinatarios
     );
 
-    const mailAuditor = await getMailAuditor(userId); //TODO: agregar el mail auditor al envio
-    console.log('mailAuditor:', mailAuditor);
+    const mailAuditor = await getMailAuditor(userId);     
 
     destinatarios.emails+=',' + mailAuditor
+
+    console.log('destinatiariosPREV: '+destinatarios.emails)
+        
+
+    const auditDesc = checkList.map((item) => item.dataValues.desc);
     
+    const subject = auditDesc + ' - ' + 
+                    nameBranch.dataValues.Restaurant.name + ' - ' + 
+                    nameBranch.dataValues.name + ' - ' + 
+                    dateTimeStr.replaceAll('-','/')
+
     const mailOptions = {
-      from: fastify.config.email.user,
+      from: {
+        name: 'Audit Bon App',
+        address: fastify.config.email.user
+            },
       to: destinatarios.emails,
       //to: fastify.config.email.audit,
-      subject: 'Informe PDF',
-      text: 'Aquí está tu informe.',
+      subject: subject,
+      text: 'Aquí está tu informe de auditoría.',
       attachments: [
         {
           filename: 'informe.pdf',
@@ -430,7 +473,9 @@ module.exports = (fastify) => {
 
     // Configuración de nodemailer
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: "smtp.dreamhost.com",
+      port: 465,
+      secure: true,
       auth: {
         user: fastify.config.email.user,
         pass: fastify.config.email.pass,
