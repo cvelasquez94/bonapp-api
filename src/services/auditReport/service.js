@@ -346,11 +346,9 @@ module.exports = (fastify) => {
   async function createPDFAndSendEmail(data, email) {
     const { userId, branchId, checkListId } = data;
     const today = new Date();
-    const dateTimeStr1 = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
+    const dateTimeStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
       .toString()
       .padStart(2, '0')}-${today.getFullYear()} `;
-    const dateTimeStr = '05-02-2024'
-    console.log('dateTimeStr: '+dateTimeStr)
     
     const checkList = await Checklist.findAll({
       where: {
@@ -409,8 +407,6 @@ module.exports = (fastify) => {
 
     destinatarios.emails+=',' + mailAuditor
     
-    destinatarios.emails = 'castellino.fernando@kopernicus.tech'
-
     const mailOptions = {
       from: fastify.config.email.user,
       to: destinatarios.emails,
