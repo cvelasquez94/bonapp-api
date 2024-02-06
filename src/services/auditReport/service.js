@@ -3,6 +3,7 @@ const { ReadableStreamBuffer } = require('stream-buffers');
 const nodemailer = require('nodemailer');
 const fetch = require('node-fetch');
 const Jimp = require('jimp');
+const { Op } = require('sequelize');
 async function getOCIBufferedImage(imageUrl) {
   const response = await fetch(imageUrl, {
     method: 'GET',
@@ -344,6 +345,11 @@ module.exports = (fastify) => {
 
   async function createPDFAndSendEmail(data, email) {
     const { userId, branchId, checkListId } = data;
+    const today = new Date();
+    const dateTimeStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${today.getFullYear()} `;
+    
     const checkList = await Checklist.findAll({
       where: {
         id: checkListId,
@@ -364,7 +370,17 @@ module.exports = (fastify) => {
                   model: STaskInstance,
                   as: 'sTaskInstances',
                   where: {
-                    user_id: userId,
+                    [Op.and]: [
+                      { user_id: userId },
+                      STaskInstance.sequelize.where(
+                        STaskInstance.sequelize.fn(
+                          'DATE_FORMAT',
+                          STaskInstance.sequelize.col('dateTime'),
+                          '%d-%m-%Y'
+                        ),
+                        dateTimeStr
+                      ),
+                    ],
                   },
                   required: true, // Esto hace que la inclusión sea una left outer join
                 },
@@ -390,7 +406,7 @@ module.exports = (fastify) => {
     console.log('mailAuditor:', mailAuditor);
 
     destinatarios.emails+=',' + mailAuditor
-
+    
     const mailOptions = {
       from: fastify.config.email.user,
       to: destinatarios.emails,
