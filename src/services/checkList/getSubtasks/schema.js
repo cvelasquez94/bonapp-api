@@ -44,7 +44,8 @@ const schema = {
               type: 'object',
               properties: {
                 comment: {type: 'string'},
-                score: {type: 'integer'}
+                score: {type: 'integer'},
+                status: { type: 'string' },
               }
             }
           }
