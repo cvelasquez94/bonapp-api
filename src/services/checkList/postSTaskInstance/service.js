@@ -53,7 +53,9 @@ module.exports = (fastify) => {
       // Decide si debes actualizar o crear un nuevo registro
       if (existingInstance) {
         // Si viene de auditoría y tiene score o comentario, actualiza
-        if (score >= 0 || comment) {          
+
+        if (score >= 0 || comment || status) {
+
           console.log('existingInstance.update', datapost);
           await existingInstance.update(datapost);
           return existingInstance;
