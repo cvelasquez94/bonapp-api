@@ -34,15 +34,16 @@ module.exports = (fastify) => {
     ReportTo,
     Role,
     RoleUser,
+    user_branches,
     Restaurant,
   } = fastify.db;
 
   async function getMailAuditor(userId) {
     const userAudit = await User.findOne({ where: { id: userId } });
     console.log('mail user audit: ', userAudit.dataValues.email);
-    return userAudit.dataValues.email;
+    return userAudit;
   }
-  async function getDestinatarioAndMails(arrayIdChecklist) {
+  async function getDestinatarioAndMails(arrayIdChecklist, branchId) {
     // obtenemos todo los roles con el array de id checklist
     const rolesList = await ReportTo.findAll({
       attributes: ['Role.id', 'Role.name'],
@@ -61,8 +62,15 @@ module.exports = (fastify) => {
           required: true,
           where: {
             role_id: rolesList.map((item) => item.dataValues.Role.dataValues.id),
-          },
-        }],
+                 },         
+        },
+                    {
+                      model: user_branches,
+                      as: 'user_branches',
+                      required: true,
+                      where: { branch_id: branchId },
+                    }
+        ]
       
     });
     const emails = usersRolesDb.map((item) => item.dataValues.email).join(',');
@@ -425,7 +433,7 @@ module.exports = (fastify) => {
     if (checkList.length == 0) throw new Error('checkList no encontrados');
 
     const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
-    const destinatarios = await getDestinatarioAndMails(arrayIdChecklist);
+    const destinatarios = await getDestinatarioAndMails(arrayIdChecklist, branchId);
     const pdfReport = await createPdfReport(
       userId,
       checkList,
@@ -435,10 +443,10 @@ module.exports = (fastify) => {
 
     const mailAuditor = await getMailAuditor(userId);     
 
-    destinatarios.emails+=',' + mailAuditor
+    destinatarios.emails+=',' + mailAuditor.dataValues.email
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
-        
+
 
     const auditDesc = checkList.map((item) => item.dataValues.desc);
     
@@ -446,6 +454,16 @@ module.exports = (fastify) => {
                     nameBranch.dataValues.Restaurant.name + ' - ' + 
                     nameBranch.dataValues.name + ' - ' + 
                     dateTimeStr.replaceAll('-','/')
+
+    const mailBody = `Estimado equipo,
+
+    Espero que este correo le encuentre bien. Como se acordó previamente, he completado nuestra auditoría programada en su restaurante hoy dia. 
+    Quisiera agradecerles por su cooperación y disposición durante este proceso.
+    Quedo a su disposición para discutir cualquier aspecto de nuestra auditoría en mayor detalle o para brindar asistencia adicional según sea necesario.
+    
+Saludos cordiales, ${mailAuditor.dataValues.firstName}.`
+
+    const attachFileName = `${subject.replaceAll('/','-').replaceAll(' - ','_')}.pdf`
 
     const mailOptions = {
       from: {
@@ -455,10 +473,10 @@ module.exports = (fastify) => {
       to: destinatarios.emails,
       //to: fastify.config.email.audit,
       subject: subject,
-      text: 'Aquí está tu informe de auditoría.',
+      text: mailBody,
       attachments: [
         {
-          filename: 'informe.pdf',
+          filename: attachFileName, //'informe.pdf',
           content: pdfReport,
         },
       ],

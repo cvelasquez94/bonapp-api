@@ -85,6 +85,10 @@ module.exports = (fastify) => {
               isFinalized = subTask.dataValues.sTaskInstances.some(
                 (item) => item.dataValues.comment === 'finalized'
               );
+            if (!isFinalized)
+              isFinalized = subTask.dataValues.sTaskInstances.some(
+                (item) => item.dataValues.status === 'audited'
+              );  
 
             if (subTask.sTaskInstances && subTask.sTaskInstances.length > 0) {
               // La subTask está completa
@@ -94,12 +98,11 @@ module.exports = (fastify) => {
               subtasksIncomplete.push(subTask);
             }
           });
-        });
-        if (
-          subtasksIncomplete.length === 0 &&
+        })
+        
+        /*if (
           check.dataValues.type === 'audit'
-        )
-          isFinalized = true;
+           )*/
 
         // Devolver un objeto con los datos de check y los arrays de subtasks
         return {
