@@ -53,11 +53,15 @@ module.exports = (fastify) => {
       // Decide si debes actualizar o crear un nuevo registro
       if (existingInstance) {
         // Si viene de auditoría y tiene score o comentario, actualiza
+
         if (score >= 0 || comment || status) {
+
+          console.log('existingInstance.update', datapost);
           await existingInstance.update(datapost);
           return existingInstance;
         } else {
-          // Si es checklist y no tiene score ni comentario, elimina
+          // Si es checklist y no tiene score ni comentario, elimina          
+          console.log('existingInstance.destroy', datapost);
           await existingInstance.destroy();
           return { dateTime: '', id: 0, status: '', subTask_id: 0, user_id: 0 };
         }
