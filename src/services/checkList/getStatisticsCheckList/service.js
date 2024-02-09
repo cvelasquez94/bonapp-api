@@ -1,5 +1,5 @@
 module.exports = (fastify) => {
-  const { Checklist, MainTask, SubTask, STaskInstance } = fastify.db;
+  const { Checklist, MainTask, SubTask, STaskInstance, Role, RoleUser } = fastify.db;
   const { Op } = require('sequelize');
   async function getstatisticsCheckList(userId, branchId, dateTime) {
     try {
@@ -16,10 +16,60 @@ module.exports = (fastify) => {
         const today = new Date();
         dateTimeStr = `${(today.getMonth() + 1)
           .toString()
-          .padStart(2, '0')}-${today.getFullYear()} `;
+          .padStart(2, '0')}-${today.getFullYear()}`;
       }
 
       console.log('str date', dateTimeStr);
+
+      const checkTypes = await Checklist.findAll({
+        where: { branch_id: branchId, enable: true },
+        include: [
+          {
+            model: Role,
+            as: 'role',
+            required: true,
+            include: [
+              {
+                model: RoleUser,
+                as: 'roleUser',
+                required: true,
+                where: { user_id: userId },
+              },
+            ],
+          },
+          {
+            model: MainTask,
+            as: 'mainTasks',
+            required: true,
+            include: [
+              {
+                model: SubTask,
+                as: 'subTasks',
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+
+
+      const flagAudit = checkTypes.some((item) => {
+           {return item.dataValues.type === 'audit';}
+      });
+
+      console.log(flagAudit)
+
+      const flagCheck = checkTypes.some((item) => {
+        {return item.dataValues.type === 'checklist';}
+   });
+
+   console.log(flagCheck)
+
+   let sumTaskClose=-1
+   let sumAuditClose=-1
+   let arrRet=[]
+
+   if(flagCheck){
 
       const checkList = await Checklist.findAll({
         include: [
@@ -60,13 +110,20 @@ module.exports = (fastify) => {
         where: { branch_id: branchId, enable: true },
       });
 
-      let sumTaskClose = 0;
+      sumTaskClose = 0;
       checkList.map((item) => {
         item.dataValues.mainTasks.map((item) => {
           sumTaskClose += item.dataValues.subTasks.length;
         });
       });
 
+      arrRet=[...arrRet, {
+        count: sumTaskClose,
+        desc: `checklists finalizadas.`,
+      },]
+    }
+
+    if(flagAudit){
       
       const checkAudit = await Checklist.sequelize.query(
         "SELECT COUNT(DISTINCT CONCAT(`Checklist`.`id`,DATE_FORMAT(`dateTime`, '%d-%m-%Y'))) as countt " +
@@ -84,24 +141,20 @@ module.exports = (fastify) => {
 
       console.log('aud'+JSON.stringify(checkAudit))
 
-      let sumAuditClose = 0;
+      sumAuditClose = 0;
 
       checkAudit.map((item) => {
         sumAuditClose = item[0].countt;
       });
 
-      
-        return [
-          {
-            count: sumTaskClose,
-            desc: `checklist finalizadas en ${dateTimeStr}`,
-          },
-          {
-            count: sumAuditClose,
-            desc: `auditoriías finalizadas en ${dateTimeStr}`,
-          },
-        ];
-        
+      arrRet=[...arrRet, {
+        count: sumAuditClose,
+        desc: `auditorías finalizadas.`,
+      },]
+    }
+
+    return arrRet
+
     } catch (error) {
       throw new Error(error);
     }
