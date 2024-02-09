@@ -190,9 +190,8 @@ module.exports = (fastify) => {
 
       const documents = await getAllDocuments(userId, arraySTkaskIds);
       const imageMap = mapImagesToSubtasks(documents);
-      console.log(documents)
       console.log(imageMap)
-      return;
+      
       const today = new Date();
       doc
         .fontSize(10)
@@ -451,7 +450,7 @@ module.exports = (fastify) => {
       destinatarios,
       arraySTkaskIds[0]
     );
-    return;
+    
     const mailAuditor = await getMailAuditor(userId);     
 
     destinatarios.emails+=',' + mailAuditor.dataValues.email
