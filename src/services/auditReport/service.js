@@ -83,26 +83,26 @@ module.exports = (fastify) => {
     };
   }
 
-  async function getAllDocuments(userId) {
+  async function getAllDocuments(userId, arraySTkaskIds) {
     // Aquí obtendrías todos los registros de la tabla Documents
     // Por ejemplo:
     
     const today = new Date();
     const dateTimeStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
       .toString()
-      .padStart(2, '0')}-${today.getFullYear()} `;
+      .padStart(2, '0')}-${today.getFullYear()}`;
 
     return await Document.findAll({ where: {
                     [Op.and]: [
-                      { user_id: userId },
-                      Document.sequelize.where(
-                        Document.sequelize.fn(
-                          'DATE_FORMAT',
-                          Document.sequelize.col('createdAt'),
-                          '%d-%m-%Y'
-                        ),
-                        dateTimeStr
-                      ),
+                      { user_id: userId, staskInstance_id: arraySTkaskIds},
+                      // Document.sequelize.where(
+                      //   Document.sequelize.fn(
+                      //     'DATE_FORMAT',
+                      //     Document.sequelize.col('createdAt'),
+                      //     '%d-%m-%Y'
+                      //   ),
+                      //   dateTimeStr
+                      // ),
                     ],
                   } });
   }
@@ -164,7 +164,7 @@ module.exports = (fastify) => {
       });
   }
 
-  async function createPdfReport(userId, checkList, branchId, destinatarios) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios, arraySTkaskIds) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
 
@@ -188,8 +188,11 @@ module.exports = (fastify) => {
       let scoreAcum = 0;
       let scoreCant = 0;
 
-      const documents = await getAllDocuments(userId);
+      const documents = await getAllDocuments(userId, arraySTkaskIds);
       const imageMap = mapImagesToSubtasks(documents);
+      console.log(documents)
+      console.log(imageMap)
+      return;
       const today = new Date();
       doc
         .fontSize(10)
@@ -387,7 +390,7 @@ module.exports = (fastify) => {
     const today = new Date();
     const dateTimeStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
       .toString()
-      .padStart(2, '0')}-${today.getFullYear()} `;
+      .padStart(2, '0')}-${today.getFullYear()}`;
     
     const checkList = await Checklist.findAll({
       where: {
@@ -432,15 +435,23 @@ module.exports = (fastify) => {
 
     if (checkList.length == 0) throw new Error('checkList no encontrados');
 
+    const arraySTkaskIds = checkList[0].dataValues.mainTasks.map((item) => 
+              item.subTasks.map((item) =>{
+                  return item.dataValues.sTaskInstances[0].id})
+                );
+                
+    console.log(arraySTkaskIds[0])
+
     const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
     const destinatarios = await getDestinatarioAndMails(arrayIdChecklist, branchId);
     const pdfReport = await createPdfReport(
       userId,
       checkList,
       branchId,
-      destinatarios
+      destinatarios,
+      arraySTkaskIds[0]
     );
-
+    return;
     const mailAuditor = await getMailAuditor(userId);     
 
     destinatarios.emails+=',' + mailAuditor.dataValues.email
