@@ -24,7 +24,11 @@ const schema = {
         user_id: {
           type: 'integer',
           description: '',
-      }
+      },
+      dateTime: {
+        type: 'string',
+        description: 'date'
+      },
       }
     },
     response: {
