@@ -3,23 +3,9 @@ module.exports = (fastify) => {
     const { Op } = require('sequelize');
     async function postImage(data) {
       try {
-        console.log(data)
+      console.log(data)
 
-      let dateTimeStr = '';
-      let dateSplit = {};
-      //TODO : en front al formatear string date ddMMyyyy
-      if (data.dateTime) {
-        dateSplit = data.dateTime.split('/');
-      }
-      if (dateSplit.length == 3) {
-        dateTimeStr =
-          dateSplit[0].padStart(2, '0') +
-          '-' +
-          dateSplit[1].padStart(2, '0') +
-          '-' +
-          dateSplit[2].padStart(4, '0');
-      }
-        
+      
         const existingInstance = await STaskInstance.findOne({
           where: {
             [Op.and]: [
@@ -30,7 +16,7 @@ module.exports = (fastify) => {
                   STaskInstance.sequelize.col('dateTime'),
                   '%d-%m-%Y'
                 ),
-                dateTimeStr
+                data.dateNow
               ),
             ],
           },

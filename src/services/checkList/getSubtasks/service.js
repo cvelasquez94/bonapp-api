@@ -8,24 +8,30 @@ module.exports = (fastify) => {
     limit,
     userId,
     checkListId,
-    dateTime
+    dateNow
   ) {
     try {
-      var dateTimeStr = '';
-      var dateSplit = {};
-      //TODO : en front al formatear string date ddMMyyyy
-      if (dateTime) {
-        dateSplit = dateTime.split('/');
+      let dateTimeStr = '';
+      //dateNow ahora viene del front dd-mm-yyyy
+
+      //TODO quitar esto dsp de release apk
+      const tieneBarra = dateNow.indexOf('/');
+      if(tieneBarra>0){
+          let dateSplit = dateNow.split('/');
+        if (dateSplit.length == 3) {
+          dateTimeStr =
+            dateSplit[0].padStart(2, '0') +
+            '-' +
+            dateSplit[1].padStart(2, '0') +
+            '-' +
+            dateSplit[2].padStart(4, '0');
+          }
       }
-      if (dateSplit.length == 3) {
-        dateTimeStr =
-          dateSplit[0].padStart(2, '0') +
-          '-' +
-          dateSplit[1].padStart(2, '0') +
-          '-' +
-          dateSplit[2].padStart(4, '0');
+      else{
+        dateTimeStr = dateNow;
       }
-      //console.log('str',dateTimeStr)
+
+      console.log('dateNow: ', dateTimeStr);
 
       const checkLists = await Checklist.findAll({
         where: { branch_id: branchid, id: checkListId },

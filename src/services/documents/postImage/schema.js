@@ -25,7 +25,7 @@ const schema = {
           type: 'integer',
           description: '',
       },
-      dateTime: {
+      dateNow: {
         type: 'string',
         description: 'date'
       },
