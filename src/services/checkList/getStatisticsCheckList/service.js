@@ -68,6 +68,56 @@ module.exports = (fastify) => {
 
    if(flagCheck){
 
+      const checkTypes = await Checklist.findAll({
+        where: { branch_id: branchId, enable: true },
+        include: [
+          {
+            model: Role,
+            as: 'role',
+            required: true,
+            include: [
+              {
+                model: RoleUser,
+                as: 'roleUser',
+                required: true,
+                where: { user_id: userId },
+              },
+            ],
+          },
+          {
+            model: MainTask,
+            as: 'mainTasks',
+            required: true,
+            include: [
+              {
+                model: SubTask,
+                as: 'subTasks',
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+
+
+      const flagAudit = checkTypes.some((item) => {
+           {return item.dataValues.type === 'audit';}
+      });
+
+      console.log(flagAudit)
+
+      const flagCheck = checkTypes.some((item) => {
+        {return item.dataValues.type === 'checklist';}
+   });
+
+   console.log(flagCheck)
+
+   let sumTaskClose=-1
+   let sumAuditClose=-1
+   let arrRet=[]
+
+   if(flagCheck){
+
       const checkList = await Checklist.findAll({
         include: [
           {
