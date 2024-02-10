@@ -1,25 +1,72 @@
 module.exports = (fastify) => {
-  const { Checklist, MainTask, SubTask, STaskInstance } = fastify.db;
+  const { Checklist, MainTask, SubTask, STaskInstance, Role, RoleUser } = fastify.db;
   const { Op } = require('sequelize');
-  async function getstatisticsCheckList(userId, branchId, dateTime) {
+  async function getstatisticsCheckList(userId, branchId, dateNow) {
     try {
       let dateTimeStr = '';
-      let dateSplit = {};
-      //TODO : en front al formatear string date ddMMyyyy
-      if (dateTime) {
-        dateSplit = dateTime.split('/');
-        if (dateSplit.length == 3) {
-          dateTimeStr =
-            dateSplit[1].padStart(2, '0') + '-' + dateSplit[2].padStart(4, '0');
-        }
+      //dateNow ahora viene del front dd-mm-yyyy
+      if (dateNow) {
+        dateTimeStr = dateNow.substr(dateNow.indexOf('-')+1)
       } else {
-        const today = new Date();
-        dateTimeStr = `${(today.getMonth() + 1)
-          .toString()
-          .padStart(2, '0')}-${today.getFullYear()} `;
+        //TODO quitar esto dsp de release apk
+        now = new Date();
+        const offset = now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+        const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
+        console.log(localDateTime)
+        dateTimeStr = `${(localDateTime.getMonth()+1).toString().padStart(2, '0')}-${localDateTime.getFullYear()}`;
       }
 
-      console.log('str date', dateTimeStr);
+      console.log('dateNow: ', dateTimeStr);
+
+      const checkTypes = await Checklist.findAll({
+        where: { branch_id: branchId, enable: true },
+        include: [
+          {
+            model: Role,
+            as: 'role',
+            required: true,
+            include: [
+              {
+                model: RoleUser,
+                as: 'roleUser',
+                required: true,
+                where: { user_id: userId },
+              },
+            ],
+          },
+          {
+            model: MainTask,
+            as: 'mainTasks',
+            required: true,
+            include: [
+              {
+                model: SubTask,
+                as: 'subTasks',
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+
+
+      const flagAudit = checkTypes.some((item) => {
+           {return item.dataValues.type === 'audit';}
+      });
+
+      console.log(flagAudit)
+
+      const flagCheck = checkTypes.some((item) => {
+        {return item.dataValues.type === 'checklist';}
+      });
+
+      console.log(flagCheck)
+
+   let sumTaskClose=-1
+   let sumAuditClose=-1
+   let arrRet=[]
+
+   if(flagCheck){
 
       const checkList = await Checklist.findAll({
         include: [
@@ -60,13 +107,20 @@ module.exports = (fastify) => {
         where: { branch_id: branchId, enable: true },
       });
 
-      let sumTaskClose = 0;
+      sumTaskClose = 0;
       checkList.map((item) => {
         item.dataValues.mainTasks.map((item) => {
           sumTaskClose += item.dataValues.subTasks.length;
         });
       });
 
+      arrRet=[...arrRet, {
+        count: sumTaskClose,
+        desc: `checklists finalizadas.`,
+      },]
+    }
+
+    if(flagAudit){
       
       const checkAudit = await Checklist.sequelize.query(
         "SELECT COUNT(DISTINCT CONCAT(`Checklist`.`id`,DATE_FORMAT(`dateTime`, '%d-%m-%Y'))) as countt " +
@@ -84,24 +138,20 @@ module.exports = (fastify) => {
 
       console.log('aud'+JSON.stringify(checkAudit))
 
-      let sumAuditClose = 0;
+      sumAuditClose = 0;
 
       checkAudit.map((item) => {
         sumAuditClose = item[0].countt;
       });
 
-      
-        return [
-          {
-            count: sumTaskClose,
-            desc: `checklist finalizadas en ${dateTimeStr}`,
-          },
-          {
-            count: sumAuditClose,
-            desc: `auditoriías finalizadas en ${dateTimeStr}`,
-          },
-        ];
-        
+      arrRet=[...arrRet, {
+        count: sumAuditClose,
+        desc: `auditorías finalizadas.`,
+      },]
+    }
+
+    return arrRet
+
     } catch (error) {
       throw new Error(error);
     }

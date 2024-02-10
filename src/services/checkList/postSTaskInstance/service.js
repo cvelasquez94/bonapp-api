@@ -14,18 +14,29 @@ module.exports = (fastify) => {
     dateNow,
   }) {
     try {
-      let datapost = { dateTime };
       let dateTimeStr = '';
-      let dateSplit = {};
-      //TODO : en front al formatear string date ddMMyyyy
-      const today = new Date();
-      dateTimeStr = `${today.getDate().toString().padStart(2, '0')}-${(
-        today.getMonth() + 1
-      )
-        .toString()
-        .padStart(2, '0')}-${today.getFullYear()} `;
+      //dateNow ahora viene del front dd-mm-yyyy
 
-      console.log('str', dateTimeStr);
+      //TODO quitar esto dsp de release apk
+      const tieneBarra = dateNow.indexOf('/');
+      if(tieneBarra>0){
+          let dateSplit = dateNow.split('/');
+        if (dateSplit.length == 3) {
+          dateTimeStr =
+            dateSplit[0].padStart(2, '0') +
+            '-' +
+            dateSplit[1].padStart(2, '0') +
+            '-' +
+            dateSplit[2].padStart(4, '0');
+          }
+      }
+      else{
+        dateTimeStr = dateNow;
+      }
+
+      console.log('dateNow: ', dateTimeStr);
+
+      let datapost = { dateTime };
 
       // Busca un registro existente
       const existingInstance = await STaskInstance.findOne({
@@ -48,7 +59,6 @@ module.exports = (fastify) => {
       if (comment) datapost.comment = comment;
       if (score >= 0) datapost.score = score;
       if (photo) datapost.photo = photo;
-      console.log('datapost update', datapost);
 
       // Decide si debes actualizar o crear un nuevo registro
       if (existingInstance) {
