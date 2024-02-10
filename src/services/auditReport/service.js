@@ -83,26 +83,21 @@ module.exports = (fastify) => {
     };
   }
 
-  async function getAllDocuments(userId) {
+  async function getAllDocuments(userId, arraySTkaskIds, dateTimeStr) {
     // Aquí obtendrías todos los registros de la tabla Documents
     // Por ejemplo:
     
-    const today = new Date();
-    const dateTimeStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${today.getFullYear()} `;
-
     return await Document.findAll({ where: {
                     [Op.and]: [
-                      { user_id: userId },
-                      Document.sequelize.where(
-                        Document.sequelize.fn(
-                          'DATE_FORMAT',
-                          Document.sequelize.col('createdAt'),
-                          '%d-%m-%Y'
-                        ),
-                        dateTimeStr
-                      ),
+                      { user_id: userId, staskInstance_id: arraySTkaskIds},
+                      // Document.sequelize.where(
+                      //   Document.sequelize.fn(
+                      //     'DATE_FORMAT',
+                      //     Document.sequelize.col('createdAt'),
+                      //     '%d-%m-%Y'
+                      //   ),
+                      //   dateTimeStr
+                      // ),
                     ],
                   } });
   }
@@ -164,7 +159,7 @@ module.exports = (fastify) => {
       });
   }
 
-  async function createPdfReport(userId, checkList, branchId, destinatarios) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios, arraySTkaskIds, dateTimeStr) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
 
@@ -188,13 +183,17 @@ module.exports = (fastify) => {
       let scoreAcum = 0;
       let scoreCant = 0;
 
-      const documents = await getAllDocuments(userId);
+      const documents = await getAllDocuments(userId, arraySTkaskIds, dateTimeStr);
       const imageMap = mapImagesToSubtasks(documents);
-      const today = new Date();
+      console.log(imageMap)
+      
+      now = new Date();
+      const offset = now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+      const today = new Date(now - offset); // Ajustar la hora al tiempo local
       doc
         .fontSize(10)
         .fillColor(colorText)
-        .text(`Fecha: ${today.toLocaleDateString()}`, doc.x, 50, {
+        .text(`Fecha: ${dateTimeStr}`, doc.x, 50, {
           align: 'left',
         });
       doc.image(
@@ -382,13 +381,23 @@ module.exports = (fastify) => {
     return imageMap;
   } // to do validar que las imagenes sean del dia/today
 
-  async function createPDFAndSendEmail(data, email) {
-    const { userId, branchId, checkListId } = data;
-    const today = new Date();
-    const dateTimeStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${today.getFullYear()} `;
-    
+  async function createPDFAndSendEmail(data) {
+    const { userId, branchId, checkListId, dateNow } = data;
+
+    let dateTimeStr = '';
+      //dateNow ahora viene del front dd-mm-yyyy
+      if (dateNow) {
+        dateTimeStr = dateNow
+      } else {
+        //TODO quitar esto dsp de release apk
+        now = new Date();
+        const offset = now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+        const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
+        dateTimeStr = `${localDateTime.getDate().toString().padStart(2, '0')}-${(localDateTime.getMonth()+1).toString().padStart(2, '0')}-${localDateTime.getFullYear()}`;
+      }
+
+      console.log('dateNow: ', dateTimeStr);
+
     const checkList = await Checklist.findAll({
       where: {
         id: checkListId,
@@ -432,15 +441,28 @@ module.exports = (fastify) => {
 
     if (checkList.length == 0) throw new Error('checkList no encontrados');
 
+    let arraySTkaskIds = []
+
+    checkList[0].dataValues.mainTasks.forEach((item) => 
+              {
+              item.subTasks.forEach((item) =>{
+                  arraySTkaskIds.push(item.dataValues.sTaskInstances[0].id)})
+              });
+                
+    console.log(arraySTkaskIds)
+
+
     const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
     const destinatarios = await getDestinatarioAndMails(arrayIdChecklist, branchId);
     const pdfReport = await createPdfReport(
       userId,
       checkList,
       branchId,
-      destinatarios
+      destinatarios,
+      arraySTkaskIds,
+      dateTimeStr
     );
-
+    
     const mailAuditor = await getMailAuditor(userId);     
 
     destinatarios.emails+=',' + mailAuditor.dataValues.email

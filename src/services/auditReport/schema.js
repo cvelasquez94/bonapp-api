@@ -14,6 +14,9 @@ const schema = {
       checkListId: {
         type: 'string',
       },
+      dateNow: {
+        type: 'string',
+      },
     },
   },
   response: {
