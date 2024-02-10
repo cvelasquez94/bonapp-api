@@ -14,30 +14,22 @@ module.exports = (fastify) => {
     dateNow,
   }) {
     try {
+      
+      let datapost = { dateTime };
       let dateTimeStr = '';
       //dateNow ahora viene del front dd-mm-yyyy
-
-      //TODO quitar esto dsp de release apk
-      const tieneBarra = dateNow.indexOf('/');
-      if(tieneBarra>0){
-          let dateSplit = dateNow.split('/');
-        if (dateSplit.length == 3) {
-          dateTimeStr =
-            dateSplit[0].padStart(2, '0') +
-            '-' +
-            dateSplit[1].padStart(2, '0') +
-            '-' +
-            dateSplit[2].padStart(4, '0');
-          }
-      }
-      else{
-        dateTimeStr = dateNow;
+      if (dateNow) {
+        dateTimeStr = dateNow
+      } else {
+        //TODO quitar esto dsp de release apk
+        now = new Date();
+        const offset = now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+        const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
+        dateTimeStr = `${localDateTime.getDate().toString().padStart(2, '0')}-${(localDateTime.getMonth()+1).toString().padStart(2, '0')}-${localDateTime.getFullYear()}`;
       }
 
       console.log('dateNow: ', dateTimeStr);
-
-      let datapost = { dateTime };
-
+      
       // Busca un registro existente
       const existingInstance = await STaskInstance.findOne({
         where: {
