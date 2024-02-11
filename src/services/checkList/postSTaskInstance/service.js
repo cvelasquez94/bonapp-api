@@ -17,6 +17,7 @@ module.exports = (fastify) => {
       
       let datapost = { dateTime };
       let dateTimeStr = '';
+      
       //dateNow ahora viene del front dd-mm-yyyy
       if (dateNow) {
         dateTimeStr = dateNow
@@ -26,10 +27,11 @@ module.exports = (fastify) => {
         now = new Date();
         const offset = now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
         const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
-        console.log('localDateTime: ', localDateTime);
-        dateTimeStr = `${localDateTime.getDate().toString().padStart(2, '0')}-${(localDateTime.getMonth()+1).toString().padStart(2, '0')}-${localDateTime.getFullYear()}`;
+        console.log('localDateTime: ', localDateTime, ' offset: ', offset);
+        dateTimeStr = `${localDateTime.getUTCDate().toString().padStart(2, '0')}-${(localDateTime.getUTCMonth()+1).toString().padStart(2, '0')}-${localDateTime.getUTCFullYear()}`;
       }
 
+      console.log('dateTimeStr: ', dateTimeStr);
 
       // Busca un registro existente
       const existingInstance = await STaskInstance.findOne({
