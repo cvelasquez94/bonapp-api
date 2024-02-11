@@ -110,8 +110,10 @@ module.exports = (fastify) => {
 
       sumTaskClose = 0;
       checkList.map((item) => {
-        item.dataValues.mainTasks.map((item) => {
-          sumTaskClose += item.dataValues.subTasks.length;
+        item.dataValues.mainTasks.map((mainTasks) => {
+          mainTasks.dataValues.subTasks.map((subTasks) => {
+            sumTaskClose += subTasks.dataValues.sTaskInstances.length;
+            });
         });
       });
 
