@@ -10,7 +10,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Document.belongsTo(models.STaskInstance, {
+        foreignKey: 'staskInstance_id',
+        as: 'documents' // Este es un alias opcional
+      })
     }
   }
   Document.init({

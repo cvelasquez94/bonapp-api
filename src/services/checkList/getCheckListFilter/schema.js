@@ -63,7 +63,6 @@ const schema = {
                       desc: { type: 'string' },
                       expiration: { type: ['string', 'null'] },
                       mainTask_id: { type: 'integer' },
-                      status: { tupe: 'string' },
                       createdAt: { type: 'string' },
                       updatedAt: { type: 'string' }
                     }
