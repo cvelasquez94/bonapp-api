@@ -17,7 +17,7 @@ module.exports = (fastify) => {
             required: false,
             include: [
               {
-                attributes: ['name','patent_url'],
+                attributes: ['name','short_name','patent_url'],
                 model: Branches,
                 as: 'branches',
                 required: true,
@@ -55,6 +55,7 @@ module.exports = (fastify) => {
         return {
           branch_id: user_branches.dataValues.branch_id, 
           branch_name: user_branches.dataValues.branches.name, 
+          branch_short_name: user_branches.dataValues.branches.short_name, 
           patent_url: user_branches.dataValues.branches.patent_url,
           restaurant_id: user_branches.dataValues.branches.Restaurant.id,
           restaurant_name: user_branches.dataValues.branches.Restaurant.name,
