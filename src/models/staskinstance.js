@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'subTask_id',
         as: 'sTaskInstances',
       });
+      STaskInstance.hasMany(models.Document, {
+        foreignKey: 'staskInstance_id',
+        as: 'documents' // Este es un alias opcional
+      });
     }
   }
   STaskInstance.init(

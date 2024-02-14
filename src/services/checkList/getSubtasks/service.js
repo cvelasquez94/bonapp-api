@@ -1,5 +1,5 @@
 module.exports = (fastify) => {
-  const { Checklist, MainTask, SubTask, STaskInstance } = fastify.db;
+  const { Checklist, MainTask, SubTask, STaskInstance, Document } = fastify.db;
   const { Op } = require('sequelize');
 
   async function getSubTasks(
@@ -62,6 +62,13 @@ module.exports = (fastify) => {
                       ],
                     },
                     required: false, // Esto hace que la inclusión sea una left outer join
+                    include: [
+                      {
+                        model: Document,
+                        as: 'documents',
+                        required: false, // Esto hace que la inclusión sea una left outer join
+                      },
+                    ],
                   },
                 ],
               },

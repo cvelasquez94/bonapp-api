@@ -46,6 +46,17 @@ const schema = {
                 comment: {type: 'string'},
                 score: {type: 'integer'},
                 status: { type: 'string' },
+                documents : {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: {type: 'integer'},
+                      name: {type: 'string'},
+                      url: { type: 'string' },
+                    }
+                  }
+                }
               }
             }
           }
