@@ -190,6 +190,11 @@ module.exports = (fastify) => {
       now = new Date();
       const offset = now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
       const today = new Date(now - offset); // Ajustar la hora al tiempo local
+      console.log('offset: '+offset+' now: '+now)
+      console.log('today: ' +today)
+      console.log(`Hora UTC ${today.getUTCHours().toString().padStart(2, '0')}:${today.getUTCMinutes().toString().padStart(2, '0')}`)
+      console.log(`Hora get ${today.getHours().toString().padStart(2, '0')}:${today.getMinutes().toString().padStart(2, '0')}`)
+
       doc
         .fontSize(10)
         .fillColor(colorText)
@@ -227,7 +232,7 @@ module.exports = (fastify) => {
           .font('Helvetica')
           .fontSize(18)
           .fillColor(colorText)
-          .text(`${nameBranch.dataValues.name}`, {
+          .text(`${nameBranch.dataValues.short_name}`, {
             align: 'center',
           });
         doc
@@ -471,13 +476,21 @@ module.exports = (fastify) => {
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
 
+    
+
+    const dateTimeSplit = dateTimeStr.split('-');
+
+    const fechaYYYYmmDD = `${dateTimeSplit[2]}-${dateTimeSplit[1]}-${dateTimeSplit[0]}`
+
 
     const auditDesc = checkList.map((item) => item.dataValues.desc);
     
     const subject = auditDesc + ' - ' + 
-                    nameBranch.dataValues.Restaurant.name + ' - ' + 
-                    nameBranch.dataValues.name + ' - ' + 
-                    dateTimeStr.replaceAll('-','/')
+                    //nameBranch.dataValues.Restaurant.name + ' - ' + 
+                    nameBranch.dataValues.short_name + ' - ' + 
+                    fechaYYYYmmDD //dateTimeStr.replaceAll('-','/')
+    
+    const attachFileName = `${subject.replaceAll('-','_').replaceAll(' _ ','_')}.pdf`
 
     const mailBody = `Estimado equipo,
 
@@ -487,7 +500,6 @@ module.exports = (fastify) => {
     
 Saludos cordiales, ${mailAuditor.dataValues.firstName}.`
 
-    const attachFileName = `${subject.replaceAll('/','-').replaceAll(' - ','_')}.pdf`
 
     const mailOptions = {
       from: {
