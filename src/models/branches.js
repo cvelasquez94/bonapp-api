@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
   Branches.init(
     {
       name: DataTypes.STRING,
+      short_name: DataTypes.STRING,
       address: DataTypes.STRING,
       rut: DataTypes.STRING,
       patent_url: DataTypes.STRING,
