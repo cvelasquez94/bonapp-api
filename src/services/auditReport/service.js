@@ -188,7 +188,7 @@ module.exports = (fastify) => {
       console.log(imageMap)
       
       now = new Date();
-      const offset = now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+      const offset = 180 * 60000; //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
       const today = new Date(now - offset); // Ajustar la hora al tiempo local
       console.log('offset: '+offset+' now: '+now)
       console.log('today: ' +today)
@@ -274,7 +274,7 @@ module.exports = (fastify) => {
             .text(`${mainTask.dataValues.name}`, {
               align: 'left',
             });
-          listMain++;
+          
           listSub = 1;
           doc.moveDown();
 
@@ -283,13 +283,14 @@ module.exports = (fastify) => {
               .font('Helvetica')
               .fontSize(13)
               .fillColor(colorText)
-              .text(`${listSub}) ${subTask.dataValues.name}`, {
+              .text(`${listMain}) ${subTask.dataValues.name}`, {
                 align: 'left',
                 // indent: 20,
                 // textIndent: 20,
               });
 
             listSub++;
+            listMain++;
             const comment =
               subTask.sTaskInstances?.length > 0
                 ? subTask.sTaskInstances[0].comment
@@ -397,7 +398,7 @@ module.exports = (fastify) => {
       } else {
         //TODO quitar esto dsp de release apk
         now = new Date();
-        const offset = now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+        const offset = 180 * 60000; //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
         const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
         console.log('localDateTime: ', localDateTime, ' offset: ', offset);
         dateTimeStr = `${localDateTime.getUTCDate().toString().padStart(2, '0')}-${(localDateTime.getUTCMonth()+1).toString().padStart(2, '0')}-${localDateTime.getUTCFullYear()}`;
@@ -444,6 +445,7 @@ module.exports = (fastify) => {
           ],
         },
       ],
+      order: [[SubTask.sequelize.col('mainTasks.orden'), 'ASC'],[SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC']]
     });
 
     if (checkList.length == 0) throw new Error('checkList no encontrados');
@@ -476,7 +478,7 @@ module.exports = (fastify) => {
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
 
-    
+
 
     const dateTimeSplit = dateTimeStr.split('-');
 

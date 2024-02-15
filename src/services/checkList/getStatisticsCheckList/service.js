@@ -10,7 +10,7 @@ module.exports = (fastify) => {
       } else {
         //TODO quitar esto dsp de release apk
         now = new Date();
-        const offset = now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+        const offset = 180 * 60000; //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
         const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
         console.log(localDateTime)
         dateTimeStr = `${(localDateTime.getMonth()+1).toString().padStart(2, '0')}-${localDateTime.getFullYear()}`;
@@ -19,7 +19,7 @@ module.exports = (fastify) => {
       console.log('dateNow: ', dateTimeStr);
 
       const checkTypes = await Checklist.findAll({
-        where: { branch_id: branchId, enable: true },
+        where: { branch_id: branchId },
         include: [
           {
             model: Role,
@@ -105,7 +105,7 @@ module.exports = (fastify) => {
             ],
           },
         ],
-        where: { branch_id: branchId, enable: true },
+        where: { branch_id: branchId },
       });
 
       sumTaskClose = 0;
@@ -132,7 +132,7 @@ module.exports = (fastify) => {
         " INNER JOIN `STaskInstances` AS `mainTasks->subTasks->sTaskInstances` ON `mainTasks->subTasks`.`id` = `mainTasks->subTasks->sTaskInstances`.`subTask_id`  " +
         " AND (`mainTasks->subTasks->sTaskInstances`.`user_id` = :user AND DATE_FORMAT(`dateTime`, '%m-%Y') = '"+dateTimeStr+"')  " +
         " AND `mainTasks->subTasks->sTaskInstances`.`status` = 'audited'  " +
-        " WHERE `Checklist`.`branch_id` = :branch AND `Checklist`.`enable` = true;",
+        " WHERE `Checklist`.`branch_id` = :branch ;",
         {
           replacements: { user: userId, branch: branchId},
         },

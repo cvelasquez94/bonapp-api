@@ -28,7 +28,7 @@ module.exports = (fastify) => {
 
 
       const checkList = await Checklist.findAll({
-        where: { branch_id: branchId, enable: true },
+        where: { branch_id: branchId },
         include: [
           {
             model: Role,
@@ -44,12 +44,12 @@ module.exports = (fastify) => {
             ],
           },
           {
-            model: MainTask,
+            model: MainTask.scope('defaultScope'),
             as: 'mainTasks',
             required: true,
             include: [
               {
-                model: SubTask,
+                model: SubTask.scope('defaultScope'),
                 as: 'subTasks',
                 required: true,
                 include: [
@@ -76,6 +76,7 @@ module.exports = (fastify) => {
             ],
           },
         ],
+        order: [[Checklist.sequelize.col('id'), 'ASC'],[SubTask.sequelize.col('mainTasks.orden'), 'ASC'],[SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC']]
       });
 
       const checklistsMap = checkList.map((check) => {

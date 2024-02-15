@@ -37,11 +37,11 @@ module.exports = (fastify) => {
         where: { branch_id: branchid, id: checkListId },
         include: [
           {
-            model: MainTask,
+            model: MainTask.scope('defaultScope'),
             as: 'mainTasks',
             include: [
               {
-                model: SubTask,
+                model: SubTask.scope('defaultScope'),
                 as: 'subTasks',
                 include: [
                   {
@@ -75,8 +75,11 @@ module.exports = (fastify) => {
             ],
           },
         ],
+        order: [[Checklist.sequelize.col('id'), 'ASC'],[SubTask.sequelize.col('mainTasks.orden'), 'ASC'],[SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC']]
       });
-      console.log(JSON.stringify(checkLists));
+
+      //console.log(JSON.stringify(checkLists));
+
       // Aplana los resultados para obtener solo subTasks
       let subTasks = [];
       checkLists.forEach((checklist) => {

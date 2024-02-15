@@ -1,6 +1,6 @@
 'use strict'
 const {
-  Model
+  Model, Op
 } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class SubTask extends Model {
@@ -27,8 +27,20 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     desc: DataTypes.STRING,
     expiration: DataTypes.DATE,
-    mainTask_id: DataTypes.INTEGER
-  }, {
+    mainTask_id: DataTypes.INTEGER,
+    orden: DataTypes.INTEGER,
+    enable: DataTypes.TINYINT,
+    },
+    {
+      defaultScope: {
+        where: {
+          enable: {
+            [Op.gt]: 0
+          }
+        },
+        order: [['orden', 'ASC']]
+      },
+    
     sequelize,
     modelName: 'SubTask',
   })

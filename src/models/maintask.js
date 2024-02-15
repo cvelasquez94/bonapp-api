@@ -1,5 +1,5 @@
 'use strict';
-const { Model } = require('sequelize');
+const { Model, Op } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class MainTask extends Model {
     /**
@@ -29,11 +29,22 @@ module.exports = (sequelize, DataTypes) => {
       schedule_start: DataTypes.DATE,
       schedule_end: DataTypes.DATE,
       checkList_id: DataTypes.INTEGER,
+      orden: DataTypes.INTEGER,
+      enable: DataTypes.TINYINT,
     },
     {
+      defaultScope: {
+        where: {
+          enable: {
+            [Op.gt]: 0
+          }
+        },
+        order: [['orden', 'ASC']]
+      },
+    
       sequelize,
       modelName: 'MainTask',
-    }
+    },
   );
   return MainTask;
 };
