@@ -38,11 +38,13 @@ const schema = {
           mainTask_id: { type: 'integer' },
           createdAt: { type: 'string' },
           updatedAt: { type: 'string' },
+          orden: { type: 'integer' },
           sTaskInstances : {
             type: 'array',
             items: {
               type: 'object',
               properties: {
+                id: {type: 'integer'},
                 comment: {type: 'string'},
                 score: {type: 'integer'},
                 status: { type: 'string' },

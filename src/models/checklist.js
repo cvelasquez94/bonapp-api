@@ -1,5 +1,5 @@
 'use strict';
-const { Model } = require('sequelize');
+const { Model, Op } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Checklist extends Model {
     /**
@@ -30,12 +30,21 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       desc: DataTypes.STRING,
       type: DataTypes.STRING,
-      enable: DataTypes.BOOLEAN,
+      enable: DataTypes.TINYINT,
       schedule_start: DataTypes.DATE,
       schedule_end: DataTypes.DATE,
       branch_id: DataTypes.INTEGER,
     },
+    
     {
+      defaultScope: {
+        where: {
+          enable: {
+            [Op.gt]: 0
+          }
+        }
+      },
+    
       sequelize,
       modelName: 'Checklist',
     }
