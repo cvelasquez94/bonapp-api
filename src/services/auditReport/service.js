@@ -3,6 +3,7 @@ const { ReadableStreamBuffer } = require('stream-buffers');
 const nodemailer = require('nodemailer');
 const fetch = require('node-fetch');
 const Jimp = require('jimp');
+const imageSize = require('image-size')
 const { Op } = require('sequelize');
 let nameBranch;
 
@@ -319,10 +320,20 @@ module.exports = (fastify) => {
               // Obtener la imagen como un buffer
               const imageBuffer = await getOCIBufferedImage(ociImageUrl);
 
+              //resize de la imagen para que no se deforme:
+              const maxWidth = 310
+              const maxHeight = 420
+
+              const dimension = imageSize(imageBuffer)
+
+              const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height);
+              console.log(dimension.width+' x '+ dimension.height +' = ratio = '+ratio)
+
+
               // Agregar la imagen al PDF
 
               // logica para agregar salto de pagina cuando supere el alto de pagina
-              if (doc.page.height - doc.y - doc.page.margins.bottom < 200)
+              if (doc.page.height - doc.y - doc.page.margins.bottom < maxHeight)
                 doc.addPage();
               doc
                 .image(
@@ -333,12 +344,13 @@ module.exports = (fastify) => {
                     //fit: [200, 200],
                     align: 'center',
                     valign: 'center',
-                    width: 300,
-                    height: 200,
+                    width: dimension.width*ratio,
+                    height: dimension.height*ratio,
                   }
                 )
                 .stroke();
-              doc.moveDown();
+                doc.moveDown();
+                doc.moveDown();
             }
           }
         }
@@ -478,7 +490,7 @@ module.exports = (fastify) => {
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
 
-
+    destinatarios.emails='castellino.fernando@kopernicus.tech'
 
     const dateTimeSplit = dateTimeStr.split('-');
 
