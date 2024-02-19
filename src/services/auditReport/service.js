@@ -84,24 +84,6 @@ module.exports = (fastify) => {
     };
   }
 
-  async function getAllDocuments(userId, arraySTkaskIds, dateTimeStr) {
-    // Aquí obtendrías todos los registros de la tabla Documents
-    // Por ejemplo:
-    
-    return await Document.findAll({ where: {
-                    [Op.and]: [
-                      { user_id: userId, staskInstance_id: arraySTkaskIds},
-                      // Document.sequelize.where(
-                      //   Document.sequelize.fn(
-                      //     'DATE_FORMAT',
-                      //     Document.sequelize.col('createdAt'),
-                      //     '%d-%m-%Y'
-                      //   ),
-                      //   dateTimeStr
-                      // ),
-                    ],
-                  } });
-  }
   async function setScoringReport(doc, checkList) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
@@ -111,8 +93,8 @@ module.exports = (fastify) => {
       check.dataValues.mainTasks.forEach((main) => {
         main.dataValues.subTasks.forEach((sub) => {
           sub.dataValues.sTaskInstances.forEach((stack) => {
-            sumScore += stack.dataValues.score || 0;
-            maxScore++;
+            sumScore += ( stack.dataValues.score || 0 ) * sub.dataValues.scoreMultiplier;
+            maxScore += 2 * sub.dataValues.scoreMultiplier;
           });
         });
       });
@@ -141,7 +123,7 @@ module.exports = (fastify) => {
       .font('Helvetica-Bold')
       .fontSize(40)
       .fillColor(colorLine)
-      .text(`${maxScore * 2}`, doc.x, 300, {
+      .text(`${maxScore}`, doc.x, 300, {
         align: 'center',
       });
     doc
@@ -155,12 +137,12 @@ module.exports = (fastify) => {
       .font('Helvetica-Bold')
       .fontSize(40)
       .fillColor(colorLine)
-      .text(`${parseInt((sumScore / (maxScore * 2)) * 100)}%`, doc.x, 300, {
+      .text(`${parseInt((sumScore / (maxScore)) * 100)}%`, doc.x, 300, {
         align: 'right',
       });
   }
 
-  async function createPdfReport(userId, checkList, branchId, destinatarios, arraySTkaskIds, dateTimeStr) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
 
@@ -180,13 +162,6 @@ module.exports = (fastify) => {
         resolve(pdfData);
       });
 
-      // Agregar contenido al PDF
-      let scoreAcum = 0;
-      let scoreCant = 0;
-
-      const documents = await getAllDocuments(userId, arraySTkaskIds, dateTimeStr);
-      const imageMap = mapImagesToSubtasks(documents);
-      console.log(imageMap)
       
       now = new Date();
       const offset = 180 * 60000; //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
@@ -284,7 +259,7 @@ module.exports = (fastify) => {
               .font('Helvetica')
               .fontSize(13)
               .fillColor(colorText)
-              .text(`${listMain}) ${subTask.dataValues.name}`, {
+              .text(`${listMain}) ${subTask.dataValues.name} (${subTask.dataValues.scoreMultiplier})`, {
                 align: 'left',
                 // indent: 20,
                 // textIndent: 20,
@@ -304,25 +279,23 @@ module.exports = (fastify) => {
 
             const score =
               subTask.sTaskInstances?.length > 0
-                ? subTask.sTaskInstances[0].score
+                ? subTask.sTaskInstances[0].score * subTask.dataValues.scoreMultiplier
                 : 0;
-            scoreAcum += score;
-            scoreCant++;
+                
             doc
               .font('Helvetica-Bold')
               .fontSize(13)
               .text(`Score: ${score}`, { align: 'left', indent: 20 });
             doc.moveDown();
 
-            const imageName = imageMap[subTask.id];
-            if (imageName) {
-              const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${imageName}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
+            for (const image of subTask.sTaskInstances[0].documents) {
+              const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${image.name}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
               // Obtener la imagen como un buffer
               const imageBuffer = await getOCIBufferedImage(ociImageUrl);
 
               //resize de la imagen para que no se deforme:
-              const maxWidth = 310
-              const maxHeight = 420
+              const maxWidth = 340
+              const maxHeight = 340
 
               const dimension = imageSize(imageBuffer)
 
@@ -333,12 +306,12 @@ module.exports = (fastify) => {
               // Agregar la imagen al PDF
 
               // logica para agregar salto de pagina cuando supere el alto de pagina
-              if (doc.page.height - doc.y - doc.page.margins.bottom < maxHeight)
+              if (doc.page.height - doc.y - doc.page.margins.bottom < dimension.height*ratio)
                 doc.addPage();
               doc
                 .image(
                   imageBuffer,
-                  (doc.page.width - doc.page.margins.bottom * 2 - 200) / 2,
+                  (doc.page.width - dimension.width*ratio) / 2,
                   doc.y,
                   {
                     //fit: [200, 200],
@@ -388,16 +361,6 @@ module.exports = (fastify) => {
     return pdfBuffer;
   }
 
-  // Función para mapear los nombres de las imágenes a los IDs de las subtasks
-  function mapImagesToSubtasks(documents) {
-    const imageMap = {};
-    documents.forEach((doc) => {
-      const parts = doc.name.split('_'); // Esto asume que el nombre sigue el formato "item_ID_user_USERID_TIMESTAMP"
-      const subtaskId = parts[1]; // Obtener el ID de la subtask
-      imageMap[subtaskId] = doc.name; // Asociar el nombre de la imagen con el ID de la subtask
-    });
-    return imageMap;
-  } // to do validar que las imagenes sean del dia/today
 
   async function createPDFAndSendEmail(data) {
     const { userId, branchId, checkListId, dateNow } = data;
@@ -451,6 +414,13 @@ module.exports = (fastify) => {
                     ],
                   },
                   required: true, // Esto hace que la inclusión sea una left outer join
+                  include: [
+                    {
+                      model: Document,
+                      as: 'documents',
+                      required: false, // Esto hace que la inclusión sea una left outer join
+                    },
+                  ],
                 },
               ],
             },
@@ -462,17 +432,6 @@ module.exports = (fastify) => {
 
     if (checkList.length == 0) throw new Error('checkList no encontrados');
 
-    let arraySTkaskIds = []
-
-    checkList[0].dataValues.mainTasks.forEach((item) => 
-              {
-              item.subTasks.forEach((item) =>{
-                  arraySTkaskIds.push(item.dataValues.sTaskInstances[0].id)})
-              });
-                
-    console.log(arraySTkaskIds)
-
-
     const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
     const destinatarios = await getDestinatarioAndMails(arrayIdChecklist, branchId);
     const pdfReport = await createPdfReport(
@@ -480,7 +439,6 @@ module.exports = (fastify) => {
       checkList,
       branchId,
       destinatarios,
-      arraySTkaskIds,
       dateTimeStr
     );
     
@@ -490,7 +448,7 @@ module.exports = (fastify) => {
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
 
-    destinatarios.emails='castellino.fernando@kopernicus.tech'
+
 
     const dateTimeSplit = dateTimeStr.split('-');
 
