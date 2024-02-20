@@ -1,8 +1,7 @@
 const PDFDocument = require('pdfkit');
-const { ReadableStreamBuffer } = require('stream-buffers');
 const nodemailer = require('nodemailer');
 const fetch = require('node-fetch');
-const Jimp = require('jimp');
+const imageSize = require('image-size')
 const { Op } = require('sequelize');
 let nameBranch;
 
@@ -83,24 +82,6 @@ module.exports = (fastify) => {
     };
   }
 
-  async function getAllDocuments(userId, arraySTkaskIds, dateTimeStr) {
-    // Aquí obtendrías todos los registros de la tabla Documents
-    // Por ejemplo:
-    
-    return await Document.findAll({ where: {
-                    [Op.and]: [
-                      { user_id: userId, staskInstance_id: arraySTkaskIds},
-                      // Document.sequelize.where(
-                      //   Document.sequelize.fn(
-                      //     'DATE_FORMAT',
-                      //     Document.sequelize.col('createdAt'),
-                      //     '%d-%m-%Y'
-                      //   ),
-                      //   dateTimeStr
-                      // ),
-                    ],
-                  } });
-  }
   async function setScoringReport(doc, checkList) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
@@ -110,8 +91,8 @@ module.exports = (fastify) => {
       check.dataValues.mainTasks.forEach((main) => {
         main.dataValues.subTasks.forEach((sub) => {
           sub.dataValues.sTaskInstances.forEach((stack) => {
-            sumScore += stack.dataValues.score || 0;
-            maxScore++;
+            sumScore += ( stack.dataValues.score || 0 ) * sub.dataValues.scoreMultiplier;
+            maxScore += 2 * sub.dataValues.scoreMultiplier;
           });
         });
       });
@@ -140,7 +121,7 @@ module.exports = (fastify) => {
       .font('Helvetica-Bold')
       .fontSize(40)
       .fillColor(colorLine)
-      .text(`${maxScore * 2}`, doc.x, 300, {
+      .text(`${maxScore}`, doc.x, 300, {
         align: 'center',
       });
     doc
@@ -154,12 +135,12 @@ module.exports = (fastify) => {
       .font('Helvetica-Bold')
       .fontSize(40)
       .fillColor(colorLine)
-      .text(`${parseInt((sumScore / (maxScore * 2)) * 100)}%`, doc.x, 300, {
+      .text(`${parseInt((sumScore / (maxScore)) * 100)}%`, doc.x, 300, {
         align: 'right',
       });
   }
 
-  async function createPdfReport(userId, checkList, branchId, destinatarios, arraySTkaskIds, dateTimeStr) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
 
@@ -169,7 +150,7 @@ module.exports = (fastify) => {
     const pdfBuffer = await new Promise(async (resolve, reject) => {
       const doc = new PDFDocument({
         bufferPages: true,
-        margin: 50,
+        margin: 30,
         size: 'A4',
       });
       const buffers = [];
@@ -179,16 +160,11 @@ module.exports = (fastify) => {
         resolve(pdfData);
       });
 
-      // Agregar contenido al PDF
-      let scoreAcum = 0;
-      let scoreCant = 0;
-
-      const documents = await getAllDocuments(userId, arraySTkaskIds, dateTimeStr);
-      const imageMap = mapImagesToSubtasks(documents);
-      console.log(imageMap)
+//let fs = require('fs')
+//doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
       
       now = new Date();
-      const offset = 180 * 60000; //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+      const offset = 180 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
       const today = new Date(now - offset); // Ajustar la hora al tiempo local
       console.log('offset: '+offset+' now: '+now)
       console.log('today: ' +today)
@@ -198,13 +174,13 @@ module.exports = (fastify) => {
       doc
         .fontSize(10)
         .fillColor(colorText)
-        .text(`Fecha: ${dateTimeStr}`, doc.x, 50, {
+        .text(`Fecha: ${dateTimeStr}`, doc.x, 30, {
           align: 'left',
         });
       doc.image(
         await getOCIBufferedImage(nameBranch.dataValues.patent_url),
         (doc.page.width - 90) / 2,
-        50,
+        30,
         {
           width: 90,
           height: 90,
@@ -214,7 +190,7 @@ module.exports = (fastify) => {
       
       doc
         .fontSize(10)
-        .text(`Hora: ${today.getUTCHours().toString().padStart(2, '0')}:${today.getUTCMinutes().toString().padStart(2, '0')}`, doc.x, 50, {
+        .text(`Hora: ${today.getUTCHours().toString().padStart(2, '0')}:${today.getUTCMinutes().toString().padStart(2, '0')}`, doc.x, 30, {
           align: 'right',
         });
       doc.moveDown(7);
@@ -283,7 +259,7 @@ module.exports = (fastify) => {
               .font('Helvetica')
               .fontSize(13)
               .fillColor(colorText)
-              .text(`${listMain}) ${subTask.dataValues.name}`, {
+              .text(`${listMain}) ${subTask.dataValues.name} (${subTask.dataValues.scoreMultiplier})`, {
                 align: 'left',
                 // indent: 20,
                 // textIndent: 20,
@@ -303,42 +279,68 @@ module.exports = (fastify) => {
 
             const score =
               subTask.sTaskInstances?.length > 0
-                ? subTask.sTaskInstances[0].score
+                ? subTask.sTaskInstances[0].score * subTask.dataValues.scoreMultiplier
                 : 0;
-            scoreAcum += score;
-            scoreCant++;
+                
             doc
               .font('Helvetica-Bold')
               .fontSize(13)
               .text(`Score: ${score}`, { align: 'left', indent: 20 });
             doc.moveDown();
 
-            const imageName = imageMap[subTask.id];
-            if (imageName) {
-              const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${imageName}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
+            let enter = 0;
+            let cantImg = subTask.sTaskInstances[0].documents.length;
+            let counterImage = 0;
+            let imagey = doc.y;
+            for (const image of subTask.sTaskInstances[0].documents) {
+              const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${image.name}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
               // Obtener la imagen como un buffer
               const imageBuffer = await getOCIBufferedImage(ociImageUrl);
+
+              //resize de la imagen para que no se deforme:
+              const maxWidth = 250
+              const maxHeight = 235
+
+              const dimension = imageSize(imageBuffer)
+
+              const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height);
+              console.log(dimension.width+' x '+ dimension.height +' = ratio = '+ratio)
+
 
               // Agregar la imagen al PDF
 
               // logica para agregar salto de pagina cuando supere el alto de pagina
-              if (doc.page.height - doc.y - doc.page.margins.bottom < 200)
-                doc.addPage();
-              doc
-                .image(
+              if (enter == 0 && (doc.page.height - doc.y - doc.page.margins.bottom) < dimension.height*ratio)
+                {
+                  doc.addPage();
+                  imagey = doc.y;
+                }
+
+              //Tamaño de a4 en pixeles es: 595.28 x 841.89. Con margen sup e inf 30, queda centrado y entran 6 por pag.  
+              doc.image(
                   imageBuffer,
-                  (doc.page.width - doc.page.margins.bottom * 2 - 200) / 2,
-                  doc.y,
+                  40+(enter * 250), //(doc.page.width - dimension.width*ratio) / 2,
+                  imagey,
                   {
-                    //fit: [200, 200],
+                    fit: [250, 250],
                     align: 'center',
                     valign: 'center',
-                    width: 300,
-                    height: 200,
+                    width: dimension.width*ratio,
+                    height: dimension.height*ratio,
                   }
                 )
                 .stroke();
-              doc.moveDown();
+
+              doc.y = imagey +250;
+
+              enter++;
+              counterImage++;
+              if(enter > 1 || cantImg == counterImage){
+                enter = 0;
+                doc.moveDown();
+                imagey = doc.y;
+                
+              }
             }
           }
         }
@@ -360,7 +362,7 @@ module.exports = (fastify) => {
           .text(
             `Página ${i + 1} de ${range.count}`,
             doc.page.width / 2 - 40,
-            doc.page.height - 50,
+            doc.page.height - 20,
             {
               lineBreak: false,
               //align: 'justify',
@@ -370,22 +372,12 @@ module.exports = (fastify) => {
 
       // manually flush pages that have been buffered
       doc.flushPages();
-
-      doc.end();
+    
+    doc.end();
     });
     return pdfBuffer;
   }
 
-  // Función para mapear los nombres de las imágenes a los IDs de las subtasks
-  function mapImagesToSubtasks(documents) {
-    const imageMap = {};
-    documents.forEach((doc) => {
-      const parts = doc.name.split('_'); // Esto asume que el nombre sigue el formato "item_ID_user_USERID_TIMESTAMP"
-      const subtaskId = parts[1]; // Obtener el ID de la subtask
-      imageMap[subtaskId] = doc.name; // Asociar el nombre de la imagen con el ID de la subtask
-    });
-    return imageMap;
-  } // to do validar que las imagenes sean del dia/today
 
   async function createPDFAndSendEmail(data) {
     const { userId, branchId, checkListId, dateNow } = data;
@@ -398,7 +390,7 @@ module.exports = (fastify) => {
       } else {
         //TODO quitar esto dsp de release apk
         now = new Date();
-        const offset = 180 * 60000; //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+        const offset = 180 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
         const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
         console.log('localDateTime: ', localDateTime, ' offset: ', offset);
         dateTimeStr = `${localDateTime.getUTCDate().toString().padStart(2, '0')}-${(localDateTime.getUTCMonth()+1).toString().padStart(2, '0')}-${localDateTime.getUTCFullYear()}`;
@@ -439,6 +431,13 @@ module.exports = (fastify) => {
                     ],
                   },
                   required: true, // Esto hace que la inclusión sea una left outer join
+                  include: [
+                    {
+                      model: Document,
+                      as: 'documents',
+                      required: false, // Esto hace que la inclusión sea una left outer join
+                    },
+                  ],
                 },
               ],
             },
@@ -450,17 +449,6 @@ module.exports = (fastify) => {
 
     if (checkList.length == 0) throw new Error('checkList no encontrados');
 
-    let arraySTkaskIds = []
-
-    checkList[0].dataValues.mainTasks.forEach((item) => 
-              {
-              item.subTasks.forEach((item) =>{
-                  arraySTkaskIds.push(item.dataValues.sTaskInstances[0].id)})
-              });
-                
-    console.log(arraySTkaskIds)
-
-
     const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
     const destinatarios = await getDestinatarioAndMails(arrayIdChecklist, branchId);
     const pdfReport = await createPdfReport(
@@ -468,7 +456,6 @@ module.exports = (fastify) => {
       checkList,
       branchId,
       destinatarios,
-      arraySTkaskIds,
       dateTimeStr
     );
     
@@ -479,6 +466,7 @@ module.exports = (fastify) => {
     console.log('destinatiariosPREV: '+destinatarios.emails)
 
 
+    
 
     const dateTimeSplit = dateTimeStr.split('-');
 

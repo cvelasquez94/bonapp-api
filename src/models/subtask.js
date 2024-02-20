@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     expiration: DataTypes.DATE,
     mainTask_id: DataTypes.INTEGER,
     orden: DataTypes.INTEGER,
+    scoreMultiplier: DataTypes.INTEGER,
     enable: DataTypes.TINYINT,
     },
     {
