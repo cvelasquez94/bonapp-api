@@ -39,6 +39,7 @@ const schema = {
           createdAt: { type: 'string' },
           updatedAt: { type: 'string' },
           orden: { type: 'integer' },
+          scoreMultiplier: { type: 'integer' },
           sTaskInstances : {
             type: 'array',
             items: {
