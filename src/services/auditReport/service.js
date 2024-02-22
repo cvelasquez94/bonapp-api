@@ -16,9 +16,34 @@ async function getOCIBufferedImage(imageUrl) {
   if (!response.ok) {
     throw new Error(`Failed to fetch image: ${response.statusText}`);
   }
-
   // Convertir a ArrayBuffer y luego a Buffer
-  return response.buffer();
+  return response.buffer()
+}
+
+const getImageFromBucket = async (url) => {
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Authorization: 'Basic U1JWX2JvbmFwcDo3SVZKdW4xNC48TH1URVBJaEIzKQ==', // Asegúrate de incluir la autorización correcta
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.statusText}`);
+  }
+
+  return response.buffer()
+}
+
+const getAllDocuments = async (docs) => {
+  const peticiones = docs.map( async (docs) => {
+    const url = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${docs.dataValues.name}`
+    return  await getImageFromBucket(url)
+     .then((ret) => {
+      return {docs, buff: ret}
+      })
+  })
+  return await Promise.all(peticiones)
 }
 
 module.exports = (fastify) => {
@@ -140,7 +165,7 @@ module.exports = (fastify) => {
       });
   }
 
-  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr,docBuffers) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
 
@@ -293,9 +318,14 @@ module.exports = (fastify) => {
             let counterImage = 0;
             let imagey = doc.y;
             for (const image of subTask.sTaskInstances[0].documents) {
-              const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${image.name}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
+              //const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${image.name}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
               // Obtener la imagen como un buffer
-              const imageBuffer = await getOCIBufferedImage(ociImageUrl);
+              //const imageBuffer = await getOCIBufferedImage(ociImageUrl);
+
+              console.log(image.name+ '; '+image.staskInstance_id)
+              const findDoc = docBuffers.find(dc => dc.docs.dataValues.name === image.name);
+
+              const imageBuffer = findDoc.buff
 
               //resize de la imagen para que no se deforme:
               const maxWidth = 250
@@ -449,6 +479,23 @@ module.exports = (fastify) => {
 
     if (checkList.length == 0) throw new Error('checkList no encontrados');
 
+    let docs = [];
+    checkList.forEach((check) => {
+      check.dataValues.mainTasks.forEach((main) => {
+        main.dataValues.subTasks.forEach((sub) => {
+          sub.dataValues.sTaskInstances.forEach((stask) => {
+            if (stask.documents.length > 0 )
+              stask.documents.forEach((doc) => {
+                docs.push(doc)
+              });
+          });
+        });
+      });
+    });
+    
+    const docBuffers = await getAllDocuments(docs)
+
+
     const arrayIdChecklist = checkList.map((item) => item.dataValues.id); // UNIQUE ID CHECKLIST
     const destinatarios = await getDestinatarioAndMails(arrayIdChecklist, branchId);
     const pdfReport = await createPdfReport(
@@ -456,7 +503,8 @@ module.exports = (fastify) => {
       checkList,
       branchId,
       destinatarios,
-      dateTimeStr
+      dateTimeStr,
+      docBuffers,
     );
     
     const mailAuditor = await getMailAuditor(userId);     
