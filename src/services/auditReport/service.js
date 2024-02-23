@@ -165,9 +165,10 @@ module.exports = (fastify) => {
       });
   }
 
-  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr,docBuffers) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr, docBuffers, finalComment) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
+    const colorLineComment = '#4EDF45';
 
     const nomUser = await User.findOne({ where: { id: userId } });
     nameBranch = await Branches.findOne({ where: { id: branchId }, include: [{ model: Restaurant, as: 'Restaurant', required: true}] });
@@ -185,8 +186,8 @@ module.exports = (fastify) => {
         resolve(pdfData);
       });
 
-//let fs = require('fs')
-//doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
+let fs = require('fs')
+doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
       
       now = new Date();
       const offset = 180 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
@@ -258,18 +259,54 @@ module.exports = (fastify) => {
           });
         doc.moveDown();
 
-        //doc.moveDown();
-        let listMain = 1;
-        let listSub = 1;
-        for (const mainTask of task.mainTasks) {
+        if(finalComment){
+          doc
+            .lineCap('round')
+            .moveTo(doc.page.margins.left, doc.y)
+            .lineTo(doc.page.width - doc.page.margins.left, doc.y)
+            .stroke(colorLineComment);
+          doc.moveDown();
+
+          doc
+          .fillColor(colorText)
+          .fontSize(14)
+          .text(`Resumen de la visita:`, {
+            align: 'left',
+          });
+
+          doc
+            .fontSize(13)
+            .font('Helvetica')
+            .fillColor(colorText)
+            .text(`${finalComment}`, {
+              align: 'left', indent: 50 
+            });
+            
+          doc.moveDown();
+
+          doc
+            .lineCap('round')
+            .moveTo(doc.page.margins.left, doc.y)
+            .lineTo(doc.page.width - doc.page.margins.left, doc.y)
+            .stroke(colorLineComment);
+          doc.moveDown();
+
+        }
+        else {
           doc
             .lineCap('round')
             .moveTo(doc.page.margins.left, doc.y)
             .lineTo(doc.page.width - doc.page.margins.left, doc.y)
             .stroke(colorLine);
           doc.moveDown();
+        }
 
+        //doc.moveDown();
+        let listMain = 1;
+        let listSub = 1;
+        for (const mainTask of task.mainTasks) {
           doc
+            .font('Helvetica-Bold')
             .fontSize(13)
             .fillColor(colorText)
             .text(`${mainTask.dataValues.name}`, {
@@ -410,7 +447,7 @@ module.exports = (fastify) => {
 
 
   async function createPDFAndSendEmail(data) {
-    const { userId, branchId, checkListId, dateNow } = data;
+    const { userId, branchId, checkListId, dateNow, comment } = data;
 
     let dateTimeStr = '';
       //dateNow ahora viene del front dd-mm-yyyy
@@ -505,6 +542,7 @@ module.exports = (fastify) => {
       destinatarios,
       dateTimeStr,
       docBuffers,
+      comment,
     );
     
     const mailAuditor = await getMailAuditor(userId);     
@@ -513,7 +551,7 @@ module.exports = (fastify) => {
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
 
-
+//destinatarios.emails='castellino.fernando@kopernicus.tech'
     
 
     const dateTimeSplit = dateTimeStr.split('-');

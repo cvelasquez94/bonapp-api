@@ -17,6 +17,9 @@ const schema = {
       dateNow: {
         type: 'string',
       },
+      comment: {
+        type: 'string',
+      },
     },
   },
   response: {
