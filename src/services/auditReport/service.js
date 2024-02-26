@@ -60,6 +60,7 @@ module.exports = (fastify) => {
     RoleUser,
     user_branches,
     Restaurant,
+    ReportInstances,
   } = fastify.db;
 
   async function getMailAuditor(userId) {
@@ -186,8 +187,8 @@ module.exports = (fastify) => {
         resolve(pdfData);
       });
 
-let fs = require('fs')
-doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
+//let fs = require('fs')
+//doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
       
       now = new Date();
       const offset = 180 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
@@ -279,7 +280,7 @@ doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
             .font('Helvetica')
             .fillColor(colorText)
             .text(`${finalComment}`, {
-              align: 'left', indent: 50 
+              align: 'left', indent: 50
             });
             
           doc.moveDown();
@@ -551,7 +552,6 @@ doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
 
-//destinatarios.emails='castellino.fernando@kopernicus.tech'
     
 
     const dateTimeSplit = dateTimeStr.split('-');
@@ -613,6 +613,27 @@ Saludos cordiales, ${mailAuditor.dataValues.firstName}.`
     });
     // Enviar correo
     await transporter.sendMail(mailOptions);
+
+    const dataInsert = {
+      name: attachFileName,
+      url: attachFileName,
+      comment: comment,
+      subject: subject,
+      mailTo: destinatarios.emails,
+      size: pdfReport.length,
+      dateNow: dateTimeStr,
+      checklist_id: checkListId,
+      branch_id: branchId,
+      user_id: userId,
+    }
+    console.log(dataInsert)
+
+    const instance = await ReportInstances.create(dataInsert);
+    if (!instance) {
+      console.log(dataInsert)
+      throw new Error('Error insertando ReportInstances, Mail OK');
+    }
+
   }
 
   return {
