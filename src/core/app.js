@@ -54,6 +54,9 @@ async function app() {
   fastify.register(require('../services/documents/postImage'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/documents/deleteImage'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.ready((err) => {
     if (err) throw err;
   });
