@@ -60,6 +60,7 @@ module.exports = (fastify) => {
     RoleUser,
     user_branches,
     Restaurant,
+    ReportInstances,
   } = fastify.db;
 
   async function getMailAuditor(userId) {
@@ -165,9 +166,10 @@ module.exports = (fastify) => {
       });
   }
 
-  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr,docBuffers) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr, docBuffers, finalComment) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
+    const colorLineComment = '#4EDF45';
 
     const nomUser = await User.findOne({ where: { id: userId } });
     nameBranch = await Branches.findOne({ where: { id: branchId }, include: [{ model: Restaurant, as: 'Restaurant', required: true}] });
@@ -258,18 +260,54 @@ module.exports = (fastify) => {
           });
         doc.moveDown();
 
-        //doc.moveDown();
-        let listMain = 1;
-        let listSub = 1;
-        for (const mainTask of task.mainTasks) {
+        if(finalComment){
+          doc
+            .lineCap('round')
+            .moveTo(doc.page.margins.left, doc.y)
+            .lineTo(doc.page.width - doc.page.margins.left, doc.y)
+            .stroke(colorLineComment);
+          doc.moveDown();
+
+          doc
+          .fillColor(colorText)
+          .fontSize(14)
+          .text(`Resumen de la visita:`, {
+            align: 'left',
+          });
+
+          doc
+            .fontSize(13)
+            .font('Helvetica')
+            .fillColor(colorText)
+            .text(`${finalComment}`, {
+              align: 'left', indent: 50
+            });
+            
+          doc.moveDown();
+
+          doc
+            .lineCap('round')
+            .moveTo(doc.page.margins.left, doc.y)
+            .lineTo(doc.page.width - doc.page.margins.left, doc.y)
+            .stroke(colorLineComment);
+          doc.moveDown();
+
+        }
+        else {
           doc
             .lineCap('round')
             .moveTo(doc.page.margins.left, doc.y)
             .lineTo(doc.page.width - doc.page.margins.left, doc.y)
             .stroke(colorLine);
           doc.moveDown();
+        }
 
+        //doc.moveDown();
+        let listMain = 1;
+        let listSub = 1;
+        for (const mainTask of task.mainTasks) {
           doc
+            .font('Helvetica-Bold')
             .fontSize(13)
             .fillColor(colorText)
             .text(`${mainTask.dataValues.name}`, {
@@ -410,7 +448,7 @@ module.exports = (fastify) => {
 
 
   async function createPDFAndSendEmail(data) {
-    const { userId, branchId, checkListId, dateNow } = data;
+    const { userId, branchId, checkListId, dateNow, comment } = data;
 
     let dateTimeStr = '';
       //dateNow ahora viene del front dd-mm-yyyy
@@ -505,6 +543,7 @@ module.exports = (fastify) => {
       destinatarios,
       dateTimeStr,
       docBuffers,
+      comment,
     );
     
     const mailAuditor = await getMailAuditor(userId);     
@@ -512,7 +551,6 @@ module.exports = (fastify) => {
     destinatarios.emails+=',' + mailAuditor.dataValues.email
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
-
 
     
 
@@ -575,6 +613,27 @@ Saludos cordiales, ${mailAuditor.dataValues.firstName}.`
     });
     // Enviar correo
     await transporter.sendMail(mailOptions);
+
+    const dataInsert = {
+      name: attachFileName,
+      url: attachFileName,
+      comment: comment,
+      subject: subject,
+      mailTo: destinatarios.emails,
+      size: pdfReport.length,
+      dateNow: dateTimeStr,
+      checklist_id: checkListId,
+      branch_id: branchId,
+      user_id: userId,
+    }
+    console.log(dataInsert)
+
+    const instance = await ReportInstances.create(dataInsert);
+    if (!instance) {
+      console.log(dataInsert)
+      throw new Error('Error insertando ReportInstances, Mail OK');
+    }
+
   }
 
   return {
