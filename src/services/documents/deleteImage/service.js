@@ -1,5 +1,6 @@
 module.exports = (fastify) => {
   const { Document } = fastify.db;
+  const fetch = require('node-fetch');
 
   const delImageFromBucket = async (url) => {
     const response = await fetch(url, {
@@ -52,7 +53,7 @@ module.exports = (fastify) => {
       console.log('delet: ' + delet);
 
       return resp;
-      
+
     } catch (error) {
       throw new Error(error);
     }
