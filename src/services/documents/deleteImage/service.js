@@ -6,7 +6,7 @@ module.exports = (fastify) => {
     const response = await fetch(url, {
       method: 'DELETE',
       headers: {
-        Authorization: 'Basic U1JWX2JvbmFwcDo3SVZKdW4xNC48TH1URVBJaEIzKQ==', // Asegúrate de incluir la autorización correcta
+        Authorization: fastify.config.storage.auth
       },
     });
 
@@ -33,7 +33,7 @@ module.exports = (fastify) => {
         throw new Error('Document not found');
       }
 
-      const url = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${existingInstance.dataValues.url}`
+      const url = `${fastify.config.storage.url}${existingInstance.dataValues.url}`
       
       const resp = await delImageFromBucket(url)
 

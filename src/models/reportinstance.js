@@ -36,6 +36,8 @@ module.exports = (sequelize, DataTypes) => {
     subject: DataTypes.STRING,
     mailTo: DataTypes.STRING,
     size: DataTypes.INTEGER,
+    contentType: DataTypes.STRING,
+    flagPreview: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'ReportInstances',

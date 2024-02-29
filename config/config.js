@@ -17,7 +17,8 @@ const config = {
     exp: TWO_MONTHS
   },
   schemes: ['https', 'http'],
-  email: variables.mail
+  email: variables.mail,
+  storage: variables.storage,
 }
 
 module.exports = config
