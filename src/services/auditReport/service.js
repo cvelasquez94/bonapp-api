@@ -5,46 +5,6 @@ const imageSize = require('image-size')
 const { Op } = require('sequelize');
 let nameBranch;
 
-async function getOCIBufferedImage(imageUrl) {
-  const response = await fetch(imageUrl, {
-    method: 'GET',
-    headers: {
-      Authorization: 'Basic U1JWX2JvbmFwcDo3SVZKdW4xNC48TH1URVBJaEIzKQ==', // Asegúrate de incluir la autorización correcta
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image: ${response.statusText}`);
-  }
-  // Convertir a ArrayBuffer y luego a Buffer
-  return response.buffer()
-}
-
-const getImageFromBucket = async (url) => {
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: 'Basic U1JWX2JvbmFwcDo3SVZKdW4xNC48TH1URVBJaEIzKQ==', // Asegúrate de incluir la autorización correcta
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image: ${response.statusText}`);
-  }
-
-  return response.buffer()
-}
-
-const getAllDocuments = async (docs) => {
-  const peticiones = docs.map( async (docs) => {
-    const url = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${docs.dataValues.name}`
-    return  await getImageFromBucket(url)
-     .then((ret) => {
-      return {docs, buff: ret}
-      })
-  })
-  return await Promise.all(peticiones)
-}
 
 module.exports = (fastify) => {
   const {
@@ -62,6 +22,51 @@ module.exports = (fastify) => {
     Restaurant,
     ReportInstances,
   } = fastify.db;
+
+
+const getImageFromBucket = async (url) => {
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Authorization: fastify.config.storage.auth
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.statusText}`);
+  }
+
+  return response.buffer()
+}
+
+const putFileToBucket = async (url, contentType, data) => {
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: fastify.config.storage.auth,
+      'Content-Type': contentType
+  },
+   body: data
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to put file: ${response.statusText}`);
+  }
+
+  return response.status
+}
+
+const getAllDocuments = async (docs) => {
+  const peticiones = docs.map( async (docs) => {
+    const url = `${fastify.config.storage.url}${docs.dataValues.name}`
+    return  await getImageFromBucket(url)
+     .then((ret) => {
+      return {docs, buff: ret}
+      })
+  })
+  return await Promise.all(peticiones)
+}
+
 
   async function getMailAuditor(userId) {
     const userAudit = await User.findOne({ where: { id: userId } });
@@ -166,7 +171,7 @@ module.exports = (fastify) => {
       });
   }
 
-  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr, docBuffers, finalComment) {
+  async function createPdfReport(userId, checkList, branchId, destinatarios, dateTimeStr, docBuffers, finalComment, flagPreview) {
     const colorText = '#13375B';
     const colorLine = '#F6BE61';
     const colorLineComment = '#4EDF45';
@@ -187,9 +192,10 @@ module.exports = (fastify) => {
         resolve(pdfData);
       });
 
-//let fs = require('fs')
-//doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
-      
+// let fs = require('fs')
+// doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
+
+     
       now = new Date();
       const offset = 180 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
       const today = new Date(now - offset); // Ajustar la hora al tiempo local
@@ -205,7 +211,7 @@ module.exports = (fastify) => {
           align: 'left',
         });
       doc.image(
-        await getOCIBufferedImage(nameBranch.dataValues.patent_url),
+        await getImageFromBucket(nameBranch.dataValues.patent_url),
         (doc.page.width - 90) / 2,
         30,
         {
@@ -228,7 +234,7 @@ module.exports = (fastify) => {
           .font('Helvetica-Bold')
           .fontSize(25)
           .fillColor(colorText)
-          .text(task.dataValues.name, {
+          .text(task.dataValues.desc, {
             align: 'center',
           });
         doc
@@ -356,9 +362,7 @@ module.exports = (fastify) => {
             let counterImage = 0;
             let imagey = doc.y;
             for (const image of subTask.sTaskInstances[0].documents) {
-              //const ociImageUrl = `https://swiftobjectstorage.sa-santiago-1.oraclecloud.com/v1/axmlczc5ez0w/bucket-bonapp/${image.name}`; // subTask.dataValues.imageUrl; // Reemplazar con la propiedad real donde almacenas la URL de la imagen
               // Obtener la imagen como un buffer
-              //const imageBuffer = await getOCIBufferedImage(ociImageUrl);
 
               console.log(image.name+ '; '+image.staskInstance_id)
               const findDoc = docBuffers.find(dc => dc.docs.dataValues.name === image.name);
@@ -387,7 +391,7 @@ module.exports = (fastify) => {
               //Tamaño de a4 en pixeles es: 595.28 x 841.89. Con margen sup e inf 30, queda centrado y entran 6 por pag.  
               doc.image(
                   imageBuffer,
-                  40+(enter * 250), //(doc.page.width - dimension.width*ratio) / 2,
+                  40+(enter * 260), //(doc.page.width - dimension.width*ratio) / 2,
                   imagey,
                   {
                     fit: [250, 250],
@@ -414,7 +418,7 @@ module.exports = (fastify) => {
         }
       }
       doc.moveDown();
-
+     
       // FOOTER
       // see the range of buffered pages
       const range = doc.bufferedPageRange(); // => { start: 0, count: 2 }
@@ -425,6 +429,22 @@ module.exports = (fastify) => {
         i++
       ) {
         doc.switchToPage(i);
+      
+      if(flagPreview){
+          doc.image(
+            './preview1.png',
+            0,
+            100,
+            {
+            //cover: [doc.page.width - 100, doc.page.height - 100],
+            fit: [595, 840],
+            align: 'center',
+            valign: 'center',
+            lineBreak: false,
+          }
+          );
+        }
+      
         doc
           .fontSize(10)
           .text(
@@ -436,6 +456,7 @@ module.exports = (fastify) => {
               //align: 'justify',
             }
           );
+
       }
 
       // manually flush pages that have been buffered
@@ -448,7 +469,7 @@ module.exports = (fastify) => {
 
 
   async function createPDFAndSendEmail(data) {
-    const { userId, branchId, checkListId, dateNow, comment } = data;
+    const { userId, branchId, checkListId, dateNow, comment, flagPreview } = data;
 
     let dateTimeStr = '';
       //dateNow ahora viene del front dd-mm-yyyy
@@ -544,6 +565,7 @@ module.exports = (fastify) => {
       dateTimeStr,
       docBuffers,
       comment,
+      flagPreview,
     );
     
     const mailAuditor = await getMailAuditor(userId);     
@@ -551,8 +573,8 @@ module.exports = (fastify) => {
     destinatarios.emails+=',' + mailAuditor.dataValues.email
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
+ 
 
-    
 
     const dateTimeSplit = dateTimeStr.split('-');
 
@@ -566,73 +588,132 @@ module.exports = (fastify) => {
                     nameBranch.dataValues.short_name + ' - ' + 
                     fechaYYYYmmDD //dateTimeStr.replaceAll('-','/')
     
-    const attachFileName = `${subject.replaceAll('-','_').replaceAll(' _ ','_')}.pdf`
+    const attachFileName = `${subject.replaceAll('-','_').replaceAll(' _ ','_').replaceAll('/','').replaceAll('\\','').replaceAll(' ','_')}.pdf` //`${subject.replace(//|_/g, ' ')}.pdf`
 
-    const mailBody = `Estimado equipo,
+    const contentType = 'application/pdf'
+        
 
-    Espero que este correo le encuentre bien. Como se acordó previamente, he completado nuestra auditoría programada en su restaurante hoy dia. 
-    Quisiera agradecerles por su cooperación y disposición durante este proceso.
-    Quedo a su disposición para discutir cualquier aspecto de nuestra auditoría en mayor detalle o para brindar asistencia adicional según sea necesario.
-    
-Saludos cordiales, ${mailAuditor.dataValues.firstName}.`
+    if(flagPreview)
+    {
+      const Preview_attachFileName = 'P_' + attachFileName;
 
+      const dataInsert = {
+        name: Preview_attachFileName,
+        url: '',
+        comment: comment,
+        subject: '',
+        mailTo: '',
+        size: pdfReport.length,
+        dateNow: dateTimeStr,
+        checklist_id: checkListId,
+        branch_id: branchId,
+        user_id: userId,
+        flagPreview: flagPreview,
+        contentType: contentType,
 
-    const mailOptions = {
-      from: {
-        name: 'Audit Bon App',
-        address: fastify.config.email.user
-            },
-      to: destinatarios.emails,
-      //to: fastify.config.email.audit,
-      subject: subject,
-      text: mailBody,
-      attachments: [
-        {
-          filename: attachFileName, //'informe.pdf',
-          content: pdfReport,
-        },
-      ],
-    };
-
-    console.log(
-      '----------- Send mail ------------- FROM ',
-      fastify.config.email.user,
-      'Destintarios',
-      destinatarios
-    );
-
-    // Configuración de nodemailer
-    const transporter = nodemailer.createTransport({
-      host: "smtp.dreamhost.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: fastify.config.email.user,
-        pass: fastify.config.email.pass,
-      },
-    });
-    // Enviar correo
-    await transporter.sendMail(mailOptions);
-
-    const dataInsert = {
-      name: attachFileName,
-      url: attachFileName,
-      comment: comment,
-      subject: subject,
-      mailTo: destinatarios.emails,
-      size: pdfReport.length,
-      dateNow: dateTimeStr,
-      checklist_id: checkListId,
-      branch_id: branchId,
-      user_id: userId,
-    }
-    console.log(dataInsert)
-
-    const instance = await ReportInstances.create(dataInsert);
-    if (!instance) {
+      }
       console.log(dataInsert)
-      throw new Error('Error insertando ReportInstances, Mail OK');
+
+      const instance = await ReportInstances.create(dataInsert);
+      if (!instance) {
+        console.log(dataInsert)
+        throw new Error('Error insertando ReportInstances, Preview OK');
+      }
+
+      return {
+      message: 'ok',
+      fileName: Preview_attachFileName,
+      contentType: contentType,
+      base64: pdfReport.toString('base64'),
+      }
     }
+    else
+    {
+      const mailBody = `Estimado equipo,
+
+      Espero que este correo le encuentre bien. Como se acordó previamente, he completado nuestra auditoría programada en su restaurante hoy dia. 
+      Quisiera agradecerles por su cooperación y disposición durante este proceso.
+      Quedo a su disposición para discutir cualquier aspecto de nuestra auditoría en mayor detalle o para brindar asistencia adicional según sea necesario.
+      
+  Saludos cordiales, ${mailAuditor.dataValues.firstName}.`
+  
+  
+      const mailOptions = {
+        from: {
+          name: 'Audit Bon App',
+          address: fastify.config.email.user
+              },
+        to: destinatarios.emails,
+        subject: subject,
+        text: mailBody,
+        attachments: [
+          {
+            filename: attachFileName,
+            content: pdfReport,
+          },
+        ],
+      };
+  
+      console.log(
+        '----------- Send mail ------------- FROM ',
+        fastify.config.email.user,
+        'Destintarios',
+        destinatarios
+      );
+  
+      // Configuración de nodemailer
+      const transporter = nodemailer.createTransport({
+        host: "smtp.dreamhost.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: fastify.config.email.user,
+          pass: fastify.config.email.pass,
+        },
+      });
+
+      // Enviar correo
+      await transporter.sendMail(mailOptions);
+
+      const urlPut = `${fastify.config.storage.url}${attachFileName}`//`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
+
+      console.log( '_urlPUT: ' + urlPut)
+
+      const responsePut = await putFileToBucket(urlPut, contentType, pdfReport)
+
+      console.log(responsePut, ' respPUT')
+      
+      const dataInsert = {
+        name: attachFileName,
+        url: urlPut,
+        comment: comment,
+        subject: subject,
+        mailTo: destinatarios.emails,
+        size: pdfReport.length,
+        dateNow: dateTimeStr,
+        checklist_id: checkListId,
+        branch_id: branchId,
+        user_id: userId,
+        flagPreview: flagPreview,
+        contentType: contentType,
+
+      }
+      console.log(dataInsert)
+
+      const instance = await ReportInstances.create(dataInsert);
+      if (!instance) {
+        console.log(dataInsert)
+        throw new Error('Error insertando ReportInstances, Mail OK');
+      }
+
+      return {
+      message: 'ok',
+      fileName: attachFileName,
+      contentType: contentType,
+      base64: '',
+      }   
+    }
+    
 
   }
 

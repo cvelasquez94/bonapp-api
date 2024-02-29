@@ -27,6 +27,10 @@ module.exports = {
   mail: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
-    audit: process.env.AUDIT_MAIL,
+  },
+  storage: {
+    url: process.env.STORAGE_URL,
+    auth: process.env.STORAGE_AUTH,
+    environment: process.env.ENVIRONMENT,
   },
 };

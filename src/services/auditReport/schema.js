@@ -20,6 +20,9 @@ const schema = {
       comment: {
         type: 'string',
       },
+      flagPreview: {
+        type: 'integer',
+      },
     },
   },
   response: {
@@ -28,6 +31,15 @@ const schema = {
       type: 'object',
       properties: {
         message: {
+          type: 'string',
+        },
+        fileName: {
+          type: 'string',
+        },
+        contentType: {
+          type: 'string',
+        },
+        base64: {
           type: 'string',
         },
       },
