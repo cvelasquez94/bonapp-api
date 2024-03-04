@@ -574,7 +574,7 @@ const getAllDocuments = async (docs) => {
 
     console.log('destinatiariosPREV: '+destinatarios.emails)
  
-
+    
 
     const dateTimeSplit = dateTimeStr.split('-');
 
@@ -675,7 +675,7 @@ const getAllDocuments = async (docs) => {
       // Enviar correo
       await transporter.sendMail(mailOptions);
 
-      const urlPut = `${fastify.config.storage.url}${attachFileName}`//`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
+      const urlPut = `${fastify.config.storage.url}Reports/${attachFileName}`//`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
 
       console.log( '_urlPUT: ' + urlPut)
 
@@ -685,7 +685,7 @@ const getAllDocuments = async (docs) => {
       
       const dataInsert = {
         name: attachFileName,
-        url: urlPut,
+        url: `Reports/${attachFileName}`,
         comment: comment,
         subject: subject,
         mailTo: destinatarios.emails,
@@ -710,7 +710,7 @@ const getAllDocuments = async (docs) => {
       message: 'ok',
       fileName: attachFileName,
       contentType: contentType,
-      base64: '',
+      base64: urlPut,
       }   
     }
     
