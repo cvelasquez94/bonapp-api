@@ -3,7 +3,7 @@ module.exports = (fastify) => {
   async function signIn(email, pwd) {
     try {
       const user = await User.findOne({
-        where: { email, pwd },
+        where: { email },
         include: [
           {
             model: RoleUser,
@@ -42,6 +42,18 @@ module.exports = (fastify) => {
         throw new Error('No user');
       }
 
+      const bcrypt = require('bcrypt');
+      /*esto para encriptar y guardar en la BD:
+      const saltRounds = 10;
+      const encryptedPassword = await bcrypt.hash(user.dataValues.pwd, saltRounds)
+      console.log('pwd: '+ pwd)
+      console.log('encryptedPassword: '+ encryptedPassword)*/
+
+      const comparison = await bcrypt.compare(pwd, user.dataValues.pwd)
+      
+      if (!comparison) {
+        throw new Error('User/Password not valid');
+      }
       
       const branch_id = user.dataValues.user_branches[0].branch_id;
 
