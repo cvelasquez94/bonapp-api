@@ -348,7 +348,7 @@ const getAllDocuments = async (docs) => {
 
             const score =
               subTask.sTaskInstances?.length > 0
-                ? subTask.sTaskInstances[0].score * subTask.dataValues.scoreMultiplier
+                ? subTask.sTaskInstances[0].score //* subTask.dataValues.scoreMultiplier //#BON-49
                 : 0;
                 
             doc
