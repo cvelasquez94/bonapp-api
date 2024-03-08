@@ -30,6 +30,9 @@ async function app() {
   fastify.register(require('../services/login/signIn'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/login/forgetPassword'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/checkList/getCheckList'), {
     prefix: fastify.config.prefix,
   });

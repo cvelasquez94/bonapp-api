@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.user_branches, {
         foreignKey: 'user_id',
         as: 'user_branches', // Esto es opcional, pero ayuda a definir cómo llamar a la asociación
-      })
+      });
       // define association here
       //User.belongsToMany(models.Role, { through: models.RoleUser });
       User.hasMany(models.RoleUser, {
@@ -29,7 +29,8 @@ module.exports = (sequelize, DataTypes) => {
       pwd: DataTypes.STRING,
       birthdate: DataTypes.DATE,
       avatar: DataTypes.STRING,
-      role_id: DataTypes.INTEGER,
+      // role_id: DataTypes.INTEGER,
+      status_id: DataTypes.INTEGER,
     },
     {
       sequelize,
