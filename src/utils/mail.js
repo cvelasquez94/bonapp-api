@@ -1,68 +1,68 @@
-const nodemailer = require('nodemailer')
-const { mail: { user, pass } } = require('../../config/variables')
+const nodemailer = require('nodemailer');
+const {
+  mail: { user, pass },
+} = require('../../config/variables');
 
-const sendEmail = async ({ to, subject, text }) => {
+const sendEmail = async ({ user, pass, mailOptions }) => {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.dreamhost.com',
+    port: 465,
+    secure: true,
     auth: {
       user,
-      pass
-    }
-  })
-  const mailOptions = {
+      pass,
+    },
+  });
+
+  const options = {
+    ...mailOptions,
     from: user,
-    to,
-    subject,
-    text
-  }
-  console.log('mailOptions', mailOptions)
-  console.log('transporter ==>>', transporter)
-  return await transporter.sendMail(mailOptions);
+  };
+  console.log('SEND MAIL', options);
+  //console.log('transporter ==>>', transporter);
+  return await transporter.sendMail(options);
+};
 
-}
+exports.sendAuditEmail = (options, nomAuditor) => {
+  const mailBody = `Estimado equipo,
 
-exports.signUpMail = async (email, code) => {
-  const mail = {
-    to: email,
-    subject: '[NHQ] Registro',
-    bcc: email,
-    text: `
-      Has sido registrado en NHQ, 
-      
-      Codigo de acceso: ${code}
+  Espero que este correo le encuentre bien. Como se acordó previamente, he completado nuestra auditoría programada en su restaurante hoy dia. 
+  Quisiera agradecerles por su cooperación y disposición durante este proceso.
+  Quedo a su disposición para discutir cualquier aspecto de nuestra auditoría en mayor detalle o para brindar asistencia adicional según sea necesario.
   
-      Saludos!
-    `
-  }
-  console.log(`Codigo de acceso en email ============>`, email, code)
-  return await sendEmail(mail)
-}
+    Saludos cordiales, ${nomAuditor}.`;
 
-exports.sendCodeEmail = (email, code) => {
-  const mail = {
-    to: email,
-    subject: '[NHQ] Registro',
-    bcc: email,
-    text: `
-      Has solicitado cambiar el password en NHQ, 
-      
-      Codigo: ${code}
-  
-      Saludos!
-    `
-  }
-  return sendEmail(mail)
-}
+  const mailOptions = {
+    ...options,
+    text: mailBody,
+  };
+  return sendEmail({ user, pass, mailOptions });
+};
 
 exports.changePassEmail = (email) => {
-  const mail = {
+  const mailOptions = {
     to: email,
-    subject: '[NHQ] Password Changed',
+    subject: 'Password Changed',
     text: `
-      Has cambiado el password en NHQ
+      Has cambiado el password en BonApp
   
       Saludos!
-    `
-  }
-  return sendEmail(mail)
-}
+    `,
+  };
+  return sendEmail({ user, pass, mailOptions });
+};
+exports.ForgetPassEmail = (email, password) => {
+  const mailOptions = {
+    to: email,
+    subject: 'Forget Password',
+    text: `
+      Ha solicitado cambiar la password. Le enviamos una password provisoria
+
+      Passord: ${password}
+  
+      Saludos!
+    `,
+  };
+
+  return sendEmail({ user, pass, mailOptions });
+};
