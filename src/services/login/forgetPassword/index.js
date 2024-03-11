@@ -7,7 +7,11 @@ const route = async (fastify, opts, next) => {
 
   fastify.post('/forgetPassword', { schema }, async (request, reply) => {
     const { email } = request.body;
-    const user = await forgetPassword(email);
+    await forgetPassword(email);
+
+    return reply.type('application/json').send({
+      message: 'ok',
+    });
   });
   next();
 };

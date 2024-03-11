@@ -6,7 +6,6 @@ module.exports = (fastify) => {
 
   async function forgetPassword(email) {
     try {
-      //TODO: filtrar estado BAJA
       const user = await User.findOne({
         where: { email: email.toLowerCase(), status_id: { [Op.ne]: 100 } }, // != BAJA
       });
