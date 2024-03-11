@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer');
 const fetch = require('node-fetch');
 const imageSize = require('image-size')
 const { Op } = require('sequelize');
+const { mail } = require('../../utils');
 let nameBranch;
 
 
@@ -70,7 +71,7 @@ const getAllDocuments = async (docs) => {
 
   async function getMailAuditor(userId) {
     const userAudit = await User.findOne({ where: { id: userId } });
-    console.log('mail user audit: ', userAudit.dataValues.email);
+    //console.log('mail user audit: ', userAudit.dataValues.email);
     return userAudit;
   }
   async function getDestinatarioAndMails(arrayIdChecklist, branchId) {
@@ -572,8 +573,7 @@ const getAllDocuments = async (docs) => {
 
     destinatarios.emails+=',' + mailAuditor.dataValues.email
 
-    console.log('destinatiariosPREV: '+destinatarios.emails)
- 
+    //console.log('destinatiariosPREV: '+destinatarios.emails)
     
 
     const dateTimeSplit = dateTimeStr.split('-');
@@ -629,23 +629,10 @@ const getAllDocuments = async (docs) => {
     }
     else
     {
-      const mailBody = `Estimado equipo,
-
-      Espero que este correo le encuentre bien. Como se acordó previamente, he completado nuestra auditoría programada en su restaurante hoy dia. 
-      Quisiera agradecerles por su cooperación y disposición durante este proceso.
-      Quedo a su disposición para discutir cualquier aspecto de nuestra auditoría en mayor detalle o para brindar asistencia adicional según sea necesario.
       
-  Saludos cordiales, ${mailAuditor.dataValues.firstName}.`
-  
-  
       const mailOptions = {
-        from: {
-          name: 'Audit Bon App',
-          address: fastify.config.email.user
-              },
         to: destinatarios.emails,
         subject: subject,
-        text: mailBody,
         attachments: [
           {
             filename: attachFileName,
@@ -654,26 +641,10 @@ const getAllDocuments = async (docs) => {
         ],
       };
   
-      console.log(
-        '----------- Send mail ------------- FROM ',
-        fastify.config.email.user,
-        'Destintarios',
-        destinatarios
-      );
-  
-      // Configuración de nodemailer
-      const transporter = nodemailer.createTransport({
-        host: "smtp.dreamhost.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: fastify.config.email.user,
-          pass: fastify.config.email.pass,
-        },
-      });
+      // // Enviar correo
+      // await transporter.sendMail(mailOptions);
 
-      // Enviar correo
-      await transporter.sendMail(mailOptions);
+      await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName)
 
       const urlPut = `${fastify.config.storage.url}Reports/${attachFileName}`//`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
 

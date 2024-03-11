@@ -39,20 +39,44 @@ module.exports = (fastify) => {
       });
 
       if (!user) {
-        throw new Error('No user');
+        throw new Error('User no configurado');
       }
 
       const bcrypt = require('bcrypt');
       /*esto para encriptar y guardar en la BD:
       const saltRounds = 10;
-      const encryptedPassword = await bcrypt.hash(user.dataValues.pwd, saltRounds)
+      const encryptedPassword = await bcrypt.hash(pwd, saltRounds)
       console.log('pwd: '+ pwd)
       console.log('encryptedPassword: '+ encryptedPassword)*/
 
       const comparison = await bcrypt.compare(pwd, user.dataValues.pwd)
       
       if (!comparison) {
-        throw new Error('User/Password not valid');
+        //loginretries incrementa
+        user.increment({loginRetries : +1})
+
+        //Confirman   Bloquear user si intentos > 5 ?? 
+
+        throw new Error('User/Password incorrectos');
+      }
+
+      if (user.dataValues.status_id === 100) {
+        throw new Error('User dado de baja, por favor contactarse con el administrador');
+      }
+      if (user.dataValues.status_id === 103 ) {
+        throw new Error('Por favor revise el email/intente recuperar password');
+      }
+
+      if (user.dataValues.status_id === 102) {
+
+        //login firstTime, retries to zero; status 101
+        user.update({status_id : 101, loginRetries : 0})
+      }
+      else{
+
+        //login Ok, retries to zero
+        user.update({loginRetries : 0})
+
       }
       
       const branch_id = user.dataValues.user_branches[0].branch_id;

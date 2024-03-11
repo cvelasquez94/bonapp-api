@@ -16,7 +16,6 @@ const sendEmail = async ({ user, pass, mailOptions }) => {
 
   const options = {
     ...mailOptions,
-    from: user,
   };
   console.log('SEND MAIL', options);
   //console.log('transporter ==>>', transporter);
@@ -24,17 +23,22 @@ const sendEmail = async ({ user, pass, mailOptions }) => {
 };
 
 exports.sendAuditEmail = (options, nomAuditor) => {
-  const mailBody = `Estimado equipo,
+  const mailBody = `
+  Estimado equipo,
 
-  Espero que este correo le encuentre bien. Como se acordó previamente, he completado nuestra auditoría programada en su restaurante hoy dia. 
-  Quisiera agradecerles por su cooperación y disposición durante este proceso.
-  Quedo a su disposición para discutir cualquier aspecto de nuestra auditoría en mayor detalle o para brindar asistencia adicional según sea necesario.
-  
-    Saludos cordiales, ${nomAuditor}.`;
+    Espero que este correo le encuentre bien. Como se acordó previamente, he completado nuestra auditoría programada en su restaurante hoy dia. 
+    Quisiera agradecerles por su cooperación y disposición durante este proceso.
+    Quedo a su disposición para discutir cualquier aspecto de nuestra auditoría en mayor detalle o para brindar asistencia adicional según sea necesario.
+    
+  Saludos cordiales, ${nomAuditor}.`;
 
   const mailOptions = {
     ...options,
     text: mailBody,
+    from: {
+      name: 'Audit BonApp',
+      address: user
+          },
   };
   return sendEmail({ user, pass, mailOptions });
 };
@@ -44,10 +48,14 @@ exports.changePassEmail = (email) => {
     to: email,
     subject: 'Password Changed',
     text: `
-      Has cambiado el password en BonApp
+Has cambiado el password en BonApp
   
-      Saludos!
+Saludos!
     `,
+    from: {
+      name: 'Users BonApp',
+      address: 'no-reply@bonapp.tech'
+          },
   };
   return sendEmail({ user, pass, mailOptions });
 };
@@ -56,12 +64,38 @@ exports.ForgetPassEmail = (email, password) => {
     to: email,
     subject: 'Forget Password',
     text: `
-      Ha solicitado cambiar la password. Le enviamos una password provisoria
+Has solicitado cambiar la password. Le enviamos una password provisoria
 
       Passord: ${password}
   
-      Saludos!
+Saludos!
     `,
+    from: {
+      name: 'Users BonApp',
+      address: 'no-reply@bonapp.tech'
+          },
+  };
+
+  return sendEmail({ user, pass, mailOptions });
+};
+exports.CreateUserEmail = (email, password) => {
+  const mailOptions = {
+    to: email,
+    subject: 'Usuario registrado en BonApp',
+    text: `
+Estimado,
+
+    Se le está enviando en este correo una contraseña temporal.
+    Por favor ingrese a la brevedad y deberá cambiarla.
+
+    La misma es: ${password}
+  
+Saludos!
+    `,
+    from: {
+      name: 'Users BonApp',
+      address: 'no-reply@bonapp.tech'
+          },
   };
 
   return sendEmail({ user, pass, mailOptions });

@@ -21,10 +21,22 @@ async function app() {
 
   fastify.register(require('../ping', { prefix: fastify.config.prefix }));
   console.log(fastify.config.prefix);
-  fastify.register(require('../services/users/getUsers'), {
+  // fastify.register(require('../services/users/getUsers'), {
+  //   prefix: fastify.config.prefix,
+  // });
+  // fastify.register(require('../services/users/getBranchsUser'), {
+  //   prefix: fastify.config.prefix,
+  // });
+  fastify.register(require('../services/users/getUser'), {
     prefix: fastify.config.prefix,
   });
-  fastify.register(require('../services/users/getBranchsUser'), {
+  fastify.register(require('../services/users/createUser'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/users/updateUser'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/users/deleteUser'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/login/signIn'), {
