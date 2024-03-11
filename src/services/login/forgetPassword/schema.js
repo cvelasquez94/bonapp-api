@@ -18,10 +18,7 @@ const schema = {
       description: 'Send email for reset password',
       type: 'object',
       properties: {
-        id: { type: 'integer' },
-        firstName: { type: 'string' },
-        lastName: { type: 'string' },
-        avatar: { type: 'string' },
+        message: { type: 'string' },
       },
     },
     400: {
