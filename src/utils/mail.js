@@ -52,6 +52,10 @@ Has cambiado el password en BonApp
   
 Saludos!
     `,
+    from: {
+      name: 'Users BonApp',
+      address: 'no-reply@bonapp.tech'
+          },
   };
   return sendEmail({ user, pass, mailOptions });
 };

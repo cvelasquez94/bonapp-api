@@ -1,5 +1,5 @@
 const schema = {
-  tags: ['getUser'],
+  tags: ['users'],
   summary: 'getUser',
   description: 'getUser',
   query: {

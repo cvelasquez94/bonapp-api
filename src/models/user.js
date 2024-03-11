@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.user_branches, {
         foreignKey: 'user_id',
         as: 'user_branches', // Esto es opcional, pero ayuda a definir cómo llamar a la asociación
-      })
+      });
       // define association here
       //User.belongsToMany(models.Role, { through: models.RoleUser });
       User.hasMany(models.RoleUser, {

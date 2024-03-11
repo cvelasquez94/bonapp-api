@@ -75,8 +75,8 @@ const result = await User.sequelize.transaction(async (t) => {
         const branchret = await user_branches.bulkCreate(branchesCreate, { transaction: t });
         //console.log(branchret)
 
-        mail.CreateUserEmail('castellino.fernando@kopernicus.tech, ferchu0210@gmail.com', pwd)
-        //mail.CreateUserEmail(email, pwd)
+        
+        mail.CreateUserEmail(email, pwd)
 
         return usret;
 

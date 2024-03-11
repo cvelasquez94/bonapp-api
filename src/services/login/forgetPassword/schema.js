@@ -1,23 +1,27 @@
 const schema = {
-  tags: ['users'],
-  summary: 'deleteUser',
-  description: 'deleteUser',
-  query: {
+  tags: ['login'],
+  summary: 'forgetPassword',
+  description: 'Forget password',
+  body: {
     type: 'object',
     required: ['email'],
     properties: {
       email: {
         type: 'string',
+        description: 'email of the user',
+        format: 'email',
       },
     },
   },
   response: {
-    204: {
-       description: 'User deleted',
-       type: 'null',
+    200: {
+      description: 'Send email for reset password',
+      type: 'object',
       properties: {
-        id: { type: 'number' },
-        email: { type: 'string' },
+        id: { type: 'integer' },
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        avatar: { type: 'string' },
       },
     },
     400: {
@@ -28,8 +32,8 @@ const schema = {
         message: { type: 'string' },
       },
     },
-    403: {
-      description: 'Forbidden',
+    401: {
+      description: 'Invalid username or password',
       type: 'object',
       properties: {
         error: { type: 'string' },
