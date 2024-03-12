@@ -37,7 +37,6 @@ module.exports = (sequelize, DataTypes) => {
       enable: DataTypes.TINYINT,
       schedule_start: DataTypes.DATE,
       schedule_end: DataTypes.DATE,
-      branch_id: DataTypes.INTEGER,
     },
     
     {

@@ -1,5 +1,5 @@
 module.exports = (fastify) => {
-  const { Checklist, MainTask, SubTask, STaskInstance, Document } = fastify.db;
+  const { Checklist, MainTask, SubTask, STaskInstance, Document, ChecklistBranch } = fastify.db;
   const { Op } = require('sequelize');
 
   async function getSubTasks(
@@ -34,7 +34,7 @@ module.exports = (fastify) => {
       console.log('dateNow: ', dateTimeStr);
 
       const checkLists = await Checklist.findAll({
-        where: { branch_id: branchid, id: checkListId },
+        where: { id: checkListId }, //branch_id
         include: [
           {
             model: MainTask.scope('defaultScope'),
@@ -50,7 +50,7 @@ module.exports = (fastify) => {
                     as: 'sTaskInstances',
                     where: {
                       [Op.and]: [
-                        { user_id: userId },
+                        { user_id: userId, branch_id: branchid },
                         STaskInstance.sequelize.where(
                           STaskInstance.sequelize.fn(
                             'DATE_FORMAT',
@@ -73,6 +73,12 @@ module.exports = (fastify) => {
                 ],
               },
             ],
+          },
+          {
+                model: ChecklistBranch.scope('defaultScope'),
+                as: 'CheckListCheckBranch',
+                required: true,
+                where: { branch_id: branchid },
           },
         ],
         order: [[Checklist.sequelize.col('id'), 'ASC'],[SubTask.sequelize.col('mainTasks.orden'), 'ASC'],[SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC']]

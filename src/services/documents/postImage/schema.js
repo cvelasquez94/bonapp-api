@@ -29,6 +29,10 @@ const schema = {
         type: 'string',
         description: 'date',
       },
+      branch_id: {
+        type: 'integer',
+        description: '',
+      },
     },
   },
   response: {

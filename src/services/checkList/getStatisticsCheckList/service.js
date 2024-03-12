@@ -1,5 +1,5 @@
 module.exports = (fastify) => {
-  const { Checklist, MainTask, SubTask, STaskInstance, Role, RoleUser } = fastify.db;
+  const { Checklist, MainTask, SubTask, STaskInstance, Role, RoleUser, ChecklistBranch } = fastify.db;
   const { Op } = require('sequelize');
   async function getstatisticsCheckList(userId, branchId, dateNow) {
     try {
@@ -19,7 +19,7 @@ module.exports = (fastify) => {
       console.log('dateNow: ', dateTimeStr);
 
       const checkTypes = await Checklist.findAll({
-        where: { branch_id: branchId },
+        //where: { branch_id: branchId },
         include: [
           {
             model: Role,
@@ -33,6 +33,12 @@ module.exports = (fastify) => {
                 where: { user_id: userId },
               },
             ],
+          },
+          {
+                model: ChecklistBranch,//.scope('defaultScope'),
+                as: 'CheckListCheckBranch',
+                required: true,
+                where: { branch_id: branchId },
           },
           {
             model: MainTask,
@@ -87,7 +93,7 @@ module.exports = (fastify) => {
                     where: {
                       comment: 'finalized',
                       [Op.and]: [
-                        { user_id: userId },
+                        { user_id: userId, branch_id: branchId },
                         STaskInstance.sequelize.where(
                           STaskInstance.sequelize.fn(
                             'DATE_FORMAT',
@@ -105,7 +111,7 @@ module.exports = (fastify) => {
             ],
           },
         ],
-        where: { branch_id: branchId },
+        //where: { branch_id: branchId },
       });
 
       sumTaskClose = 0;
@@ -132,7 +138,7 @@ module.exports = (fastify) => {
         " INNER JOIN `STaskInstances` AS `mainTasks->subTasks->sTaskInstances` ON `mainTasks->subTasks`.`id` = `mainTasks->subTasks->sTaskInstances`.`subTask_id`  " +
         " AND (`mainTasks->subTasks->sTaskInstances`.`user_id` = :user AND DATE_FORMAT(`dateTime`, '%m-%Y') = '"+dateTimeStr+"')  " +
         " AND `mainTasks->subTasks->sTaskInstances`.`status` = 'audited'  " +
-        " WHERE `Checklist`.`branch_id` = :branch ;",
+        " WHERE `mainTasks->subTasks->sTaskInstances`.`branch_id` = :branch ;",
         {
           replacements: { user: userId, branch: branchId},
         },
