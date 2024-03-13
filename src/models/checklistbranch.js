@@ -73,6 +73,7 @@ module.exports = (sequelize, DataTypes) => {
                 start_date: {
                   [Op.lte]: TODAY_START
                 },
+                //TODO filtrar por endDate?
                },
                 sequelize.literal(
                   `CASE WHEN freqType is null then 1=1 
@@ -89,7 +90,6 @@ module.exports = (sequelize, DataTypes) => {
                 )
             ],
           },
-        order: [['orden', 'ASC']]
       },
       
       sequelize,
