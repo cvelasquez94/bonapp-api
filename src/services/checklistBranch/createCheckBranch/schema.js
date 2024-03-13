@@ -1,65 +1,50 @@
 const schema = {
-  tags: ['users'],
-  summary: 'updateUser',
-  description: 'updateUser',
+  tags: ['checklistBranch'],
+  summary: 'createCheckBranch',
+  description: 'createCheckBranch',
   body: {
     type: 'object',
-    required: ['email'],
+    required: ['checklist_id', 'branch_id'],
     properties: {
-      email: {
-        type: 'string',
-      },
-      firstName: {
-        type: 'string',
-      },
-      lastName: {
-        type: 'string',
-      },
-      birthDate: {
-        type: 'string',
-        pattern: "[0-9]{2}[/-][0-9]{2}[/-][0-9]{4}",
-      },
-      avatar: {
-        type: 'string',
-      },
-      rut: {
-        type: 'string',
-      },
-      sex: {
-        type: 'string',
-        enum: ['M','F','X'],
-      },
-      roles: {
-        type: 'array',
-        items: {
-          type: 'integer',
-        },
-      },
-      branches: {
-        type: 'array',
-        items: {
-          type: 'integer',
-        },
-      },
-      directActiveFlag: {
-        type: 'integer',
-        description: 'if this is 1, pwd and status Must be passed to create User without receiving mail'
-      },
-      pwd: {
-        type: 'string',
-      },
-      statusId: {
+      checklist_id: {
         type: 'integer',
       },
+      branch_id: {
+        type: 'integer',
+      },
+      user_id: { type: 'integer' },
+      role_id: { type: 'integer' },
+      enable: { type: 'integer' },
+      start_date: { 
+        type: 'string',
+        format: 'date-time', },
+      end_date: { 
+        type: 'string',
+        format: 'date-time', },
+      freqType: { type: 'string' },
+      freqValue: { type: 'integer' },
+      flagRecurrent: { type: 'integer' },
+      monday: { type: 'integer' },
+      tuesday: { type: 'integer' },
+      wednesday: { type: 'integer' },
+      thursday: { type: 'integer' },
+      friday: { type: 'integer' },
+      saturday: { type: 'integer' },
+      sunday: { type: 'integer' },
     },
   },
   response: {
     200: {
-      description: 'User Updated',
+      description: 'ChecklistBranch created',
       type: 'object',
       properties: {
         id: { type: 'number' },
-        email: { type: 'string' },
+      },
+    },201: {
+      description: 'ChecklistBranch Created',
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
       },
     },
     400: {

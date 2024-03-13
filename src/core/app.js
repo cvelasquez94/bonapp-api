@@ -54,6 +54,18 @@ async function app() {
   fastify.register(require('../services/checkList/postSTaskInstance'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/checklistBranch/getCheckBranch'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/checklistBranch/createCheckBranch'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/checklistBranch/updateCheckBranch'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/checklistBranch/deleteCheckBranch'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/auditReport'), {
     prefix: fastify.config.prefix,
   });

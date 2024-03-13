@@ -1,47 +1,40 @@
 const schema = {
-  tags: ['Documents'],
-  summary: 'postImage',
-  description: 'upload images and post table documents',
+  tags: ['checklistBranch'],
+  summary: 'updateCheckBranch',
+  description: 'updateCheckBranch',
   body: {
     type: 'object',
+    required: ['id'],
     properties: {
-      url: {
+      id: { type: 'integer' },
+      user_id: { type: 'integer' },
+      role_id: { type: 'integer' },
+      enable: { type: 'integer' },
+      start_date: { 
         type: 'string',
-        description: 'url upload images',
-      },
-      name: {
+        format: 'date-time', },
+      end_date: { 
         type: 'string',
-        description: 'name image',
-      },
-      desc: {
-        type: 'string',
-        description: 'description to long',
-      },
-      staskInstance_id: {
-        type: 'integer',
-        description: '',
-      },
-      user_id: {
-        type: 'integer',
-        description: '',
-      },
-      dateNow: {
-        type: 'string',
-        description: 'date',
-      },
-      branch_id: {
-        type: 'integer',
-        description: '',
-      },
+        format: 'date-time', },
+      freqType: { type: 'string' },
+      freqValue: { type: 'integer' },
+      flagRecurrent: { type: 'integer' },
+      monday: { type: 'integer' },
+      tuesday: { type: 'integer' },
+      wednesday: { type: 'integer' },
+      thursday: { type: 'integer' },
+      friday: { type: 'integer' },
+      saturday: { type: 'integer' },
+      sunday: { type: 'integer' },
     },
   },
   response: {
     200: {
-      description: 'Bad request',
+      description: 'ChecklistBranch updated',
       type: 'object',
       properties: {
-        id: { type: 'integer' },
-        message: { type: 'string' },
+        id: { type: 'number' },
+        email: { type: 'string' },
       },
     },
     400: {
@@ -52,8 +45,8 @@ const schema = {
         message: { type: 'string' },
       },
     },
-    401: {
-      description: 'Invalid username or password',
+    403: {
+      description: 'Forbidden',
       type: 'object',
       properties: {
         error: { type: 'string' },
