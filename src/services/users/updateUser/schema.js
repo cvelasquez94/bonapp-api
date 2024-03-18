@@ -1,7 +1,7 @@
 const schema = {
   tags: ['users'],
-  summary: 'createUser',
-  description: 'createUser',
+  summary: 'updateUser',
+  description: 'updateUser',
   body: {
     type: 'object',
     required: ['email'],

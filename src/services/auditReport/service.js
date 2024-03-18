@@ -21,7 +21,8 @@ module.exports = (fastify) => {
     RoleUser,
     user_branches,
     Restaurant,
-    ReportInstances,
+    ReportInstance,
+    ChecklistBranch,
   } = fastify.db;
 
 
@@ -509,7 +510,7 @@ const getAllDocuments = async (docs) => {
                   as: 'sTaskInstances',
                   where: {
                     [Op.and]: [
-                      { user_id: userId },
+                      { user_id: userId, branch_id: branchId },
                       STaskInstance.sequelize.where(
                         STaskInstance.sequelize.fn(
                           'DATE_FORMAT',
@@ -532,6 +533,12 @@ const getAllDocuments = async (docs) => {
               ],
             },
           ],
+        },
+        {
+              model: ChecklistBranch.unscoped(),
+              as: 'CheckListCheckBranch',
+              required: true,
+              where: { branch_id: branchId },
         },
       ],
       order: [[SubTask.sequelize.col('mainTasks.orden'), 'ASC'],[SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC']]
@@ -614,10 +621,10 @@ const getAllDocuments = async (docs) => {
       }
       console.log(dataInsert)
 
-      const instance = await ReportInstances.create(dataInsert);
+      const instance = await ReportInstance.create(dataInsert);
       if (!instance) {
         console.log(dataInsert)
-        throw new Error('Error insertando ReportInstances, Preview OK');
+        throw new Error('Error insertando ReportInstance, Preview OK');
       }
 
       return {
@@ -671,10 +678,10 @@ const getAllDocuments = async (docs) => {
       }
       console.log(dataInsert)
 
-      const instance = await ReportInstances.create(dataInsert);
+      const instance = await ReportInstance.create(dataInsert);
       if (!instance) {
         console.log(dataInsert)
-        throw new Error('Error insertando ReportInstances, Mail OK');
+        throw new Error('Error insertando ReportInstance, Mail OK');
       }
 
       return {

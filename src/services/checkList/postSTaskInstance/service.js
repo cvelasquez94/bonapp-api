@@ -5,7 +5,8 @@ module.exports = (fastify) => {
   const { STaskInstance } = fastify.db;
   async function createSTaskInstance({
     subTaskId,
-    userId,
+    userId, 
+    branchId,
     status,
     dateTime,
     comment,
@@ -37,7 +38,7 @@ module.exports = (fastify) => {
       const existingInstance = await STaskInstance.findOne({
         where: {
           [Op.and]: [
-            { subTask_id: subTaskId, user_id: userId },
+            { subTask_id: subTaskId, user_id: userId, branch_id: branchId },
             STaskInstance.sequelize.where(
               STaskInstance.sequelize.fn(
                 'DATE_FORMAT',
@@ -74,6 +75,7 @@ module.exports = (fastify) => {
 
       datapost.subTask_id = subTaskId;
       datapost.user_id = userId;
+      datapost.branch_id = branchId;
       console.log('datapost insert', datapost);
 
       const instance = await STaskInstance.create(datapost);

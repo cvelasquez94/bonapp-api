@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     flagPreview: DataTypes.INTEGER,
   }, {
     sequelize,
-    modelName: 'ReportInstances',
+    modelName: 'ReportInstance',
   });
   return ReportInstance;
 };
