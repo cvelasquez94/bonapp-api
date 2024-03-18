@@ -20,8 +20,8 @@ module.exports = (sequelize, DataTypes) => {
         as: 'roleUser',
       });
       User.belongsTo(models.Statuses, {
-        foreignKey: 'status_id'
-      })
+        foreignKey: 'status_id',
+      });
     }
   }
   User.init(
@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       birthDate: DataTypes.DATE,
       avatar: DataTypes.STRING,
       status_id: DataTypes.INTEGER,
+      phone: DataTypes.INTEGER,
       loginRetries: DataTypes.INTEGER,
       rut: DataTypes.STRING,
       sex: DataTypes.STRING,

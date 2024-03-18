@@ -17,7 +17,7 @@ const schema = {
       },
       birthDate: {
         type: 'string',
-        pattern: "[0-9]{2}[/-][0-9]{2}[/-][0-9]{4}",
+        pattern: '[0-9]{2}[/-][0-9]{2}[/-][0-9]{4}',
       },
       avatar: {
         type: 'string',
@@ -27,7 +27,7 @@ const schema = {
       },
       sex: {
         type: 'string',
-        enum: ['M','F','X'],
+        enum: ['M', 'F', 'X'],
       },
       roles: {
         type: 'array',
@@ -43,19 +43,26 @@ const schema = {
       },
       directActiveFlag: {
         type: 'integer',
-        description: 'if this is 1, pwd and status Must be passed to create User without receiving mail'
+        description:
+          'if this is 1, pwd and status Must be passed to create User without receiving mail',
       },
       pwd: {
         type: 'string',
       },
       statusId: {
-        type: 'integer',
+        type: ['integer', 'null'],
+        nullable: true,
+        description: 'status Id',
+      },
+      phone: {
+        type: 'string',
+        description: 'Phone number',
       },
     },
   },
   response: {
     200: {
-      description: 'User Updated',
+      description: 'User updated',
       type: 'object',
       properties: {
         id: { type: 'number' },

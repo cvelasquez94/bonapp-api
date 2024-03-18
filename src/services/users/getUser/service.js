@@ -1,13 +1,13 @@
 module.exports = (fastify) => {
-  const { User, RoleUser, Branches, user_branches, Restaurant } = fastify.db;
+  const { User, RoleUser, Role, Branches, user_branches, Restaurant } =
+    fastify.db;
 
   async function getUser(body) {
     try {
-
       let user;
 
-      if(body.email){
-        const email = body.email.toLowerCase()
+      if (body.email) {
+        const email = body.email.toLowerCase();
 
         user = await User.findOne({
           where: { email: email },
@@ -16,37 +16,38 @@ module.exports = (fastify) => {
               model: RoleUser,
               as: 'roleUser',
               //required: true,
+              include: [
+                {
+                  attributes: ['id', 'name'],
+                  model: Role,
+                  as: 'role',
+                },
+              ],
             },
-          
             {
               model: user_branches,
-              as: 'user_branches',            
+              as: 'user_branches',
               //required: false,
               include: [
                 {
-                  attributes: ['name','short_name','patent_url'],
+                  attributes: ['name', 'short_name', 'patent_url'],
                   model: Branches,
                   as: 'branches',
                   //required: true,
                   include: [
                     {
-                      attributes: ['id','name'],
+                      attributes: ['id', 'name'],
                       model: Restaurant,
                       as: 'Restaurant',
-                    }
-                ]
-                }
-            ]
-            
+                    },
+                  ],
+                },
+              ],
             },
           ],
-          order: [
-            [user_branches, 'updatedAt', 'DESC']
-          ],
-        })
-      }
-      if(body.id){
-
+          order: [[user_branches, 'updatedAt', 'DESC']],
+        });
+      } else if (body.id) {
         user = await User.findOne({
           where: { id: body.id },
           include: [
@@ -54,51 +55,62 @@ module.exports = (fastify) => {
               model: RoleUser,
               as: 'roleUser',
               //required: true,
+              include: [
+                {
+                  attributes: ['id', 'name'],
+                  model: Role,
+                  as: 'role',
+                },
+              ],
             },
-          
+
             {
               model: user_branches,
-              as: 'user_branches',            
+              as: 'user_branches',
               //required: false,
               include: [
                 {
-                  attributes: ['name','short_name','patent_url'],
+                  attributes: ['name', 'short_name', 'patent_url'],
                   model: Branches,
                   as: 'branches',
                   //required: true,
                   include: [
                     {
-                      attributes: ['id','name'],
+                      attributes: ['id', 'name'],
                       model: Restaurant,
                       as: 'Restaurant',
-                    }
-                ]
-                }
-            ]
-            
+                    },
+                  ],
+                },
+              ],
             },
           ],
-          order: [
-            [user_branches, 'updatedAt', 'DESC']
-          ],
-        })
+          order: [[user_branches, 'updatedAt', 'DESC']],
+        });
       }
-
-      if(!user){
+      if (!user) {
         throw new Error('User no encontrado');
       }
 
       const roles = user.dataValues.roleUser.map((item) => {
-        return item.dataValues.role_id;
+        return {
+          role_id: item.dataValues.role_id,
+          role_desc: item.dataValues.role.dataValues.name,
+        };
       });
 
       const branches = user.dataValues.user_branches.map((user_branches) => {
-        return user_branches.dataValues.branch_id
+        return {
+          branch_id: user_branches.dataValues.branch_id,
+          branch_desc: user_branches.dataValues.branches.dataValues.short_name,
+        };
       });
-
-
-      return { ...user.dataValues, statusId: user.dataValues.status_id, roles, branches};
-      
+      return {
+        ...user.dataValues,
+        statusId: user.dataValues.status_id,
+        roles,
+        branches,
+      };
     } catch (error) {
       throw new Error(error);
     }

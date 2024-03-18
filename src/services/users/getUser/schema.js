@@ -12,18 +12,14 @@ const schema = {
         type: 'integer',
       },
     },
-    "oneOf": [
+    oneOf: [
       {
-          "required": [
-              "email"
-          ]
+        required: ['email'],
       },
       {
-          "required": [
-              "id"
-          ]
+        required: ['id'],
       },
-    ]
+    ],
   },
   response: {
     200: {
@@ -53,17 +49,28 @@ const schema = {
         roles: {
           type: 'array',
           items: {
-            type: 'integer',
+            type: 'object',
+            properties: {
+              role_id: { type: 'integer' },
+              role_desc: { type: 'string' },
+            },
           },
         },
         branches: {
           type: 'array',
           items: {
-            type: 'integer',
+            type: 'object',
+            properties: {
+              branch_id: { type: 'integer' },
+              branch_desc: { type: 'string' },
+            },
           },
         },
         statusId: {
           type: 'integer',
+        },
+        phone: {
+          type: 'string',
         },
       },
     },
