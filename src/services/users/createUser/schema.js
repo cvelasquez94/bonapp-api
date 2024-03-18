@@ -4,7 +4,16 @@ const schema = {
   description: 'createUser',
   body: {
     type: 'object',
-    required: ['email', 'firstName', 'lastName', 'sex', 'birthDate', 'rut', 'roles', 'branches'],
+    required: [
+      'email',
+      'firstName',
+      'lastName',
+      'sex',
+      'birthDate',
+      'rut',
+      'roles',
+      'branches',
+    ],
     properties: {
       email: {
         type: 'string',
@@ -17,7 +26,7 @@ const schema = {
       },
       birthDate: {
         type: 'string',
-        pattern: "[0-9]{2}[/-][0-9]{2}[/-][0-9]{4}",
+        pattern: '[0-9]{2}[/-][0-9]{2}[/-][0-9]{4}',
       },
       avatar: {
         type: 'string',
@@ -27,7 +36,7 @@ const schema = {
       },
       sex: {
         type: 'string',
-        enum: ['M','F','X'],
+        enum: ['M', 'F', 'X'],
       },
       roles: {
         type: 'array',
@@ -43,13 +52,17 @@ const schema = {
       },
       directActiveFlag: {
         type: 'integer',
-        description: 'if this is 1, pwd and status Must be passed to create User without receiving mail'
+        description:
+          'If this is 1, pwd and status Must be passed to create User without receiving mail',
       },
       pwd: {
         type: 'string',
       },
       statusId: {
         type: 'integer',
+      },
+      phone: {
+        type: 'string',
       },
     },
   },
@@ -61,7 +74,8 @@ const schema = {
         id: { type: 'number' },
         email: { type: 'string' },
       },
-    },201: {
+    },
+    201: {
       description: 'User Created',
       type: 'object',
       properties: {

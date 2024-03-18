@@ -8,7 +8,7 @@
     "test": "eslint . && TESTING=yes jest",
     "coverage": "jest --coverage",
     "lint": "eslint --fix --ignore-path .gitignore .",
-    "start:dev": "nodemon app.js",
+    "start:dev": "nodemon src/core/server.js",
     "drop-db": "sequelize --migrations-path ./migrations db:drop",
     "create-db": "sequelize --migrations-path ./migrations db:create",
     "migrations": "sequelize --migrations-path ./migrations db:migrate",
@@ -47,6 +47,7 @@
     "eslint-plugin-standard": "^4.1.0",
     "jest": "^29.0.2",
     "nock": "^13.0.11",
+    "nodemon": "^3.1.0",
     "sequelize-cli": "^6.5.2"
   },
   "config": {
