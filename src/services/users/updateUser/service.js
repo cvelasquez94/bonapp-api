@@ -1,5 +1,6 @@
 module.exports = (fastify) => {
   const { User, RoleUser, user_branches } = fastify.db;
+  const { encryptWord } = require('../../../utils');
 
   async function updateUser(body) {
     try {
