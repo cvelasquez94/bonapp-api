@@ -22,6 +22,7 @@ const schema = {
       type: 'object',
       properties: {
         id: { type: 'integer' },
+        status_id: { type: 'integer' },
         firstName: { type: 'string' },
         lastName: { type: 'string' },
         avatar: { type: 'string' },
@@ -36,14 +37,14 @@ const schema = {
         branches: {
           type: 'array',
           items: {
-            branch_id: {type: 'integer'},
+            branch_id: { type: 'integer' },
             branch_name: { type: 'string' },
             branch_short_name: { type: 'string' },
             patent_url: { type: 'string' },
-            restaurant_id: {type: 'integer'},
+            restaurant_id: { type: 'integer' },
             restaurant_name: { type: 'string' },
           },
-        }
+        },
       },
     },
     400: {
