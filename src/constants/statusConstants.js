@@ -7,11 +7,12 @@ exports.OK = 'ok';
 exports.PENDING = 'pending';
 exports.status = [exports.OK, exports.PENDING];
 
-exports.invalidationTimeInMinutes = 1000;
-
 exports.statusUser = Object.freeze({
   BAJA: 100,
   ACTIVO: 101,
   NUEVO: 102,
   BLOQUEADO: 103,
+});
+exports.statusNotification = Object.freeze({
+  SENT: 400,
 });
