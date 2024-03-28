@@ -72,6 +72,12 @@ async function app() {
   fastify.register(require('../services/documents/deleteImage'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/notifications/getNotifications'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/notifications/createNotification'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.ready((err) => {
     if (err) throw err;
   });
