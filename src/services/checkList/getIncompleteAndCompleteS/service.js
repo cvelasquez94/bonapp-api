@@ -1,6 +1,13 @@
 module.exports = (fastify) => {
-  const { Checklist, MainTask, SubTask, STaskInstance, RoleUser, Role, ChecklistBranch } =
-    fastify.db;
+  const {
+    Checklist,
+    MainTask,
+    SubTask,
+    STaskInstance,
+    RoleUser,
+    Role,
+    ChecklistBranch,
+  } = fastify.db;
   const { Op } = require('sequelize');
   async function getCheckList(roleId, userId, branchId, dateNow) {
     try {
@@ -9,8 +16,8 @@ module.exports = (fastify) => {
 
       //TODO quitar esto dsp de release apk
       const tieneBarra = dateNow.indexOf('/');
-      if(tieneBarra>0){
-          let dateSplit = dateNow.split('/');
+      if (tieneBarra > 0) {
+        let dateSplit = dateNow.split('/');
         if (dateSplit.length == 3) {
           dateTimeStr =
             dateSplit[0].padStart(2, '0') +
@@ -18,14 +25,12 @@ module.exports = (fastify) => {
             dateSplit[1].padStart(2, '0') +
             '-' +
             dateSplit[2].padStart(4, '0');
-          }
-      }
-      else{
+        }
+      } else {
         dateTimeStr = dateNow;
       }
 
-      console.log('dateNow: ', dateTimeStr);
-
+      // console.log('--------------dateNow: ', dateTimeStr);
 
       const checkList = await Checklist.findAll({
         //where: { branch_id: branchId },
@@ -44,10 +49,10 @@ module.exports = (fastify) => {
             ],
           },
           {
-                model: ChecklistBranch.scope('defaultScope'),
-                as: 'CheckListCheckBranch',
-                required: true,
-                where: { branch_id: branchId },
+            model: ChecklistBranch.scope('defaultScope'),
+            as: 'CheckListCheckBranch',
+            required: true,
+            where: { branch_id: branchId },
           },
           {
             model: MainTask.scope('defaultScope'),
@@ -82,7 +87,11 @@ module.exports = (fastify) => {
             ],
           },
         ],
-        order: [[Checklist.sequelize.col('id'), 'ASC'],[SubTask.sequelize.col('mainTasks.orden'), 'ASC'],[SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC']]
+        order: [
+          [Checklist.sequelize.col('id'), 'ASC'],
+          [SubTask.sequelize.col('mainTasks.orden'), 'ASC'],
+          [SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC'],
+        ],
       });
 
       const checklistsMap = checkList.map((check) => {
@@ -102,7 +111,7 @@ module.exports = (fastify) => {
             if (!isFinalized)
               isFinalized = subTask.dataValues.sTaskInstances.some(
                 (item) => item.dataValues.status === 'audited'
-              );  
+              );
 
             if (subTask.sTaskInstances && subTask.sTaskInstances.length > 0) {
               // La subTask está completa
@@ -112,8 +121,8 @@ module.exports = (fastify) => {
               subtasksIncomplete.push(subTask);
             }
           });
-        })
-        
+        });
+
         /*if (
           check.dataValues.type === 'audit'
            )*/
@@ -132,9 +141,15 @@ module.exports = (fastify) => {
         };
       });
 
-      if (!checklistsMap) {
-        throw new Error('No checklist');
+      if (!checklistsMap.length) {
+        console.error(
+          'No exiten checklist ==> ',
+          dateTimeStr,
+          userId,
+          branchId
+        );
       }
+
       return checklistsMap;
     } catch (error) {
       throw new Error(error);
