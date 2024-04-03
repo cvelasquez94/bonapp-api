@@ -1,5 +1,5 @@
 module.exports = (fastify) => {
-  const { statusUser } = require('../../../constants/user');
+  const { statusUser } = require('../../../constants/statusConstants');
   const { User, RoleUser, Branches, user_branches, Restaurant } = fastify.db;
   async function signIn(email, pwd) {
     try {
