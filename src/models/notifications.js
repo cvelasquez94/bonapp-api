@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       messageId: DataTypes.STRING,
       status_id: DataTypes.INTEGER,
+      read: DataTypes.TINYINT,
       title: DataTypes.STRING,
       body: DataTypes.STRING,
       dataCustom: DataTypes.STRING,
