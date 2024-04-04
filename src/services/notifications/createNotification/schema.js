@@ -6,6 +6,9 @@ const schema = {
     type: 'object',
     required: ['body', 'title'],
     properties: {
+      userId: {
+        type: 'integer',
+      },
       messageId: {
         type: 'string',
       },
