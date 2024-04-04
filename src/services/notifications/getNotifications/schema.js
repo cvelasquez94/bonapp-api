@@ -2,6 +2,15 @@ const schema = {
   tags: ['notifications'],
   summary: 'getNotifications',
   description: 'getNotifications',
+  query: {
+    type: 'object',
+    required: ['userId'],
+    properties: {
+      userId: {
+        type: 'integer',
+      },
+    },
+  },
   response: {
     400: {
       description: 'Bad request',
