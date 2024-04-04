@@ -3,7 +3,7 @@ module.exports = (fastify) => {
 
   async function getNotifications(user_id) {
     try {
-      const data = Notifications.findAll({ where: { user_id } });
+      const data = await Notifications.findAll({ where: { user_id } });
       if (!data) {
         throw new Error('Notificaciones no encontrados');
       }
