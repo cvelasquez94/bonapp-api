@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Notifications.init(
     {
+      user_id: DataTypes.INTEGER,
       messageId: DataTypes.STRING,
       status_id: DataTypes.INTEGER,
       read: DataTypes.TINYINT,
