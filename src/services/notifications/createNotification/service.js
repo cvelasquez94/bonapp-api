@@ -6,6 +6,7 @@ module.exports = (fastify) => {
     try {
       const newNotification = {
         ...body,
+        user_id: body.userId,
         status_id: statusNotification.SENT,
       };
       const result = await Notifications.create(newNotification);
