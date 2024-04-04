@@ -9,7 +9,7 @@ const schema = {
       'firstName',
       'lastName',
       'sex',
-      'birthDate',
+      //'birthDate',
       'rut',
       'roles',
       'branches',
