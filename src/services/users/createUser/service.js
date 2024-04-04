@@ -95,7 +95,13 @@ module.exports = (fastify) => {
           });
           //console.log(branchret)
 
-          mail.CreateUserEmail(email, pwd);
+          try{
+           await mail.CreateUserEmail(email, pwd);
+          }
+          catch(error){
+            throw new Error('Error enviando mail a la dirección: '+email +' --> '+error)
+          }
+
 
           return usret;
         }
