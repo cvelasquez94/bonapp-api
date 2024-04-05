@@ -29,6 +29,13 @@ module.exports = (sequelize, DataTypes) => {
       comment: DataTypes.STRING,
       score: DataTypes.STRING,
       photo: DataTypes.STRING,
+      branch_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: Model.Branches,
+          key: 'id',
+        },
+      },
     },
     {
       sequelize,

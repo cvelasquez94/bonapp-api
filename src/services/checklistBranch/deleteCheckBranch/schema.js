@@ -1,47 +1,25 @@
 const schema = {
-  tags: ['Documents'],
-  summary: 'postImage',
-  description: 'upload images and post table documents',
-  body: {
+  tags: ['checklistBranch'],
+  summary: 'deleteCheckBranch',
+  description: 'deleteCheckBranch',
+  query: {
     type: 'object',
+    required: ['checklist_id','branch_id'],
     properties: {
-      url: {
-        type: 'string',
-        description: 'url upload images',
-      },
-      name: {
-        type: 'string',
-        description: 'name image',
-      },
-      desc: {
-        type: 'string',
-        description: 'description to long',
-      },
-      staskInstance_id: {
+      checklist_id: {
         type: 'integer',
-        description: '',
-      },
-      user_id: {
-        type: 'integer',
-        description: '',
-      },
-      dateNow: {
-        type: 'string',
-        description: 'date',
       },
       branch_id: {
         type: 'integer',
-        description: '',
       },
     },
   },
   response: {
-    200: {
-      description: 'Bad request',
-      type: 'object',
+    204: {
+       description: 'checklistBranch deleted',
+       type: 'array',
       properties: {
-        id: { type: 'integer' },
-        message: { type: 'string' },
+        id: { type: 'number' },
       },
     },
     400: {
@@ -52,8 +30,8 @@ const schema = {
         message: { type: 'string' },
       },
     },
-    401: {
-      description: 'Invalid username or password',
+    403: {
+      description: 'Forbidden',
       type: 'object',
       properties: {
         error: { type: 'string' },

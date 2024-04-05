@@ -9,7 +9,7 @@ module.exports = (fastify) => {
       const existingInstance = await STaskInstance.findOne({
         where: {
           [Op.and]: [
-            { subTask_id: data.staskInstance_id, user_id: data.user_id },
+            { subTask_id: data.staskInstance_id, user_id: data.user_id, branch_id: data.branch_id },
             STaskInstance.sequelize.where(
               STaskInstance.sequelize.fn(
                 'DATE_FORMAT',

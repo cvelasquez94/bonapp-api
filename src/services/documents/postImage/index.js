@@ -6,7 +6,7 @@ const route = async (fastify, opts, next) => {
   const { postImage } = require('./service')(fastify);
   //TODO: mejora, enviar solamente instance_id, hoy en dia se envia substak_id en staskInstance_id
   fastify.post('/postImage', { schema }, async (request, reply) => {
-    const { url, name, desc, staskInstance_id, user_id, dateNow } =
+    const { url, name, desc, staskInstance_id, user_id, dateNow, branch_id } =
       request.body;
     const document = await postImage({
       url,
@@ -15,6 +15,7 @@ const route = async (fastify, opts, next) => {
       staskInstance_id,
       user_id,
       dateNow,
+      branch_id
     });
     return reply.type('application/json').send({
       message: 'ok',

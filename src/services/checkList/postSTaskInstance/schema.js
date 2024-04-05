@@ -15,6 +15,11 @@ const schema = {
         format: 'int32',
         description: 'Identifier for the user who is assigned to the subtask'
       },
+      branchId: {
+        type: 'integer',
+        format: 'int32',
+        description: 'Identifier for the branch of the checklist/task'
+      },
       status: {
         type: 'string',
         description: 'The status of the subtask'
