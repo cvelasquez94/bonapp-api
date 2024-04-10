@@ -9,6 +9,7 @@ const fastify = require('fastify')({
 });
 async function app() {
   // await fastify.register(require('middie'))
+  // require('../cron/scheduleCron');
   fastify.addHook('onRequest', utils.corsHook);
   fastify.decorate('config', config);
   fastify.decorate('db', models);
@@ -45,7 +46,22 @@ async function app() {
   fastify.register(require('../services/login/forgetPassword'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/checkList/getChecklistAll'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/checkList/createChecklist'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/checkList/deleteChecklist'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/checkList/updateChecklist'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/checkList/getCheckList'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/checkList/getCheckListByID'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/checkList/getSubtasks'), {
@@ -67,6 +83,18 @@ async function app() {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/checklistBranch/deleteCheckBranch'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/mainTask/createMainTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/mainTask/deleteMainTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/mainTask/updateMainTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/mainTask/getMainTask'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/auditReport'), {

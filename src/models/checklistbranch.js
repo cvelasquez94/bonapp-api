@@ -95,7 +95,6 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: 'ChecklistBranch',
       freezeTableName: true,
-      timestamps: false,
     }
   );
   return ChecklistBranch;
