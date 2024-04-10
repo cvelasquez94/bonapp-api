@@ -23,14 +23,7 @@ module.exports = (fastify) => {
       if (dateNow) {
         dateTimeStr = dateNow
       console.log('dateNow: ', dateTimeStr);
-      } else {
-        //TODO quitar esto dsp de release apk
-        now = new Date();
-        const offset = 180 * 60000; //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
-        const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
-        console.log('localDateTime: ', localDateTime, ' offset: ', offset);
-        dateTimeStr = `${localDateTime.getUTCDate().toString().padStart(2, '0')}-${(localDateTime.getUTCMonth()+1).toString().padStart(2, '0')}-${localDateTime.getUTCFullYear()}`;
-      }
+      } 
 
       console.log('dateTimeStr: ', dateTimeStr);
 
