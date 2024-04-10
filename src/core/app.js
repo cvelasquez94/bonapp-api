@@ -9,6 +9,7 @@ const fastify = require('fastify')({
 });
 async function app() {
   // await fastify.register(require('middie'))
+  // require('../cron/scheduleCron');
   fastify.addHook('onRequest', utils.corsHook);
   fastify.decorate('config', config);
   fastify.decorate('db', models);
