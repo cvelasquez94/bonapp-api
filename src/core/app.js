@@ -54,6 +54,9 @@ async function app() {
   fastify.register(require('../services/checkList/postSTaskInstance'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/checkList/getCheckListDue'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/checklistBranch/getCheckBranch'), {
     prefix: fastify.config.prefix,
   });
