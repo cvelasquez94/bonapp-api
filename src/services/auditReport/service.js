@@ -199,7 +199,7 @@ const getAllDocuments = async (docs) => {
 
      
       now = new Date();
-      const offset = 180 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+      const offset = 240 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
       const today = new Date(now - offset); // Ajustar la hora al tiempo local
       console.log('offset: '+offset+' now: '+now)
       console.log('today: ' +today)
@@ -481,7 +481,7 @@ const getAllDocuments = async (docs) => {
       } else {
         //TODO quitar esto dsp de release apk
         now = new Date();
-        const offset = 180 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
+        const offset = 240 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
         const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
         console.log('localDateTime: ', localDateTime, ' offset: ', offset);
         dateTimeStr = `${localDateTime.getUTCDate().toString().padStart(2, '0')}-${(localDateTime.getUTCMonth()+1).toString().padStart(2, '0')}-${localDateTime.getUTCFullYear()}`;

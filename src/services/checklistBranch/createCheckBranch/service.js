@@ -12,7 +12,7 @@ module.exports = (fastify) => {
         user_id: body.user_id,
         start_date: body.start_date,
         end_date: body.end_date,
-        enable: body.enable? body.enable : 1,
+        enable: body.enable == null? 1 : body.enable,
         freqType: body.freqType,
         freqValue: body.freqValue,
         flagRecurrent: body.flagRecurrent,

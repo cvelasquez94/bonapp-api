@@ -7,8 +7,8 @@ module.exports = (fastify) => {
       const cb = await ChecklistBranch.unscoped().findAll({
         where: { checklist_id: body.checklist_id, branch_id: body.branch_id },
       })
-
-      if(!cb){
+      
+      if(cb.length === 0){
         throw new Error('ChecklistBranch no existe');
       }
 
