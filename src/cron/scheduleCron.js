@@ -1,19 +1,40 @@
 const cron = require('node-cron');
 const notificationService = require('../services/notifications/notificationService');
-// const databaseService = require('../services/databaseService'); 
+const moment = require('moment-timezone');
+const fetch = require('node-fetch');
+
+const getTimeChile = () => {
+  const timeInChile = moment.tz('America/Santiago');
+  return timeInChile.format('HH:mm');
+}
+
+const getExpirationList = async (url) => {
+  const response = await fetch(url, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch expiration list: ${response.statusText}`);
+  }
+  return response.json();
+}
 
 async function runCronJob() {
-
-    console.log('ejecute el crons')
-//   const schedules = await databaseService.getUpcomingSchedules();
-  const schedules = [{scheduleTime: '20:21', deviceToken: 'euUkxyotR0CIUlX-ZizrBQ:APA91bEUrESWKnT-bBlrx89MV8c-ZWVr6qx4TNbCZ7Exd7iV-T8ju6Saq-kI42dBKtMFxZfLDrrQUrCIagAk_DEb9LGWpzIqpVIWBIL3vnAE3994q8euPB9jD28dPqhb5dp3Jbck6zVE'}]
+  // const {getCheckListDue} = require('../services/checkList/getCheckListDue/service')(fastify)
+  console.log('ejecute el crons')
+  const timeZone = getTimeChile()
+  console.log(timeZone, '  ' )
+  // const schedules = await getCheckListDue(10, timeZone)
+  const schedules = await getExpirationList(`https://bonapp-api.onrender.com/base/v1/getCheckListDue?interval=10&time=${timeZone}`)
+  // const schedules = []
+  console.log(schedules)
   schedules.forEach(async (schedule) => {
-    const { scheduleTime, deviceToken } = schedule;
+  const { token, name } = schedule;
     // const shouldNotify = notificationService.shouldSendNotification(scheduleTime);
-    console.log(schedules)
+    console.log(schedule)
     // if (shouldNotify) {
     try {
-      await notificationService.sendNotification(deviceToken);
+      await notificationService.sendNotification(token, name);
     } catch (error) {
       console.log('Error la enviar la notificacion', error)
     }
@@ -21,6 +42,6 @@ async function runCronJob() {
   });   
 
 }
-cron.schedule('*/10 * * * *', runCronJob);
+cron.schedule('*/10 0-1,8-23 * * *', runCronJob, { scheduled: true, timezone: 'America/Santiago'});
 
 module.exports = { runCronJob };

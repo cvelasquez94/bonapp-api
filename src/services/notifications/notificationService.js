@@ -1,11 +1,11 @@
 const admin = require('../../config/firebaseConfig');
 
-async function sendNotification(deviceToken) {
+async function sendNotification(deviceToken, nameChecklist) {
   console.log(`Mock send notification to ${deviceToken}`);
   const message = {
     notification: {
-      title: 'CHECKLIST',
-      body: 'Tu checklist Apertura cocina termina en 10 minutos.'
+      title: `${nameChecklist}`,
+      body: `Tu checklist ${nameChecklist} termina en 10 minutos.`
     },
     token: deviceToken,
   };
@@ -15,7 +15,7 @@ async function sendNotification(deviceToken) {
 }
 
 function shouldSendNotification(scheduleTime) {
-    console.log(scheduleTime)
+  console.log(scheduleTime)
   const scheduleDate = new Date(scheduleTime);
   const currentDate = new Date();
   const difference = scheduleDate.getTime() - currentDate.getTime();
