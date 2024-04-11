@@ -1,5 +1,7 @@
 const moment = require('moment-timezone');
 const admin = require('../../config/firebaseConfig');
+const fetch = require('node-fetch');
+
 async function sendNotification(deviceToken, nameChecklist, userId) {
   console.log(`Mock send notification to ${deviceToken}`);
   const bodyMenssage = `Tu checklist ${nameChecklist} termina en 10 minutos.`
