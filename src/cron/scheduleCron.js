@@ -23,7 +23,7 @@ async function runCronJob() {
   // const {getCheckListDue} = require('../services/checkList/getCheckListDue/service')(fastify)
   console.log('ejecute el crons')
   const timeZone = getTimeChile()
-  const interval = 60;
+  const interval = 10;
   console.log(timeZone, interval)
   // const schedules = await getCheckListDue(10, timeZone)
   const schedules = await getExpirationList(`https://bonapp-api.onrender.com/base/v1/getCheckListDue?interval=${interval}&time=${timeZone}`)
