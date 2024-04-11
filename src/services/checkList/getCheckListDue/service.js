@@ -5,7 +5,7 @@ module.exports = (fastify) => {
   async function getCheckListDue(interval, timeNow) {
     try {
       const resp = await Checklist.sequelize.query(`
-      SELECT users.id, users.name, tk.user_id tk_user_id, tk.token
+      SELECT users.id, users.name, tk.user_id user_id, tk.token
         FROM
             (SELECT  grouped.*, NOW(), u1.email, u1.id AS usid
             FROM
