@@ -121,6 +121,9 @@ async function app() {
   fastify.register(require('../services/notifications/createNotification'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/notifications/updateNotification'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/tokenUser/getTokenUser'), {
     prefix: fastify.config.prefix,
   });
