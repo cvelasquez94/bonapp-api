@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'role_id',
         as: 'RoleReportTo',
       });
-      Role.hasMany(models.Checklist, {
+      Role.hasMany(models.ChecklistBranch, {
         foreignKey: 'id',
         as: 'ChecklistRole',
       });
