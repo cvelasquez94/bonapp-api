@@ -1,5 +1,5 @@
 const schema = {
-  tags: ['MainTask'],
+  tags: ['SubTask'],
   summary: 'createMainTask',
   description: 'createMainTask',
   body: {

@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'branch_id',
         as: 'branches',
       });
+      ChecklistBranch.belongsTo(models.Role, {
+        foreignKey: 'role_id',
+        as: 'role',
+      });
     }
   }
   ChecklistBranch.init(

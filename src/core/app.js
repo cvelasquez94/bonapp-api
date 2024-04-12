@@ -97,6 +97,18 @@ async function app() {
   fastify.register(require('../services/mainTask/getMainTask'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/subTask/createSubTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/subTask/deleteSubTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/subTask/updateSubTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/subTask/getSubTask'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/auditReport'), {
     prefix: fastify.config.prefix,
   });

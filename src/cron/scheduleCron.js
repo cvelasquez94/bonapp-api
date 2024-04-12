@@ -23,18 +23,19 @@ async function runCronJob() {
   // const {getCheckListDue} = require('../services/checkList/getCheckListDue/service')(fastify)
   console.log('ejecute el crons')
   const timeZone = getTimeChile()
-  console.log(timeZone, '  ' )
+  const interval = 10;
+  console.log(timeZone, interval)
   // const schedules = await getCheckListDue(10, timeZone)
-  const schedules = await getExpirationList(`https://bonapp-api.onrender.com/base/v1/getCheckListDue?interval=10&time=${timeZone}`)
+  const schedules = await getExpirationList(`https://bonapp-api.onrender.com/base/v1/getCheckListDue?interval=${interval}&time=${timeZone}`)
   // const schedules = []
   console.log(schedules)
   schedules.forEach(async (schedule) => {
-  const { token, name } = schedule;
+  const { token, name, user_id } = schedule;
     // const shouldNotify = notificationService.shouldSendNotification(scheduleTime);
     console.log(schedule)
     // if (shouldNotify) {
     try {
-      await notificationService.sendNotification(token, name);
+      await notificationService.sendNotification(token, name, user_id);
     } catch (error) {
       console.log('Error la enviar la notificacion', error)
     }
