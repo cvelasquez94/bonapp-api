@@ -10,7 +10,7 @@ const schema = {
       },
       time: {
         type: 'string',
-        description: 'HH:MM',
+        description: 'dd/mm/yyyy HH24:MM',
       },
     },
   },
@@ -25,6 +25,7 @@ const schema = {
           name: { type: 'string' },
           user_id: { type: 'integer' },
           token: { type: 'string' },
+          branch_name: { type: 'string' },
         },
       },
     },
