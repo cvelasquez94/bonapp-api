@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'branch_id',
         as: 'branches',
       });
+      ChecklistBranch.belongsTo(models.Role, {
+        foreignKey: 'role_id',
+        as: 'role',
+      });
     }
   }
   ChecklistBranch.init(
@@ -50,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       enable: DataTypes.TINYINT,
+      notificationEnabled: DataTypes.TINYINT,
       start_date: DataTypes.DATE,
       end_date: DataTypes.DATE,
       freqType: DataTypes.STRING,
