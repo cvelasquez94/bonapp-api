@@ -1,34 +1,8 @@
 const schema = {
-  tags: ['CheckList'],
-  summary: 'getCheckListDue',
-  description: 'getCheckListDue',
-  query: {
-    type: 'object',
-    properties: {
-      interval: {
-        type: 'integer',
-      },
-      time: {
-        type: 'string',
-        description: 'dd/mm/yyyy HH24:MM',
-      },
-    },
-  },
+  tags: ['Files'],
+  summary: 'getFiles',
+  description: 'getFiles',
   response: {
-    200: {
-      description: 'Get check list due',
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'integer' },
-          name: { type: 'string' },
-          user_id: { type: 'integer' },
-          token: { type: 'string' },
-          branch_name: { type: 'string' },
-        },
-      },
-    },
     400: {
       description: 'Bad request',
       type: 'object',
@@ -37,8 +11,8 @@ const schema = {
         message: { type: 'string' },
       },
     },
-    401: {
-      description: 'Invalid username or password',
+    403: {
+      description: 'Forbidden',
       type: 'object',
       properties: {
         error: { type: 'string' },

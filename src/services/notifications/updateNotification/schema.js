@@ -1,33 +1,27 @@
 const schema = {
-  tags: ['SubTask'],
-  summary: 'createSubTask',
-  description: 'createSubTask',
+  tags: ['notifications'],
+  summary: 'updateNotification',
+  description: 'updateNotification',
   body: {
     type: 'object',
-     required: ['name', 'mainTask_id', 'orden'],
-            properties: {
-             id: { type: 'integer' },
-             name: { type: 'string' },
-             desc: { type: 'string' },
-             expiration: { type: 'string', format: 'date-time', },
-             mainTask_id: { type: 'integer' },
-             scoreMultiplier: { type: 'integer' },
-             orden: { type: 'integer' },
-             enable: { type: 'integer' },
-          }
+    required: ['id', 'read'],
+    properties: {
+      id: {
+        type: 'integer',
+      },
+      read: {
+        type: 'integer',
+        enum: [0, 1],
+      },
+    },
   },
   response: {
-    200: {
-      description: 'MainTask created',
-      type: 'object',
+    204: {
+      description: 'User updated',
+      type: 'null',
       properties: {
         id: { type: 'number' },
-      },
-    },201: {
-      description: 'MainTask Created',
-      type: 'object',
-      properties: {
-        id: { type: 'number' },
+        email: { type: 'string' },
       },
     },
     400: {
