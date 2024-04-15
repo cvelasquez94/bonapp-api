@@ -30,6 +30,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
       },
+      Category: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+      },
+      Preview: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
       UpdatedAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
