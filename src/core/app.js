@@ -142,6 +142,9 @@ async function app() {
   fastify.register(require('../services/tokenUser/createTokenUser'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/files/getFiles'), {
+    prefix: fastify.config.prefix
+  })
   fastify.ready((err) => {
     if (err) throw err;
   });
