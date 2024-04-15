@@ -36,23 +36,25 @@ module.exports = (fastify) => {
         //where: { branch_id: branchId },
         include: [
           {
-            model: Role,
-            as: 'role',
-            required: true,
-            include: [
-              {
-                model: RoleUser,
-                as: 'roleUser',
-                required: true,
-                where: { user_id: userId },
-              },
-            ],
-          },
-          {
             model: ChecklistBranch.scope('defaultScope'),
             as: 'CheckListCheckBranch',
             required: true,
             where: { branch_id: branchId },
+            include: [
+              {
+                model: Role,
+                as: 'role',
+                required: true,
+                include: [
+                  {
+                    model: RoleUser,
+                    as: 'roleUser',
+                    required: true,
+                    where: { user_id: userId },
+                  },
+                ],
+                  },
+              ],
           },
           {
             model: MainTask.scope('defaultScope'),
@@ -126,11 +128,12 @@ module.exports = (fastify) => {
         /*if (
           check.dataValues.type === 'audit'
            )*/
+           
 
         // Devolver un objeto con los datos de check y los arrays de subtasks
         return {
           id: check.id,
-          role_id: check.role_id,
+          role_id: check.CheckListCheckBranch[0].role_id,
           name: check.name,
           desc: check.desc,
           type: check.type,

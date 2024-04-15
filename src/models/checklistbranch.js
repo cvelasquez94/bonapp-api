@@ -54,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       enable: DataTypes.TINYINT,
+      notificationEnabled: DataTypes.TINYINT,
       start_date: DataTypes.DATE,
       end_date: DataTypes.DATE,
       freqType: DataTypes.STRING,
