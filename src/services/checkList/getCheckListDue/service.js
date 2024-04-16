@@ -38,6 +38,7 @@ module.exports = (fastify) => {
                     ) users
                         INNER JOIN TokenUsers tk ON users.usid = tk.user_id AND tk.type = 'notification' 
                         INNER JOIN Branches br ON br.id = users.branch_id 
+                        INNER JOIN user_branches as ub on ub.user_id = users.usid and ub.branch_id = users.branch_id
                 WHERE
                     NOT EXISTS( SELECT 1
                         FROM
