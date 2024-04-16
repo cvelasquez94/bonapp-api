@@ -144,7 +144,20 @@ async function app() {
   });
   fastify.register(require('../services/files/getFiles'), {
     prefix: fastify.config.prefix
-  })
+  });
+  fastify.register(require('../services/branch/createBranch'), {
+    prefix: fastify.config.prefix,
+  });
+    fastify.register(require('../services/branch/getBranch'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/branch/deleteBranch'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/branch/updateBranch'), {
+    prefix: fastify.config.prefix,
+  });
+
   fastify.ready((err) => {
     if (err) throw err;
   });

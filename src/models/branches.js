@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
+
     static associate(models) {
       // define association here
       Branches.hasMany(models.user_branches, {
@@ -31,6 +32,8 @@ module.exports = (sequelize, DataTypes) => {
       rut: DataTypes.STRING,
       patent_url: DataTypes.STRING,
       restaurant_id: DataTypes.INTEGER,
+      //enable: DataTypes.TINYINT,
+      enable: DataTypes.INTEGER,
     },
     {
       sequelize,
