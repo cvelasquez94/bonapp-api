@@ -384,7 +384,7 @@ const getAllDocuments = async (docs) => {
               // Agregar la imagen al PDF
 
               // logica para agregar salto de pagina cuando supere el alto de pagina
-              if (enter == 0 && (doc.page.height - doc.y - doc.page.margins.bottom) < dimension.height*ratio)
+              if (enter == 0 && (doc.page.height - imagey - doc.page.margins.bottom - 40) < dimension.height*ratio)
                 {
                   doc.addPage();
                   imagey = doc.y;
