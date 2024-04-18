@@ -20,6 +20,8 @@ module.exports = (fastify) => {
 
       const chRet = await Branches.create(chObj);
 
+      return chRet
+
         
     } catch (error) {
       throw new Error(error);
