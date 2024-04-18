@@ -1,7 +1,16 @@
 const schema = {
   tags: ['users'],
-  summary: 'getUsers',
-  description: 'getUsers',
+  summary: 'getUsersByBranch',
+  description: 'getUsersByBranch',
+  query: {
+    type: 'object',
+    required: ['branchId'],
+    properties: {
+      branchId: {
+        type: 'integer',
+      },
+    },
+  },
   response: {
     400: {
       description: 'Bad request',
