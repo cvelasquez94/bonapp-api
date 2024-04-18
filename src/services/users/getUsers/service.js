@@ -3,7 +3,7 @@ module.exports = (fastify) => {
 
   async function getUsers() {
     try {
-      const users = User.findAll()
+      const users = await User.findAll()
       if(!users) {
         throw new Error('usuarios no encontrados')
       }

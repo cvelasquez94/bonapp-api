@@ -4,7 +4,30 @@ module.exports = (fastify) => {
   async function createCheckBranch(body) {
     try {
 
-      
+      if (body.role_id>0 && body.user_id>0) {
+        throw new Error('Solo uno de las dos configs es soportada a la vez: o role_id, o user_id');
+      }
+
+      let whereCond= {
+        checklist_id: body.checklist_id,
+        branch_id: body.branch_id,};
+
+      if (body.role_id>0) {
+        whereCond = { ...whereCond, role_id: body.role_id};
+      }
+      if (body.user_id>0) {
+        whereCond = { ...whereCond, user_id: body.user_id};
+      }
+
+      const existInstance = await ChecklistBranch.unscoped().findOne({
+        where: whereCond
+      });
+
+      if(existInstance)
+      {
+        throw new Error('ChecklistBranch ya configurada para check+branch+role/user, con id: '+existInstance.id);
+      }
+
       let cbObj = {
         checklist_id: body.checklist_id,
         branch_id: body.branch_id,

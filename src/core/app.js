@@ -25,9 +25,12 @@ async function app() {
   fastify.register(require('../services/users/getUsers'), {
     prefix: fastify.config.prefix,
   });
-  // fastify.register(require('../services/users/getBranchsUser'), {
-  //   prefix: fastify.config.prefix,
-  // });
+  fastify.register(require('../services/users/getBranchsUser'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/users/getUsersByBranch'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/users/getUser'), {
     prefix: fastify.config.prefix,
   });

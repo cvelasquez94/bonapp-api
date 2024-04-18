@@ -4,7 +4,7 @@ const schema = {
   description: 'createCheckBranch',
   body: {
     type: 'object',
-    required: ['checklist_id', 'branch_id'],
+    required: ['checklist_id', 'branch_id', 'start_date'],
     properties: {
       checklist_id: {
         type: 'integer',
