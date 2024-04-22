@@ -148,7 +148,6 @@ async function app() {
   fastify.register(require('../services/files/getFiles'), {
     prefix: fastify.config.prefix
   });
-/*
   fastify.register(require('../services/branch/createBranch'), {
     prefix: fastify.config.prefix,
   });
@@ -161,7 +160,6 @@ async function app() {
   fastify.register(require('../services/branch/updateBranch'), {
     prefix: fastify.config.prefix,
   });
-*/
   fastify.register(require('../services/restaurant/createRestaurant'), {
     prefix: fastify.config.prefix,
   });
