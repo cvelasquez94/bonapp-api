@@ -23,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     rut: DataTypes.STRING,
     start_date: DataTypes.DATE,
     spa_name: DataTypes.STRING,
-    logo_url: DataTypes.STRING
+    logo_url: DataTypes.STRING,
+    enable: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Restaurant',

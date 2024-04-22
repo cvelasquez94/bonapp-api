@@ -13,8 +13,8 @@ module.exports = (fastify) => {
             }]
         },
         {
-          model: ChecklistBranch.scope('defaultScope'),
-          as: 'CheckListCheckBranch',
+          model: ChecklistBranch.unscoped(),
+          as: 'ChecklistBranch',
           required: false,
         },
       ]

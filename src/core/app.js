@@ -25,9 +25,12 @@ async function app() {
   fastify.register(require('../services/users/getUsers'), {
     prefix: fastify.config.prefix,
   });
-  // fastify.register(require('../services/users/getBranchsUser'), {
-  //   prefix: fastify.config.prefix,
-  // });
+  fastify.register(require('../services/users/getBranchsUser'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/users/getUsersByBranch'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/users/getUser'), {
     prefix: fastify.config.prefix,
   });
@@ -70,6 +73,9 @@ async function app() {
   fastify.register(require('../services/checkList/postSTaskInstance'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/checkList/getCheckListDue'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/checklistBranch/getCheckBranch'), {
     prefix: fastify.config.prefix,
   });
@@ -92,6 +98,18 @@ async function app() {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/mainTask/getMainTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/subTask/createSubTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/subTask/deleteSubTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/subTask/updateSubTask'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/subTask/getSubTask'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/auditReport'), {
@@ -118,12 +136,43 @@ async function app() {
   fastify.register(require('../services/notifications/createNotification'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/notifications/updateNotification'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/tokenUser/getTokenUser'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/tokenUser/createTokenUser'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/files/getFiles'), {
+    prefix: fastify.config.prefix
+  });
+  fastify.register(require('../services/branch/createBranch'), {
+    prefix: fastify.config.prefix,
+  });
+    fastify.register(require('../services/branch/getBranch'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/branch/deleteBranch'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/branch/updateBranch'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/restaurant/createRestaurant'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/restaurant/getRestaurant'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/restaurant/deleteRestaurant'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/restaurant/updateRestaurant'), {
+    prefix: fastify.config.prefix,
+  });
+
   fastify.ready((err) => {
     if (err) throw err;
   });

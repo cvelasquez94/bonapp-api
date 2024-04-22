@@ -34,6 +34,7 @@ const schema = {
         properties: {
           id: { type: 'integer' },
           role_id: { type: 'integer' },
+          user_id: { type: 'integer' },
           name: { type: 'string' },
           desc: { type: 'string' },
           type: { type: 'string' },

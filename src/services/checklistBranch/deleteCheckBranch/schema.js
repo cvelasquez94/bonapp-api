@@ -12,6 +12,8 @@ const schema = {
       branch_id: {
         type: 'integer',
       },
+      user_id: { type: 'integer' },
+      role_id: { type: 'integer' },
     },
   },
   response: {

@@ -1,6 +1,7 @@
 'use strict';
 const { Model, Op } = require('sequelize');
-const TODAY_START = new Date().setHours(0, 0, 0, 0);
+const TODAY_START = new Date();
+TODAY_START.setHours(0, 0, 0, 0);
 module.exports = (sequelize, DataTypes) => {
   class ChecklistBranch extends Model {
     /**
@@ -16,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
       ChecklistBranch.belongsTo(models.Branches, {
         foreignKey: 'branch_id',
         as: 'branches',
+      });
+      ChecklistBranch.belongsTo(models.Role, {
+        foreignKey: 'role_id',
+        as: 'role',
       });
     }
   }
@@ -50,6 +55,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       enable: DataTypes.TINYINT,
+      notificationEnabled: DataTypes.TINYINT,
       start_date: DataTypes.DATE,
       end_date: DataTypes.DATE,
       freqType: DataTypes.STRING,
@@ -67,14 +73,22 @@ module.exports = (sequelize, DataTypes) => {
       defaultScope: {
         where: {
         [Op.and]: [
-              { enable: {
+              { 
+              enable: {
                 [Op.gt]: 0
               },
-                start_date: {
-                  [Op.lte]: TODAY_START
+              start_date:
+                //{ [Op.lte]: TODAY_START }
+                sequelize.where(sequelize.fn("DATE", sequelize.col("ChecklistBranch.start_date")), "<=", sequelize.fn("DATE",TODAY_START.toISOString().split('T')[0]))
+              ,
+              [Op.or]: [
+                {end_date:
+                  sequelize.where(sequelize.fn("DATE", sequelize.col("ChecklistBranch.end_date")), ">=", sequelize.fn("DATE",TODAY_START.toISOString().split('T')[0]))
                 },
-                //TODO filtrar por endDate?
-               },
+                {end_date: {[Op.is]: null}},
+              ]
+              },               
+              ,
                 sequelize.literal(
                   `CASE WHEN freqType is null then 1=1 
                         WHEN freqType = 'd' THEN DATEDIFF(CURDATE(),start_date) % freqValue = 0

@@ -1,7 +1,7 @@
 const schema = {
-  tags: ['MainTask'],
-  summary: 'createMainTask',
-  description: 'createMainTask',
+  tags: ['SubTask'],
+  summary: 'createSubTask',
+  description: 'createSubTask',
   body: {
     type: 'object',
      required: ['name', 'mainTask_id', 'orden'],

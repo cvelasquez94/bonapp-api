@@ -25,46 +25,16 @@ const schema = {
         properties: {
           id: { type: 'integer' },
           role_id: { type: 'integer' },
+          user_id: { type: 'integer' },
           name: { type: 'string' },
           desc: { type: 'string' },
           type: { type: 'string' },
-          enable: { type: 'boolean' },
-          schedule_start: { type: ['string', 'null'] },
-          schedule_end: { type: ['string', 'null'] },
+          enable: { type: 'integer' },
+          schedule_start: { type: 'string', format: 'date-time' },
+          schedule_end: { type: 'string', format: 'date-time' },
           branch_id: { type: 'integer' },
           createdAt: { type: 'string' },
           updatedAt: { type: 'string' },
-          mainTasks: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                id: { type: 'integer' },
-                name: { type: ['string', 'null'] },
-                desc: { type: 'string' },
-                schedule_start: { type: ['string', 'null'] },
-                schedule_end: { type: ['string', 'null'] },
-                checkList_id: { type: 'integer' },
-                createdAt: { type: 'string' },
-                updatedAt: { type: 'string' },
-                subTasks: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      id: { type: 'integer' },
-                      name: { type: 'string' },
-                      desc: { type: 'string' },
-                      expiration: { type: ['string', 'null'] },
-                      mainTask_id: { type: 'integer' },
-                      createdAt: { type: 'string' },
-                      updatedAt: { type: 'string' }
-                    }
-                  }
-                }
-              }
-            }
-          }
         }
       }
     },
