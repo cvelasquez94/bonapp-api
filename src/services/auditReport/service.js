@@ -194,8 +194,8 @@ const getAllDocuments = async (docs) => {
         resolve(pdfData);
       });
 
-// let fs = require('fs')
-// doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
+//  let fs = require('fs')
+//  doc.pipe(fs.createWriteStream('./bonApp_apifile.pdf'));
 
      
       now = new Date();
@@ -384,7 +384,7 @@ const getAllDocuments = async (docs) => {
               // Agregar la imagen al PDF
 
               // logica para agregar salto de pagina cuando supere el alto de pagina
-              if (enter == 0 && (doc.page.height - imagey - doc.page.margins.bottom - 40) < dimension.height*ratio)
+              if (enter == 0 && (doc.page.height - imagey - doc.page.margins.bottom - 40) < maxHeight)
                 {
                   doc.addPage();
                   imagey = doc.y;
@@ -536,7 +536,7 @@ const getAllDocuments = async (docs) => {
         },
         {
               model: ChecklistBranch.unscoped(),
-              as: 'CheckListCheckBranch',
+              as: 'ChecklistBranch',
               required: true,
               where: { branch_id: branchId },
         },

@@ -15,8 +15,8 @@ module.exports = (fastify) => {
         //where: { branch_id: branchId },
         include: [
           {
-            model: ChecklistBranch.scope('defaultScope'),
-            as: 'CheckListCheckBranch',
+            model: ChecklistBranch.unscoped(),
+            as: 'ChecklistBranch',
             required: true,
             where: { branch_id: branchId },
             include: [

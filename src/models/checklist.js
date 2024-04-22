@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Checklist.hasMany(models.ChecklistBranch, {
         foreignKey: 'checklist_id',
-        as: 'CheckListCheckBranch',
+        as: 'ChecklistBranch',
       });
       Checklist.belongsTo(models.Role, {
         foreignKey: 'role_id',

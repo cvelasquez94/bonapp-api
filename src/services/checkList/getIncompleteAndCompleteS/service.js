@@ -32,69 +32,134 @@ module.exports = (fastify) => {
 
       // console.log('--------------dateNow: ', dateTimeStr);
 
-      const checkList = await Checklist.findAll({
-        //where: { branch_id: branchId },
-        include: [
-          {
-            model: ChecklistBranch.scope('defaultScope'),
-            as: 'CheckListCheckBranch',
-            required: true,
-            where: { branch_id: branchId },
-            include: [
-              {
-                model: Role,
-                as: 'role',
-                required: true,
-                include: [
-                  {
-                    model: RoleUser,
-                    as: 'roleUser',
-                    required: true,
-                    where: { user_id: userId },
-                  },
-                ],
-                  },
-              ],
-          },
-          {
-            model: MainTask.scope('defaultScope'),
-            as: 'mainTasks',
-            required: true,
-            include: [
-              {
-                model: SubTask.scope('defaultScope'),
-                as: 'subTasks',
-                required: true,
-                include: [
-                  {
-                    model: STaskInstance,
-                    as: 'sTaskInstances',
-                    where: {
-                      [Op.and]: [
-                        { user_id: userId, branch_id: branchId },
-                        STaskInstance.sequelize.where(
-                          STaskInstance.sequelize.fn(
-                            'DATE_FORMAT',
-                            STaskInstance.sequelize.col('dateTime'),
-                            '%d-%m-%Y'
-                          ),
-                          dateTimeStr
-                        ),
-                      ],
+      let checkList = [];
+
+      await Promise.all([
+        await Checklist.findAll({
+          include: [
+            {
+              model: ChecklistBranch.scope('defaultScope'),
+              as: 'ChecklistBranch',
+              required: true,
+              where: { branch_id: branchId },
+              include: [
+                {
+                  model: Role,
+                  as: 'role',
+                  required: true,
+                  include: [
+                    {
+                      model: RoleUser,
+                      as: 'roleUser',
+                      required: true,
+                      where: { user_id: userId },
                     },
-                    required: false,
-                  },
+                  ],
+                    },
                 ],
-              },
-            ],
-          },
-        ],
-        order: [
-          [Checklist.sequelize.col('id'), 'ASC'],
-          [SubTask.sequelize.col('mainTasks.orden'), 'ASC'],
-          [SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC'],
-        ],
-      });
+            },
+            {
+              model: MainTask.scope('defaultScope'),
+              as: 'mainTasks',
+              required: true,
+              include: [
+                {
+                  model: SubTask.scope('defaultScope'),
+                  as: 'subTasks',
+                  required: true,
+                  include: [
+                    {
+                      model: STaskInstance,
+                      as: 'sTaskInstances',
+                      where: {
+                        [Op.and]: [
+                          { user_id: userId, branch_id: branchId },
+                          STaskInstance.sequelize.where(
+                            STaskInstance.sequelize.fn(
+                              'DATE_FORMAT',
+                              STaskInstance.sequelize.col('dateTime'),
+                              '%d-%m-%Y'
+                            ),
+                            dateTimeStr
+                          ),
+                        ],
+                      },
+                      required: false,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          order: [
+            [Checklist.sequelize.col('id'), 'ASC'],
+            [SubTask.sequelize.col('mainTasks.orden'), 'ASC'],
+            [SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC'],
+          ],
+        }),
+        await Checklist.findAll({
+          include: [
+            {
+              model: ChecklistBranch.scope('defaultScope'),
+              as: 'ChecklistBranch',
+              required: true,
+              where: { branch_id: branchId, user_id: userId },
+            },
+            {
+              model: MainTask.scope('defaultScope'),
+              as: 'mainTasks',
+              required: true,
+              include: [
+                {
+                  model: SubTask.scope('defaultScope'),
+                  as: 'subTasks',
+                  required: true,
+                  include: [
+                    {
+                      model: STaskInstance,
+                      as: 'sTaskInstances',
+                      where: {
+                        [Op.and]: [
+                          { user_id: userId, branch_id: branchId },
+                          STaskInstance.sequelize.where(
+                            STaskInstance.sequelize.fn(
+                              'DATE_FORMAT',
+                              STaskInstance.sequelize.col('dateTime'),
+                              '%d-%m-%Y'
+                            ),
+                            dateTimeStr
+                          ),
+                        ],
+                      },
+                      required: false,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          order: [
+            [Checklist.sequelize.col('id'), 'ASC'],
+            [SubTask.sequelize.col('mainTasks.orden'), 'ASC'],
+            [SubTask.sequelize.col('mainTasks.subTasks.orden'), 'ASC'],
+          ],
+        })
+    ]).then((response) => {
+      const checkRole = response[0]; //query igual a original que trae todas las checklists segun roles del usuario
+      const checkUser = response[1]; //filtro para checks particular por usuario
+      checkRole.forEach((obj) => {
+          let objData = obj.get();  
+          checkList.push(objData);
+        });
+      checkUser.forEach((obj) => {
+          let objData = obj.get();
+          checkList.push(objData);
+        });
+      }) 
+    .catch((error) => {
+        console.log(error);
+    });
+
 
       const checklistsMap = checkList.map((check) => {
         // Inicializar los arrays para subtasks completas e incompletas
@@ -133,12 +198,14 @@ module.exports = (fastify) => {
         // Devolver un objeto con los datos de check y los arrays de subtasks
         return {
           id: check.id,
-          role_id: check.CheckListCheckBranch[0].role_id,
+          role_id: check.ChecklistBranch[0].role_id,
+          user_id: check.ChecklistBranch[0].user_id,
           name: check.name,
           desc: check.desc,
           type: check.type,
           isFinalized: isFinalized,
-          schedule_start: check.schedule_start,
+          schedule_start: check.ChecklistBranch[0].start_date,
+          schedule_end: check.ChecklistBranch[0].end_date,
           subtasksComplete,
           subtasksIncomplete, // ... otros datos de checklist que necesites ...
         };
@@ -153,7 +220,13 @@ module.exports = (fastify) => {
         );
       }
 
-      return checklistsMap;
+      //reduce dejando el checkId del segundo array, que es por checklists para user_id especifico
+      const op = checklistsMap.reduce((op,inp)=>{
+        op[inp.id] = inp
+        return op
+      },{})
+
+      return Object.values(op);
     } catch (error) {
       throw new Error(error);
     }
