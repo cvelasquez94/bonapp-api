@@ -14,7 +14,7 @@ module.exports = (fastify) => {
             }]
         },
         {
-          model: ChecklistBranch.scope('defaultScope'),
+          model: ChecklistBranch.unscoped(),
           as: 'ChecklistBranch',
           required: true,
           where: { branch_id: branchid, role_id: roleid },
