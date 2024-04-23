@@ -160,6 +160,18 @@ async function app() {
   fastify.register(require('../services/branch/updateBranch'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/restaurant/createRestaurant'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/restaurant/getRestaurant'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/restaurant/deleteRestaurant'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/restaurant/updateRestaurant'), {
+    prefix: fastify.config.prefix,
+  });
 
   fastify.ready((err) => {
     if (err) throw err;
