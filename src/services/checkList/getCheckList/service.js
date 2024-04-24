@@ -33,6 +33,7 @@ module.exports = (fastify) => {
         
         return {
           id: check.id,
+          idCheckBranch: check.ChecklistBranch[0].id,
           role_id: check.ChecklistBranch[0].role_id,
           user_id: check.ChecklistBranch[0].user_id,
           name: check.name,
@@ -41,6 +42,7 @@ module.exports = (fastify) => {
           schedule_start: check.ChecklistBranch[0].start_date,
           schedule_end: check.ChecklistBranch[0].end_date,
           enable: check.ChecklistBranch[0].enable,
+          enableChecklist: check.enable,
           branch_id: check.ChecklistBranch[0].branch_id,
           createdAt: check.createdAt,
           updatedAt: check.updatedAt,
