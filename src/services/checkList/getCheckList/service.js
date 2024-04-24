@@ -40,7 +40,7 @@ module.exports = (fastify) => {
           type: check.type,
           schedule_start: check.ChecklistBranch[0].start_date,
           schedule_end: check.ChecklistBranch[0].end_date,
-          enable: check.enable,
+          enable: check.ChecklistBranch[0].enable,
           branch_id: check.ChecklistBranch[0].branch_id,
           createdAt: check.createdAt,
           updatedAt: check.updatedAt,
