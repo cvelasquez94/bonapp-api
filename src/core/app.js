@@ -148,6 +148,9 @@ async function app() {
   fastify.register(require('../services/files/getFiles'), {
     prefix: fastify.config.prefix
   });
+  fastify.register(require('../services/role/getRoles'), {
+    prefix: fastify.config.prefix
+  });
   fastify.register(require('../services/branch/createBranch'), {
     prefix: fastify.config.prefix,
   });
