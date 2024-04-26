@@ -1,17 +1,10 @@
 const schema = {
-  tags: ['CheckList'],
-  summary: 'getChecklist',
-  description: 'check list',
+  tags: ['Role'],
+  summary: 'getRoles',
+  description: 'Role',
   query: {
     type: 'object',
-    required: ['branchid'],
     properties: {
-      branchid: {
-        type: 'string'
-      },
-      roleid: {
-        type: 'string'
-      },
       limit: {
         type: 'integer'
       }
@@ -19,23 +12,14 @@ const schema = {
   },
   response: {
     200: {
-      description: 'Get check list',
+      description: 'Get Roles',
       type: 'array',
       items: {
         type: 'object',
         properties: {
           id: { type: 'integer' },
-          idCheckBranch: { type: 'integer' },
-          role_id: { type: 'integer' },
-          user_id: { type: 'integer' },
           name: { type: 'string' },
-          desc: { type: 'string' },
-          type: { type: 'string' },
           enable: { type: 'integer' },
-          enableChecklist: { type: 'integer' },
-          schedule_start: { type: 'string', format: 'date-time' },
-          schedule_end: { type: 'string', format: 'date-time' },
-          branch_id: { type: 'integer' },
           createdAt: { type: 'string' },
           updatedAt: { type: 'string' },
         }

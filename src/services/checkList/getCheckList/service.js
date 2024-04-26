@@ -2,6 +2,11 @@ module.exports = (fastify) => {
   const { Checklist, MainTask, SubTask, ChecklistBranch } = fastify.db
   async function getCheckList(roleid, branchid, limit, status) {
     try {
+
+      let query = {branch_id: branchid};
+
+      if (roleid) query.role_id = roleid;
+
       const queryConfig = {
         where: { enable: true},
         include: [{
@@ -17,7 +22,7 @@ module.exports = (fastify) => {
           model: ChecklistBranch.unscoped(),
           as: 'ChecklistBranch',
           required: true,
-          where: { branch_id: branchid, role_id: roleid },
+          where: query,
         },
       ]
     };
