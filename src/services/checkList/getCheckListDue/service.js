@@ -27,6 +27,8 @@ module.exports = (fastify) => {
                       INNER JOIN SubTasks AS sub ON main.id = sub.mainTask_id AND sub.enable > 0 AND sub.expiration IS NOT NULL
                       INNER JOIN ChecklistBranch AS chkBranch ON chk.id = chkBranch.checklist_id AND chkBranch.enable > 0 AND chkBranch.notificationEnabled > 0
                       WHERE chk.enable > 0
+                      and DATE(chkBranch.start_date) <= STR_TO_DATE('${timePayload[0]}', '%d/%m/%Y') 
+                      and (DATE(chkBranch.end_date) >= STR_TO_DATE('${timePayload[0]}', '%d/%m/%Y') OR chkBranch.end_date IS NULL)
                       GROUP BY chk.id , chk.name , chk.type , chkBranch.role_id , chkBranch.user_id , chkBranch.branch_id) AS grouped
                     LEFT JOIN RoleUser AS ru ON grouped.role_id = ru.role_id
                     LEFT JOIN Users AS u1 ON u1.id = CASE
