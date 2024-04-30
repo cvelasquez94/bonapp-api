@@ -1,19 +1,27 @@
 module.exports = (fastify) => {
   const { SubTask } = fastify.db
-  async function getSubTask(SubTask_id) {
+  async function getSubTask(SubTask_id, page = 1, pageSize = 10) {
+    let queryConfig;
     try {
-      const queryConfig = {
-        where: { id: SubTask_id},           
-    };
-
-    const SubTaskRet = await SubTask.unscoped().findAll(queryConfig);
-      //console.log(SubTask)
-      if(!SubTaskRet) {
-        throw new Error('No SubTask')
+      if (SubTask_id) {
+        queryConfig = {
+          where: { id: SubTask_id },
+        };
+      } else {
+        const offset = (page - 1) * pageSize;
+        queryConfig = {
+          offset: offset,
+          limit: pageSize
+        };
       }
-      return SubTaskRet
+
+      const SubTaskRet = await SubTask.unscoped().findAll(queryConfig);
+      if (!SubTaskRet) {
+        throw new Error('No SubTask found');
+      }
+      return SubTaskRet;
     } catch (error) {
-      throw new Error(error)
+      throw new Error(error);
     }
   }
 

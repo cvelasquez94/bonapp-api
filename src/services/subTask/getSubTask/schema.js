@@ -7,6 +7,12 @@ const schema = {
     properties: {
       id: {
         type: 'integer'
+      },
+      page: {
+        type: 'integer'
+      },
+      pageSize: {
+        type: 'integer'
       }
     }
   },
@@ -14,7 +20,6 @@ const schema = {
     200: {
       description: 'Get SubTask',
       type: 'array',
-      
     },
     400: {
       description: 'Bad request',
