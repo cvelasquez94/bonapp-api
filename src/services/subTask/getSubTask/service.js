@@ -15,11 +15,16 @@ module.exports = (fastify) => {
         };
       }
 
-      const SubTaskRet = await SubTask.unscoped().findAll(queryConfig);
-      if (!SubTaskRet) {
+      const { count, rows} = await SubTask.unscoped().findAndCountAll(queryConfig);
+      if (rows.length === 0) {
         throw new Error('No SubTask found');
       }
-      return SubTaskRet;
+      return {
+        subTasks: rows,
+        totalItems: count,
+        totalPages: Math.ceil(count / pageSize),
+        currentPage: page     
+      };
     } catch (error) {
       throw new Error(error);
     }

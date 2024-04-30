@@ -19,7 +19,13 @@ const schema = {
   response: {
     200: {
       description: 'Get SubTask',
-      type: 'array',
+      type: 'object',
+      properties: {
+        subTasks: { type: 'array'},
+        totalItems: { type: 'integer' },
+        totalPages: { type: 'integer' },
+        currentPage: { type: 'integer' }   
+      }
     },
     400: {
       description: 'Bad request',
