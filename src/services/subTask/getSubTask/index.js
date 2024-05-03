@@ -6,10 +6,10 @@ const route = async (fastify, opts, next) => {
   const { getSubTask } = require('./service')(fastify)
 
   fastify.get('/getSubTask', { schema }, async(request, reply) => {
-    const { id } = request.query
+    const { id, searchText } = request.query
     const page = parseInt(request.query.page, 10) || 1;
     const pageSize = parseInt(request.query.pageSize, 10) || 10;
-    const SubTask = await getSubTask(id, page, pageSize)
+    const SubTask = await getSubTask(id, page, pageSize, searchText)
     
     if (SubTask == null) {
       reply.status(404).send({ message: 'not SubTask' })

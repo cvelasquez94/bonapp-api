@@ -13,6 +13,9 @@ const schema = {
       },
       pageSize: {
         type: 'integer'
+      },
+      searchText: {
+        type: 'string'
       }
     }
   },
