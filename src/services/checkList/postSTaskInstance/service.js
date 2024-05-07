@@ -59,10 +59,13 @@ module.exports = (fastify) => {
           await existingInstance.update(datapost);
           return existingInstance;
         } else {
-          // Si es checklist y no tiene score ni comentario, elimina          
+          // Si es checklist y no tiene score ni comentario, elimina 
+          datapost.status = '';
           console.log('existingInstance.destroy', datapost);
-          await existingInstance.destroy();
-          return { dateTime: '', id: 0, status: '', subTask_id: 0, user_id: 0 };
+          //await existingInstance.destroy();
+          //return { dateTime: '', id: 0, status: '', subTask_id: 0, user_id: 0 };
+          await existingInstance.update(datapost);
+          return existingInstance;
         }
       }
 
