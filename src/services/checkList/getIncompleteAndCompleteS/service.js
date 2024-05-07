@@ -173,26 +173,43 @@ module.exports = (fastify) => {
           mainTask.subTasks.forEach((subTask) => {
             if (!isFinalized)
               isFinalized = subTask.dataValues.sTaskInstances.some(
-                (item) => item.dataValues.comment === 'finalized'
+                (item) => item.dataValues.status === 'finalized'
               );
             if (!isFinalized)
               isFinalized = subTask.dataValues.sTaskInstances.some(
                 (item) => item.dataValues.status === 'audited'
               );
+            
+            if(check.type === 'audit'){
 
-            if (subTask.sTaskInstances && subTask.sTaskInstances.length > 0) {
-              // La subTask está completa
-              subtasksComplete.push(subTask);
-            } else {
-              // La subTask está incompleta
-              subtasksIncomplete.push(subTask);
+              if (subTask.sTaskInstances && subTask.sTaskInstances.length > 0 ) {
+                // La subTask está completa
+                subtasksComplete.push(subTask);
+              } else {
+                // La subTask está incompleta
+                subtasksIncomplete.push(subTask);
+              }
+
+            }
+            else //para checks y ToDo
+            { 
+                if (subTask.sTaskInstances && subTask.sTaskInstances.length > 0 ) {
+                  if(subTask.sTaskInstances.some(
+                    (item) => item.dataValues.status === 'finalized' || item.dataValues.status === 'completed'
+                  )){
+                  // La subTask está completa
+                  subtasksComplete.push(subTask);
+                  }else {
+                    // La subTask está incompleta - checklist puede tener comentario o fotos sin estar completa
+                    subtasksIncomplete.push(subTask);
+                  }
+                } else {
+                  // La subTask está incompleta
+                  subtasksIncomplete.push(subTask);
+                }
             }
           });
         });
-
-        /*if (
-          check.dataValues.type === 'audit'
-           )*/
            
 
         // Devolver un objeto con los datos de check y los arrays de subtasks

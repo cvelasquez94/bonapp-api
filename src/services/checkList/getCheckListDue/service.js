@@ -55,7 +55,7 @@ module.exports = (fastify) => {
                           AND sti.user_id = users.usid
                           AND sub.expiration IS NOT NULL
                           AND DATE(dateTime) = STR_TO_DATE('${timePayload[0]}', '%d/%m/%Y')
-                          AND (sti.comment = 'finalized' or sti.status = 'audited')
+                          AND (sti.status = 'finalized' or sti.status = 'audited')
                           AND sti.branch_id = users.branch_id
                           AND chk.id = users.id); 
       `);

@@ -86,7 +86,7 @@ module.exports = (fastify) => {
                     model: STaskInstance,
                     as: 'sTaskInstances',
                     where: {
-                      comment: 'finalized',
+                      status: 'finalized',
                       [Op.and]: [
                         { user_id: userId, branch_id: branchId },
                         STaskInstance.sequelize.where(
@@ -113,7 +113,7 @@ module.exports = (fastify) => {
       checkList.map((item) => {
         item.dataValues.mainTasks.map((mainTasks) => {
           mainTasks.dataValues.subTasks.map((subTasks) => {
-            sumTaskClose += subTasks.dataValues.sTaskInstances.length;
+            sumTaskClose += 1; //subTasks.dataValues.sTaskInstances.length;
             });
         });
       });
