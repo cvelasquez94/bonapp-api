@@ -17,7 +17,7 @@ module.exports = (fastify) => {
             
           },
         ],
-        order: [['id', 'ASC']],
+        order: [['lastName', 'ASC']],
       });
 
 
