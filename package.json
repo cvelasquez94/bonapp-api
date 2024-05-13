@@ -16,6 +16,7 @@
     "seq": "npm run drop-db && npm run create-db && npm run migrations && npm run seed"
   },
   "dependencies": {
+    "@fastify/formbody": "^7.4.0",
     "@fastify/swagger": "^7.6.1",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
@@ -33,6 +34,9 @@
     "node-cron": "^3.0.3",
     "node-fetch": "^2.6.1",
     "nodemailer": "^6.8.0",
+    "oci-common": "^2.86.1",
+    "oci-objectstorage": "^2.86.1",
+    "oci-sdk": "^2.86.1",
     "pdfkit": "^0.14.0",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
