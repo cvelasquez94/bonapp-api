@@ -184,6 +184,13 @@ async function app() {
   fastify.register(require('../services/restaurant/updateRestaurant'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/files/postFile'), {
+    prefix: fastify.config.prefix,
+  });
+
+  fastify.register(require('../services/files/getPreSignedUrl'), {
+    prefix: fastify.config.prefix,
+  });
 
   fastify.ready((err) => {
     if (err) throw err;

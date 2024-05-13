@@ -32,5 +32,12 @@ module.exports = {
     url: process.env.STORAGE_URL,
     auth: process.env.STORAGE_AUTH,
     environment: process.env.ENVIRONMENT,
+    bucket: {
+      tenancyId: process.env.TENANCYID,
+      userId: process.env.USERID,
+      keyFingerprint: process.env.KEYFINGERPRINT,
+      privateKey: process.env.PRIVATEKEY,
+      region: process.env.REGIO
+    }
   },
 };
