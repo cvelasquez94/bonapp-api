@@ -15,13 +15,23 @@ async function app() {
   fastify.decorate('db', models);
   fastify.setErrorHandler(utils.errorHandler);
 
+ 
+  
   utils.jwt(fastify);
   utils.openAPI(fastify);
   utils.request(fastify);
   utils.requestJSON(fastify);
 
-  fastify.register(require('../ping', { prefix: fastify.config.prefix }));
-  console.log(fastify.config.prefix);
+  // Api public
+  fastify.register(require('../services/login/signIn'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../ping', { prefix: fastify.config.prefix }));  
+
+  // Api private
+  fastify.register(async function (fastify, opts) {
+    fastify.addHook('onRequest', fastify.authenticate)
+    
   fastify.register(require('../services/users/getUsers'), {
     prefix: fastify.config.prefix,
   });
@@ -43,9 +53,7 @@ async function app() {
   fastify.register(require('../services/users/deleteUser'), {
     prefix: fastify.config.prefix,
   });
-  fastify.register(require('../services/login/signIn'), {
-    prefix: fastify.config.prefix,
-  });
+ 
   fastify.register(require('../services/login/forgetPassword'), {
     prefix: fastify.config.prefix,
   });
@@ -191,6 +199,8 @@ async function app() {
   fastify.register(require('../services/files/getPreSignedUrl'), {
     prefix: fastify.config.prefix,
   });
+
+  })
 
   fastify.ready((err) => {
     if (err) throw err;
