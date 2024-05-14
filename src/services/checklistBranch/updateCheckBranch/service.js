@@ -14,7 +14,7 @@ module.exports = (fastify) => {
       }
 
       let dataUpdate = {}
-      if(body.enable) dataUpdate.enable = body.enable
+      if(body.enable === 0 || body.enable > 0) dataUpdate.enable = body.enable
       if(body.role_id) dataUpdate.role_id = body.role_id
       if(body.user_id) dataUpdate.user_id = body.user_id
       if(body.freqType) dataUpdate.freqType = body.freqType

@@ -14,7 +14,7 @@ module.exports = (fastify) => {
       }
 
       let dataUpdate = {}
-      if(body.enable) dataUpdate.enable = body.enable
+      if(body.enable === 0 || body.enable > 0) dataUpdate.enable = body.enable
       if(body.orden) dataUpdate.orden = body.orden
       if(body.scoreMultiplier) dataUpdate.scoreMultiplier = body.scoreMultiplier
       if(body.name) dataUpdate.name = body.name
