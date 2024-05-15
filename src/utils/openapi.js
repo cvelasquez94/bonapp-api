@@ -37,7 +37,8 @@ module.exports = fastify => {
           name: 'Authorization',
           in: 'header'
         }
-      }
+      },
+      security: [{"keyAdminScheme": []}],
     }
   })
 }
