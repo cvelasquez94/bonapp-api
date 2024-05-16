@@ -48,7 +48,7 @@ exports.changePassEmail = (email) => {
     to: email,
     subject: 'Password Changed',
     text: `
-Has cambiado el password en BonApp
+Has cambiado el password en BonApp.
   
 Saludos!
     `,
@@ -64,7 +64,7 @@ exports.ForgetPassEmail = (email, password) => {
     to: email,
     subject: 'Forget Password',
     text: `
-Has solicitado cambiar la password. Le enviamos una password provisoria
+Has solicitado cambiar la password. Enviamos una password provisoria.
 
       Passord: ${password}
   
@@ -89,6 +89,9 @@ Estimado,
     Por favor ingrese a la brevedad y deberá cambiarla.
 
     La misma es: ${password}
+
+    Descarga para Android: https://app.bonapp.tech/download/latest
+    Descarga para iOS:     https://testflight.apple.com/join/mIhLRqcH
   
 Saludos!
     `,
