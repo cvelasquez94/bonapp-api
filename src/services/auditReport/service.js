@@ -653,7 +653,7 @@ const getAllDocuments = async (docs) => {
 
       await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName)
 
-      const urlPut = `${fastify.config.storage.url}Reports/${attachFileName}`//`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
+      const urlPut = `${fastify.config.storage.url}Reports/user_${userId}/${attachFileName}` //`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
 
       console.log( '_urlPUT: ' + urlPut)
 
