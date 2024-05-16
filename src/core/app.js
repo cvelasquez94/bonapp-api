@@ -192,6 +192,10 @@ async function app() {
     prefix: fastify.config.prefix,
   });
 
+  fastify.register(require('../services/stripes'), {
+    prefix: fastify.config.prefix,
+  });
+
   fastify.ready((err) => {
     if (err) throw err;
   });
