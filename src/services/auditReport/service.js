@@ -168,7 +168,7 @@ const getAllDocuments = async (docs) => {
       .font('Helvetica-Bold')
       .fontSize(40)
       .fillColor(colorLine)
-      .text(`${parseInt((sumScore / (maxScore)) * 100)}%`, doc.x, 300, {
+      .text(`${Math.round((sumScore / (maxScore)) * 100)}%`, doc.x, 300, {
         align: 'right',
       });
   }
