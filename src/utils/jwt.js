@@ -4,7 +4,7 @@ const ResponseError = require('./ResponseError')
 
 module.exports = fastify => {
   fastify.register(jwt, fastify.config.jwt)
-
+  console.log(fastify.config.jwt)
   fastify.decorate('authenticate', async (request, reply) => {
     try {
       const decoded = await request.jwtVerify()
