@@ -7,9 +7,9 @@ const route = async (fastify, opts, next) => {
 
   fastify.get('/getSTaskInstance', { schema }, async(request, reply) => {
     const { roleid, branchid, limit } = request.query
-    console.log(roleid, branchid)
+    //console.log(roleid, branchid)
     const checkList = await getCheckList(roleid, branchid, limit)
-    console.log(JSON.stringify(checkList))
+    //console.log(JSON.stringify(checkList))
     if (checkList == null) {
       reply.status(404).send({ message: 'not checklist' })
     } else {

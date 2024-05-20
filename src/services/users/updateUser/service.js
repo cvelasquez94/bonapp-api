@@ -36,7 +36,7 @@ module.exports = (fastify) => {
       if (JSON.stringify(dataUpdate) == '{}' && !body.branches && !body.roles)
         return;
 
-      console.log(dataUpdate);
+      //console.log(dataUpdate);
 
       const result = await User.sequelize.transaction(async (t) => {
         if (JSON.stringify(dataUpdate) != '{}')

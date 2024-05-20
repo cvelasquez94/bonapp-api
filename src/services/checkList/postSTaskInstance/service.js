@@ -22,10 +22,10 @@ module.exports = (fastify) => {
       //dateNow ahora viene del front dd-mm-yyyy
       if (dateNow) {
         dateTimeStr = dateNow
-      console.log('dateNow: ', dateTimeStr);
+      //console.log('dateNow: ', dateTimeStr);
       } 
 
-      console.log('dateTimeStr: ', dateTimeStr);
+      //console.log('dateTimeStr: ', dateTimeStr);
 
       // Busca un registro existente
       const existingInstance = await STaskInstance.findOne({
@@ -55,13 +55,13 @@ module.exports = (fastify) => {
 
         if (score >= 0 || comment || status) {
 
-          console.log('existingInstance.update', datapost);
+          //console.log('existingInstance.update', datapost);
           await existingInstance.update(datapost);
           return existingInstance;
         } else {
           // Si es checklist y no tiene score ni comentario, elimina 
           datapost.status = '';
-          console.log('existingInstance.destroy', datapost);
+          //console.log('existingInstance.destroy', datapost);
           //await existingInstance.destroy();
           //return { dateTime: '', id: 0, status: '', subTask_id: 0, user_id: 0 };
           await existingInstance.update(datapost);
@@ -72,7 +72,7 @@ module.exports = (fastify) => {
       datapost.subTask_id = subTaskId;
       datapost.user_id = userId;
       datapost.branch_id = branchId;
-      console.log('datapost insert', datapost);
+      //console.log('datapost insert', datapost);
 
       const instance = await STaskInstance.create(datapost);
       if (!instance) {

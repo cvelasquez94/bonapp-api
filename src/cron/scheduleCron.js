@@ -22,20 +22,20 @@ const getExpirationList = async (url) => {
 
 async function runCronJob() {
   // const {getCheckListDue} = require('../services/checkList/getCheckListDue/service')(fastify)
-  console.log('ejecute el crons');
+  //console.log('ejecute el crons');
   const timeZone = getTimeChile();
   const interval = 10;
-  console.log('timeZone', timeZone, interval);
+  console.log('timeZone crons', timeZone, interval);
   // const schedules = await getCheckListDue(10, timeZone)
   const schedules = await getExpirationList(
     `https://bonapp-api.onrender.com/base/v1/getCheckListDue?interval=${interval}&time=${timeZone}`
   );
   // const schedules = []
-  console.log(schedules);
+  //console.log(schedules);
   schedules.forEach(async (schedule) => {
     const { token, name, user_id, branch_name } = schedule;
     // const shouldNotify = notificationService.shouldSendNotification(scheduleTime);
-    console.log(schedule);
+    //console.log(schedule);
     // if (shouldNotify) {
     try {
       await notificationService.sendNotification(

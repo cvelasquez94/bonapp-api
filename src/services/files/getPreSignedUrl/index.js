@@ -8,7 +8,7 @@ const route = async (fastify, opts, next) => {
   fastify.get('/getPreSignedUrl', { schema }, async (request, reply) => {
     const { bucketName, objectName, expirationTimeInSeconds } = request.query;
     const resp = await getPreSignedUrl(bucketName, objectName, expirationTimeInSeconds)
-    console.log(resp);
+    //console.log(resp);
     return reply.type('application/json').send({ 
       message: 'test',
     });

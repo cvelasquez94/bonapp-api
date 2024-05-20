@@ -32,7 +32,7 @@ module.exports = (fastify) => {
             ],
           },
         ],
-        order: [[user_branches, 'updatedAt', 'DESC']],
+        order: [[ {model: user_branches, as: 'user_branches'}, { model: Branches, as: 'branches' }, 'short_name', 'ASC']],
       });
 
       if (!user) {
@@ -43,8 +43,8 @@ module.exports = (fastify) => {
       /*esto para encriptar y guardar en la BD:
       const saltRounds = 10;
       const encryptedPassword = await bcrypt.hash(pwd, saltRounds)
-      console.log('pwd: '+ pwd)
-      console.log('encryptedPassword: '+ encryptedPassword)*/
+      //console.log('pwd: '+ pwd)
+      //console.log('encryptedPassword: '+ encryptedPassword)*/
 
       const comparison = await bcrypt.compare(pwd, user.dataValues.pwd);
 

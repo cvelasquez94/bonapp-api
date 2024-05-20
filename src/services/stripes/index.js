@@ -5,7 +5,7 @@ const schema = require('./schema')
 const route = async (fastify, opts, next) => {
  const { getStrip } = require('./service')(fastify)
 
-  fastify.get('/getStip', { schema }, async(request, reply) => {
+  fastify.get('/getStrip', { schema }, async(request, reply) => {
     const { category, search } = request.query
  
     const stripe = await getStrip(category, search)

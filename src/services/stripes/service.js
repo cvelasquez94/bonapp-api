@@ -11,7 +11,8 @@ module.exports = (fastify) => {
             Category: '',
             Preview: 'https://www.dochipo.com/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2021/08/YouTube-Thumbnail-_-Food-2.png.webp',
             Description: 'MP4 video file example.',
-            Rating: 0,
+            Rating: 11,
+            RatingQty: 543,
             Duration: 30,
             label: 'New',
         },{
@@ -24,8 +25,22 @@ module.exports = (fastify) => {
             Preview: '',
             Description: '',
             Rating: 0,
+            RatingQty: 0,
             Duration: 10,
-            label: 'New',
+            label: '',
+        },{
+          ID: 3,
+          FileName: 'Testing a test',
+          FileType: '',
+          FileSize: 0,
+          FilePath: 'files/TEST-MP4.mp4',
+          Category: '',
+          Preview: 'https://www.dochipo.com/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/2021/08/YouTube-Thumbnail-_-Food-2.png.webp',
+          Description: '',
+          Rating: 3.3,
+          RatingQty: 30,
+          Duration: 6,
+          label: 'testt',
         }]
         return srtip
     } catch (error) {

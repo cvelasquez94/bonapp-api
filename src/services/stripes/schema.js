@@ -1,7 +1,7 @@
 const schema = {
     tags: ['Strip'],
-    summary: 'getStip',
-    description: 'getStip',
+    summary: 'getStrip',
+    description: 'getStrip',
     query: {
       type: 'object',
       properties: {

@@ -7,7 +7,7 @@ const route = async (fastify, opts, next) => {
 
   fastify.post('/postSubTask', { schema }, async (request, reply) => {
     try {
-      console.log(request.body);
+      //console.log(request.body);
       const {
         subTaskId,
         userId,

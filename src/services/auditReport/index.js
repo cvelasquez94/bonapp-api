@@ -7,7 +7,7 @@ const route = async (fastify, opts, next) => {
 
   fastify.get('/auditReport', { schema }, async (request, reply) => {
     const { userId, branchId, checkListId, dateNow, comment, flagPreview } = request.query;
-    console.log(userId, branchId);
+    //console.log(userId, branchId);
     const pdfres = await createPDFAndSendEmail({ userId, branchId, checkListId, dateNow, comment, flagPreview }, '');
     return reply.type('application/json').send({ 
       message: pdfres.message,

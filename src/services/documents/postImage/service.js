@@ -4,7 +4,7 @@ module.exports = (fastify) => {
 
   async function postImage(data) {
     try {
-      console.log('postImage', data);
+      //console.log('postImage', data);
 
       const existingInstance = await STaskInstance.findOne({
         where: {
@@ -22,7 +22,7 @@ module.exports = (fastify) => {
         },
       });
 
-      console.log('instance: ' + JSON.stringify(existingInstance));
+      //console.log('instance: ' + JSON.stringify(existingInstance));
 
       if (!existingInstance) {
         throw new Error('STInstance not found');
@@ -31,7 +31,7 @@ module.exports = (fastify) => {
       data.staskInstance_id = existingInstance.dataValues.id;
 
       const document = await Document.create(data);
-      console.log(document.dataValues, 'document ');
+      //console.log(document.dataValues, 'document ');
 
       if (!document) throw new Error('Document fail');
 

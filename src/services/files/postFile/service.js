@@ -44,14 +44,14 @@ module.exports = (fastify) => {
         const buffer = Buffer.from(FileBase64.split(',')[1], 'base64');
         urlPut = `${fastify.config.storage.url}files/${FileName}`
         const responsePut = await putFileToBucket(urlPut, typeFormate(FileType), buffer)
-        console.log(responsePut, urlPut)
+        //console.log(responsePut, urlPut)
       }
 
       const data = await File.create({...body, FilePath: `files/${FileName}` });
       if (!data) {
         throw new Error('File error create');
       }
-      console.log(data);
+      //console.log(data);
       return data;
     } catch (error) {
       throw new Error(error);

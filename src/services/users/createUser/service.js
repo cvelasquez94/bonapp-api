@@ -38,7 +38,7 @@ module.exports = (fastify) => {
             status_id: body.statusId,
           };
 
-          console.log(usrObj);
+          //console.log(usrObj);
           const usret = await User.create(usrObj, { transaction: t });
 
           const rolesCreate = body.roles.map((obj) => ({
@@ -49,7 +49,7 @@ module.exports = (fastify) => {
           const rolesret = await RoleUser.bulkCreate(rolesCreate, {
             transaction: t,
           });
-          console.log(rolesret);
+          //console.log(rolesret);
 
           const branchesCreate = body.branches.map((obj) => ({
             branch_id: obj,
@@ -59,7 +59,7 @@ module.exports = (fastify) => {
           const branchret = await user_branches.bulkCreate(branchesCreate, {
             transaction: t,
           });
-          console.log(branchret);
+          //console.log(branchret);
 
           return usret;
         } else {
@@ -70,7 +70,7 @@ module.exports = (fastify) => {
 
           const pwd = `BonApp*${generateNewPassword()}`;
           const encryptedPassword = await encryptWord(pwd);
-          console.log(pwd);
+          //console.log(pwd);
           usrObj = { ...usrObj, pwd: encryptedPassword, status_id: 102 };
 
           const usret = await User.create(usrObj, { transaction: t });

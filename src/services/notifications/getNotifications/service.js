@@ -9,7 +9,7 @@ module.exports = (fastify) => {
       if (!data) {
         throw new Error('Notificaciones no encontrados');
       }
-      console.log(data);
+      //console.log(data);
       return data;
     } catch (error) {
       throw new Error(error);
