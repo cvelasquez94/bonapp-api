@@ -31,7 +31,7 @@ module.exports = (fastify) => {
         dateTimeStr = dateNow;
       }
 
-      console.log('dateNow: ', dateTimeStr);
+      //console.log('dateNow: ', dateTimeStr);
 
       const checkLists = await Checklist.findAll({
         where: { id: checkListId }, //branch_id

@@ -9,7 +9,7 @@ module.exports = (fastify) => {
         dateTimeStr = dateNow.substr(dateNow.indexOf('-')+1)
       } 
 
-      console.log('dateNow: ', dateTimeStr);
+      //console.log('dateNow: ', dateTimeStr);
 
       const checkTypes = await Checklist.findAll({
         //where: { branch_id: branchId },
@@ -55,13 +55,13 @@ module.exports = (fastify) => {
            {return item.dataValues.type === 'audit';}
       });
 
-      console.log(flagAudit)
+      //console.log(flagAudit)
 
       const flagCheck = checkTypes.some((item) => {
         {return item.dataValues.type === 'checklist';}
       });
 
-      console.log(flagCheck)
+      //console.log(flagCheck)
 
 
    let sumTaskClose=-1
@@ -140,7 +140,7 @@ module.exports = (fastify) => {
         {type: Checklist.sequelize.QueryTypes.SELECT}
       );
 
-      console.log('aud'+JSON.stringify(checkAudit))
+      //console.log('aud'+JSON.stringify(checkAudit))
 
       sumAuditClose = 0;
 

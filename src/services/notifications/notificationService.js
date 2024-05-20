@@ -26,11 +26,11 @@ async function sendNotification(
     messageId: res,
     bodyMenssage,
   });
-  console.log(res);
+  //console.log(res);
 }
 
 function shouldSendNotification(scheduleTime) {
-  console.log(scheduleTime);
+  //console.log(scheduleTime);
   const scheduleDate = new Date(scheduleTime);
   const currentDate = new Date();
   const difference = scheduleDate.getTime() - currentDate.getTime();
@@ -72,7 +72,7 @@ async function createNotification(noti) {
     }
 
     const jsonResponse = await response.json(); // Obtiene la respuesta JSON
-    console.log(jsonResponse); // Muestra la respuesta
+    //console.log(jsonResponse); // Muestra la respuesta
   } catch (error) {
     console.error('Error creating notification:', error);
   }

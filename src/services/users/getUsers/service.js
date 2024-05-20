@@ -7,7 +7,7 @@ module.exports = (fastify) => {
       if(!users) {
         throw new Error('usuarios no encontrados')
       }
-      console.log(users)
+      //console.log(users)
       return users;
     } catch (error) {
       throw new Error(error)

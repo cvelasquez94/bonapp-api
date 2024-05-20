@@ -37,7 +37,7 @@ module.exports = (fastify) => {
       
       const resp = await delImageFromBucket(url)
 
-      console.log('res ', resp);
+      //console.log('res ', resp);
 
       const delet = await Document.destroy({
         where: {
@@ -50,7 +50,7 @@ module.exports = (fastify) => {
      });
 
       
-      console.log('delet: ' + delet);
+      //console.log('delet: ' + delet);
 
       return resp;
 

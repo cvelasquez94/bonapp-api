@@ -7,7 +7,7 @@ module.exports = (fastify) => {
       if (!data.length) {
         throw new Error('Token no encontrados para el usuario');
       }
-      console.log(data);
+      //console.log(data);
       return data;
     } catch (error) {
       throw new Error(error);

@@ -3,7 +3,7 @@ module.exports = (fastify) => {
   async function getSTaskInstance(roleid, branchid, limit) {
     try {
       const taskInstance = await STaskInstance.findAll()
-      console.log(taskInstance)
+      //console.log(taskInstance)
       if(!taskInstance) {
         throw new Error('No taskInstance')
       }

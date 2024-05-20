@@ -7,7 +7,7 @@ const route = async (fastify, opts, next) => {
   // const { getCheckList } = require('../getCheckListFilter/service')(fastify)
   fastify.get('/getstatisticsCheckList', { schema }, async (request, reply) => {
     const { branchid, status, userId, dateNow } = request.query;
-    console.log(branchid, status, userId, dateNow);
+    //console.log(branchid, status, userId, dateNow);
     const checkList = await getstatisticsCheckList(userId, branchid, dateNow);
     if (checkList == null) {
       reply.status(404).send({ message: 'not checklist' });

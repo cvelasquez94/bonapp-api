@@ -201,10 +201,10 @@ const getAllDocuments = async (docs) => {
       now = new Date();
       const offset = 240 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
       const today = new Date(now - offset); // Ajustar la hora al tiempo local
-      console.log('offset: '+offset+' now: '+now)
-      console.log('today: ' +today)
-      console.log(`Hora UTC ${today.getUTCHours().toString().padStart(2, '0')}:${today.getUTCMinutes().toString().padStart(2, '0')}`)
-      console.log(`Hora get ${today.getHours().toString().padStart(2, '0')}:${today.getMinutes().toString().padStart(2, '0')}`)
+      // console.log('offset: '+offset+' now: '+now)
+      // console.log('today: ' +today)
+      // console.log(`Hora UTC ${today.getUTCHours().toString().padStart(2, '0')}:${today.getUTCMinutes().toString().padStart(2, '0')}`)
+      // console.log(`Hora get ${today.getHours().toString().padStart(2, '0')}:${today.getMinutes().toString().padStart(2, '0')}`)
 
       doc
         .fontSize(10)
@@ -366,7 +366,7 @@ const getAllDocuments = async (docs) => {
             for (const image of subTask.sTaskInstances[0].documents) {
               // Obtener la imagen como un buffer
 
-              console.log(image.name+ '; '+image.staskInstance_id)
+              //console.log(image.name+ '; '+image.staskInstance_id)
               const findDoc = docBuffers.find(dc => dc.docs.dataValues.name === image.name);
 
               const imageBuffer = findDoc.buff
@@ -378,7 +378,7 @@ const getAllDocuments = async (docs) => {
               const dimension = imageSize(imageBuffer)
 
               const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height);
-              console.log(dimension.width+' x '+ dimension.height +' = ratio = '+ratio)
+              //console.log(dimension.width+' x '+ dimension.height +' = ratio = '+ratio)
 
 
               // Agregar la imagen al PDF
@@ -477,17 +477,17 @@ const getAllDocuments = async (docs) => {
       //dateNow ahora viene del front dd-mm-yyyy
       if (dateNow) {
         dateTimeStr = dateNow
-        console.log('dateNow: ', dateTimeStr);
+        //console.log('dateNow: ', dateTimeStr);
       } else {
         //TODO quitar esto dsp de release apk
         now = new Date();
         const offset = 240 * 60000; //queda con 180, porque las apis server ejecutan en UTC //now.getTimezoneOffset() * 60000; // Obtener el desplazamiento de la zona horaria en milisegundos
         const localDateTime = new Date(now - offset); // Ajustar la hora al tiempo local
-        console.log('localDateTime: ', localDateTime, ' offset: ', offset);
+        //console.log('localDateTime: ', localDateTime, ' offset: ', offset);
         dateTimeStr = `${localDateTime.getUTCDate().toString().padStart(2, '0')}-${(localDateTime.getUTCMonth()+1).toString().padStart(2, '0')}-${localDateTime.getUTCFullYear()}`;
       }
 
-      console.log('dateTimeStr: ', dateTimeStr);
+      //console.log('dateTimeStr: ', dateTimeStr);
 
     const checkList = await Checklist.findAll({
       where: {
@@ -619,11 +619,11 @@ const getAllDocuments = async (docs) => {
         contentType: contentType,
 
       }
-      console.log(dataInsert)
+      //console.log(dataInsert)
 
       const instance = await ReportInstance.create(dataInsert);
       if (!instance) {
-        console.log(dataInsert)
+        //console.log(dataInsert)
         throw new Error('Error insertando ReportInstance, Preview OK');
       }
 
@@ -655,11 +655,11 @@ const getAllDocuments = async (docs) => {
 
       const urlPut = `${fastify.config.storage.url}Reports/user_${userId}/${attachFileName}` //`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
 
-      console.log( '_urlPUT: ' + urlPut)
+      //console.log( '_urlPUT: ' + urlPut)
 
       const responsePut = await putFileToBucket(urlPut, contentType, pdfReport)
 
-      console.log(responsePut, ' respPUT')
+      //console.log(responsePut, ' respPUT')
       
       const dataInsert = {
         name: attachFileName,
@@ -676,11 +676,11 @@ const getAllDocuments = async (docs) => {
         contentType: contentType,
 
       }
-      console.log(dataInsert)
+      //console.log(dataInsert)
 
       const instance = await ReportInstance.create(dataInsert);
       if (!instance) {
-        console.log(dataInsert)
+        //console.log(dataInsert)
         throw new Error('Error insertando ReportInstance, Mail OK');
       }
 
