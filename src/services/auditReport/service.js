@@ -1,5 +1,4 @@
 const PDFDocument = require('pdfkit');
-const nodemailer = require('nodemailer');
 const fetch = require('node-fetch');
 const imageSize = require('image-size')
 const { Op } = require('sequelize');
@@ -124,8 +123,10 @@ const getAllDocuments = async (docs) => {
       check.dataValues.mainTasks.forEach((main) => {
         main.dataValues.subTasks.forEach((sub) => {
           sub.dataValues.sTaskInstances.forEach((stack) => {
-            sumScore += ( stack.dataValues.score || 0 ) * sub.dataValues.scoreMultiplier;
-            maxScore += 2 * sub.dataValues.scoreMultiplier;
+            if(stack.dataValues.score != -1){ //BON-191
+              sumScore += ( stack.dataValues.score || 0 ) * sub.dataValues.scoreMultiplier;
+              maxScore += 2 * sub.dataValues.scoreMultiplier;
+              }
           });
         });
       });
@@ -206,6 +207,16 @@ const getAllDocuments = async (docs) => {
       // console.log(`Hora UTC ${today.getUTCHours().toString().padStart(2, '0')}:${today.getUTCMinutes().toString().padStart(2, '0')}`)
       // console.log(`Hora get ${today.getHours().toString().padStart(2, '0')}:${today.getMinutes().toString().padStart(2, '0')}`)
 
+//resize de la imagen para que no se deforme:
+const maxWidth = 90
+const maxHeight = 90
+
+const logoImage = await getImageFromBucket(nameBranch.dataValues.patent_url);
+
+const dimension = imageSize(logoImage)
+
+const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height);
+
       doc
         .fontSize(10)
         .fillColor(colorText)
@@ -213,13 +224,15 @@ const getAllDocuments = async (docs) => {
           align: 'left',
         });
       doc.image(
-        await getImageFromBucket(nameBranch.dataValues.patent_url),
+        logoImage,
         (doc.page.width - 90) / 2,
         30,
         {
-          width: 90,
-          height: 90,
-          //align: 'center',
+          fit: [90, 90],
+          align: 'center',
+          valign: 'center',
+          width: dimension.width*ratio,
+          height: dimension.height*ratio,
         }
       );
       
@@ -326,15 +339,28 @@ const getAllDocuments = async (docs) => {
           doc.moveDown();
 
           for (const subTask of mainTask.subTasks) {
+            if(subTask.dataValues.scoreMultiplier == 3){ //BON-189
             doc
               .font('Helvetica')
               .fontSize(13)
               .fillColor(colorText)
-              .text(`${listMain}) ${subTask.dataValues.name} (${subTask.dataValues.scoreMultiplier})`, {
+              .text(`${listMain}) ${subTask.dataValues.name}*`, {
                 align: 'left',
                 // indent: 20,
                 // textIndent: 20,
               });
+            }else{
+              doc
+                .font('Helvetica')
+                .fontSize(13)
+                .fillColor(colorText)
+                .text(`${listMain}) ${subTask.dataValues.name}`, {
+                  align: 'left',
+                  // indent: 20,
+                  // textIndent: 20,
+                });
+
+            }
 
             listSub++;
             listMain++;
@@ -352,11 +378,13 @@ const getAllDocuments = async (docs) => {
               subTask.sTaskInstances?.length > 0
                 ? subTask.sTaskInstances[0].score //* subTask.dataValues.scoreMultiplier //#BON-49
                 : 0;
+            
+            const scoreShow = (score==-1) ? 'N/A' : score;
                 
             doc
               .font('Helvetica-Bold')
               .fontSize(13)
-              .text(`Score: ${score}`, { align: 'left', indent: 20 });
+              .text(`Score: ${scoreShow}`, { align: 'left', indent: 20 });
             doc.moveDown();
 
             let enter = 0;
@@ -431,6 +459,23 @@ const getAllDocuments = async (docs) => {
         i++
       ) {
         doc.switchToPage(i);
+
+      if(i==end-1){
+        doc
+          .fontSize(8)
+          .font('Helvetica')
+          .text(
+            `Los items marcados con * corresponden a puntos críticos o factores de riesgo por lo que tienen una ponderación mayor en el puntaje final`,
+            10,
+            doc.page.height - 35,
+            {
+              lineBreak: false,
+              oblique: true,
+              //align: 'justify',
+            }
+          );
+        
+      }
       
       if(flagPreview){
           doc.image(
@@ -663,7 +708,7 @@ const getAllDocuments = async (docs) => {
       
       const dataInsert = {
         name: attachFileName,
-        url: `Reports/${attachFileName}`,
+        url: `Reports/user_${userId}/${attachFileName}`,
         comment: comment,
         subject: subject,
         mailTo: destinatarios.emails,

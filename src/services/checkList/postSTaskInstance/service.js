@@ -53,7 +53,7 @@ module.exports = (fastify) => {
       if (existingInstance) {
         // Si viene de auditoría y tiene score o comentario, actualiza
 
-        if (score >= 0 || comment || status) {
+        if (score >= 0 || comment || status || score == -1) { //
 
           //console.log('existingInstance.update', datapost);
           await existingInstance.update(datapost);
