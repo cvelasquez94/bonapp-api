@@ -34,7 +34,7 @@ module.exports = (fastify) => {
     try {
         urlBuck = `${fastify.config.storage.url}files/${file.FileName}`
         const responseDel = await delFileToBucket(urlBuck)
-        console.log(responseDel, urlBuck)
+        //console.log(responseDel, urlBuck)
 
       await FileBranch.destroy(
                               { where: { file_id: body.id } }
