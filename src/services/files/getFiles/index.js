@@ -6,7 +6,7 @@ const route = async (fastify, opts, next) => {
   const { getFiles } = require('./service')(fastify);
 
   fastify.get('/getFiles', { schema }, async (request, reply) => {
-    const res = await getFiles();
+    const res = await getFiles(request.query);
     return reply.type('application/json').send(res);
   });
   next();

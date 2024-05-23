@@ -1,16 +1,34 @@
 const schema = {
   tags: ['Files'],
-  summary: 'getFiles',
-  description: 'getFiles',
-  query: {
+  summary: 'updateFile',
+  description: 'updateFile',
+  body: {
     type: 'object',
     properties: {
-      branch_id: {
-        type: 'integer',
+      ID: { type : 'integer' },
+      FileName: { type: 'string' },
+      //FileType: { type: 'string' },
+      FileSize: { type : 'integer' },
+      FilePath: { type: 'string' },
+      Category: { type: 'string' },
+      Preview: { type: 'string'},
+      Description: { type: 'string' },
+      branches: {
+        type: 'array',
+        items: {
+          type: 'integer',
+        },
       },
     },
   },
   response: {
+    200: {
+      description: 'Success',
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+      },
+    },
     400: {
       description: 'Bad request',
       type: 'object',
