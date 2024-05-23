@@ -46,7 +46,7 @@ module.exports = (fastify) => {
 
       if (status) datapost.status = status;
       if (comment) datapost.comment = comment;
-      if (score >= 0) datapost.score = score;
+      if (score >= 0 || score == -1) datapost.score = score; //score -1 audits N/A
       if (photo) datapost.photo = photo;
 
       // Decide si debes actualizar o crear un nuevo registro

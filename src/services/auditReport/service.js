@@ -169,7 +169,7 @@ const getAllDocuments = async (docs) => {
       .font('Helvetica-Bold')
       .fontSize(40)
       .fillColor(colorLine)
-      .text(`${Math.round((sumScore / (maxScore)) * 100)}%`, doc.x, 300, {
+      .text(`${Math.round((sumScore / ( (maxScore===0)? 1: maxScore )) * 100)}%`, doc.x, 300, {
         align: 'right',
       });
   }
