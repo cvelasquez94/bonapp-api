@@ -494,6 +494,8 @@ const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height)
       
         doc
           .fontSize(10)
+          .font('Helvetica')
+          .fillColor(colorText)
           .text(
             `Página ${i + 1} de ${range.count}`,
             doc.page.width / 2 - 40,
