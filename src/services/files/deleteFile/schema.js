@@ -1,16 +1,29 @@
 const schema = {
   tags: ['Files'],
-  summary: 'getFiles',
-  description: 'getFiles',
+  summary: 'deleteFile',
+  description: 'deleteFile',
   query: {
     type: 'object',
+    required: ['id'],
     properties: {
-      branch_id: {
-        type: 'integer',
-      },
+      id: { type: 'integer' },
     },
   },
   response: {
+    204: {
+      description: 'File deleted',
+      type: 'object',
+     properties: {
+       id: { type: 'integer' },
+     },
+   },
+    200: {
+      description: 'Success',
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+      },
+    },
     400: {
       description: 'Bad request',
       type: 'object',

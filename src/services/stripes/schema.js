@@ -27,6 +27,7 @@ const schema = {
             Preview: {type: 'string' },
             Description: {type: 'string' },
             Rating: {type: 'integer' },
+            RatingQty: {type: 'integer' },
             Duration: {type: 'integer' },
             label: {type: 'string' },
           }

@@ -12,7 +12,13 @@ const schema = {
       Category: { type: 'string' },
       Preview: { type: 'string'},
       Description: { type: 'string' },
-      FileBase64: { type: 'string', description: 'file content in base64'}
+      FileBase64: { type: 'string', description: 'file content in base64'},
+      branches: {
+        type: 'array',
+        items: {
+          type: 'integer',
+        },
+      },
     },
   },
   response: {

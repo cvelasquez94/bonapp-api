@@ -2,7 +2,14 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class File extends Model {}
+  class File extends Model {
+    static associate(models) {
+      File.hasMany(models.FileBranch, {
+        foreignKey: 'file_id',
+        //as: 'fileBranch',
+      });
+    }
+  }
   File.init(
     {
       ID: {

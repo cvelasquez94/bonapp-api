@@ -1,9 +1,32 @@
 module.exports = (fastify) => {
-  const { File } = fastify.db;
+  const { File, FileBranch } = fastify.db;
 
-  async function getFiles() {
+  async function getFiles(query) {
     try {
-      const data = await File.findAll();
+let data;
+
+      if(query.branch_id){
+        data = await File.findAll({
+          include: [
+            {
+              model: FileBranch,
+              required: true,
+              where: { branch_id: query.branch_id },
+            },
+          ],
+          order: [[FileBranch, 'updatedAt', 'ASC']],
+        });
+      }else{
+        data = await File.findAll({
+          include: [
+            {
+              model: FileBranch,
+              required: false,
+            },
+          ],
+        });
+      }
+
       if (!data) {
         throw new Error('Notificaciones no encontrados');
       }

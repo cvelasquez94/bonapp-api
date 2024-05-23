@@ -195,11 +195,15 @@ async function app() {
   fastify.register(require('../services/files/postFile'), {
     prefix: fastify.config.prefix,
   });
-
+  fastify.register(require('../services/files/deleteFile'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/files/updateFile'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/files/getPreSignedUrl'), {
     prefix: fastify.config.prefix,
   });
-
   fastify.register(require('../services/stripes'), {
     prefix: fastify.config.prefix,
   });
