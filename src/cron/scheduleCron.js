@@ -39,11 +39,13 @@ async function runCronJob() {
     // if (shouldNotify) {
     try {
       await notificationService.sendNotification(
-        token,
-        name,
-        user_id,
-        branch_name,
-        interval
+        {
+          deviceToken: token,
+          nameChecklist: name,
+          userId: user_id,
+          branchName: branch_name,
+          interval
+        }
       );
     } catch (error) {
       console.log('Error la enviar la notificacion', error);

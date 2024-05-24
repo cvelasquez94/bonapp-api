@@ -3,14 +3,23 @@ const admin = require('../../config/firebaseConfig');
 const fetch = require('node-fetch');
 
 async function sendNotification(
-  deviceToken,
-  nameChecklist,
-  userId,
-  branchName,
-  interval
+  {
+    deviceToken,
+    nameChecklist,
+    userId,
+    branchName,
+    interval,
+    jwt,
+    userFrom
+  }
 ) {
-  console.log(`Mock send notification to ${deviceToken}`);
-  const bodyMenssage = `Tu checklist ${nameChecklist} en ${branchName} termina en ${interval} minutos.`;
+  console.log(`Mock send notification to ${jwt}`);
+  let bodyMenssage
+  if(userFrom){
+    bodyMenssage = `${userFrom} te asigno la ${nameChecklist} `;
+  } else {
+    bodyMenssage = `Tu checklist ${nameChecklist} en ${branchName} termina en ${interval} minutos.`;
+  }
   const message = {
     notification: {
       title: `${nameChecklist}`,
@@ -25,8 +34,9 @@ async function sendNotification(
     nameChecklist,
     messageId: res,
     bodyMenssage,
+    jwt
   });
-  //console.log(res);
+  // return noti
 }
 
 function shouldSendNotification(scheduleTime) {
@@ -40,7 +50,7 @@ function shouldSendNotification(scheduleTime) {
 
 async function createNotification(noti) {
   const timeInChile = moment.tz('America/Santiago');
-  const { userId, nameChecklist, messageId, bodyMenssage } = noti;
+  const { userId, nameChecklist, messageId, bodyMenssage, jwt } = noti;
   const url = 'https://bonapp-api.onrender.com/base/v1/createNotification';
   const data = {
     userId: userId,
@@ -62,10 +72,10 @@ async function createNotification(noti) {
       headers: {
         'Content-Type': 'application/json', // Tipo de contenido
         accept: 'application/json', // Qué tipo de respuesta esperas
+        'Authorization': jwt
       },
       body: JSON.stringify(data), // Convertimos el objeto de datos a un string JSON
     });
-
     if (!response.ok) {
       // Verifica si la respuesta fue exitosa (status 200-299)
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -73,6 +83,7 @@ async function createNotification(noti) {
 
     const jsonResponse = await response.json(); // Obtiene la respuesta JSON
     //console.log(jsonResponse); // Muestra la respuesta
+    // return jsonResponse
   } catch (error) {
     console.error('Error creating notification:', error);
   }
