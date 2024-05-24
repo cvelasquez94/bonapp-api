@@ -7,9 +7,12 @@ const fastify = require('fastify')({
   requestIdHeader: 'x-request-id',
   logger: { ...logger, ...config.pino },
 });
+
 async function app() {
   // await fastify.register(require('middie'))
   // require('../cron/scheduleCron');
+  fastify.register(require('@fastify/multipart'));  
+
   fastify.addHook('onRequest', utils.corsHook);
   fastify.decorate('config', config);
   fastify.decorate('db', models);
@@ -30,7 +33,7 @@ async function app() {
 
   // Api private
   fastify.register(async function (fastify, opts) {
-    fastify.addHook('onRequest', fastify.authenticate)
+    // fastify.addHook('onRequest', fastify.authenticate)
     
   fastify.register(require('../services/users/getUsers'), {
     prefix: fastify.config.prefix,
@@ -130,6 +133,9 @@ async function app() {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/checkList/getStatisticsCheckList'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/documents/upload'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/documents/postImage'), {

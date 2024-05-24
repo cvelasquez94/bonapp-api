@@ -1,7 +1,7 @@
 'use strict';
 const config = require('../../config/config');
 const { app, logger } = require('./app');
-require('../cron/scheduleCron');
+// require('../cron/scheduleCron');
 
 async function start() {
   try {

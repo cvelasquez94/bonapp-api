@@ -33,11 +33,11 @@ module.exports = {
     auth: process.env.STORAGE_AUTH,
     environment: process.env.ENVIRONMENT,
     bucket: {
-      tenancyId: process.env.TENANCYID,
-      userId: process.env.USERID,
-      keyFingerprint: process.env.KEYFINGERPRINT,
+      tenancy: process.env.TENANCYID,
+      user: process.env.USERID,
+      fingerprint: process.env.KEYFINGERPRINT,
       privateKey: process.env.PRIVATEKEY,
-      region: process.env.REGIO
+      region: process.env.REGION
     }
   },
 };

@@ -1,25 +1,35 @@
 const schema = {
-  tags: ['Files'],
-  summary: 'postFile',
-  description: 'postFile',
+  tags: ['Documents'],
+  summary: 'upload',
+  description: 'upload big files',
   body: {
     type: 'object',
     properties: {
-      FileName: { type: 'string' },
-      FileType: { type: 'string' },
-      FileSize: { type : 'integer' },
-      FilePath: { type: 'string' },
-      Category: { type: 'string' },
-      Preview: { type: 'string'},
-      Description: { type: 'string' },
+      file: {
+        type: 'object',
+        description: 'upload file',
+      },
+      chunkNumber: {
+        type: 'integer',
+        description: 'chuck Number',
+      },
+      totalChunks: {
+        type: 'integer',
+        description: 'total Chunks',
+      },
+      originalname: {
+        type: 'string',
+        description: ' original name file',
+      },     
     },
   },
   response: {
     200: {
-      description: 'Success',
+      description: 'Bad request',
       type: 'object',
       properties: {
         id: { type: 'integer' },
+        message: { type: 'string' },
       },
     },
     400: {
@@ -30,8 +40,8 @@ const schema = {
         message: { type: 'string' },
       },
     },
-    403: {
-      description: 'Forbidden',
+    401: {
+      description: 'Invalid username or password',
       type: 'object',
       properties: {
         error: { type: 'string' },
