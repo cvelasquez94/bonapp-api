@@ -13,7 +13,8 @@ const route = async (fastify, opts, next) => {
     
     const tokenUser = await getTokenUser(userId);
     await notificationTo(tokenUser, authorization, checklistName, userFrom)
-    return reply.type('application/json').send();
+   
+    return reply.type('application/json').send({ message: 'ok'});
   });
   next();
 };
