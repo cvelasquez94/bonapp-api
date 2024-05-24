@@ -66,10 +66,10 @@ module.exports = (fastify) => {
   }
 
   const uploadToOCI = async (filePath, fileName) => {
-    //console.log(bucket)
+    console.log(bucket)
     const provider = new common.SimpleAuthenticationDetailsProvider(bucket.tenancy, bucket.user, bucket.fingerprint, bucket.privateKey,null,bucket.privateKey.replace(/\\n/g, '\n'));
     console.log('provider')
-    const client = new ocio.ObjectStorageClient({ authenticationDetailsProvider: provider });
+    const client = new ocio.ObjectStorageClient(provider);
     console.log('cliente')
     const namespace = "axmlczc5ez0w"; // Reemplaza con tu namespace de OCI
     const bucketName = "bucket-bonapp"; // Reemplaza con el nombre de tu bucket
