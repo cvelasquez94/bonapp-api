@@ -33,7 +33,7 @@ async function app() {
 
   // Api private
   fastify.register(async function (fastify, opts) {
-    // fastify.addHook('onRequest', fastify.authenticate)
+    fastify.addHook('onRequest', fastify.authenticate)
     
   fastify.register(require('../services/users/getUsers'), {
     prefix: fastify.config.prefix,
