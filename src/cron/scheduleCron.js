@@ -2,7 +2,7 @@ const cron = require('node-cron');
 const notificationService = require('../services/notifications/notificationService');
 const moment = require('moment-timezone');
 const fetch = require('node-fetch');
-const variables = require('../../config/variables')
+const variables = require('../../config/variables');
 
 const getTimeChile = () => {
   //TODO: agregar time zone en branches
@@ -47,10 +47,10 @@ async function runCronJob() {
   const timeZone = getTimeChile();
   const interval = 10;
   console.log('timeZone crons', timeZone, interval);
-  const apisUrl = variables.apiUrl
+  const apisUrl = variables.apiUrl;
   //const signIn = await getSignIn(apisUrl+'signIn')
   // const schedules = await getCheckListDue(10, timeZone)
-  const jwt = 'Bearer ' + signIn.token;
+  const jwt = 'Bearer ';// + signIn.token;
   const schedules = await getExpirationList(
     `${apisUrl}getCheckListDue?interval=${interval}&time=${timeZone}`
     ,jwt

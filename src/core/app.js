@@ -33,6 +33,9 @@ async function app() {
   fastify.register(require('../services/checkList/getCheckListDue'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/notifications/createNotification'), {
+    prefix: fastify.config.prefix,
+  });
 
   // Api private
   fastify.register(async function (fastify, opts) {
@@ -145,9 +148,6 @@ async function app() {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/notifications/getNotifications'), {
-    prefix: fastify.config.prefix,
-  });
-  fastify.register(require('../services/notifications/createNotification'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/notifications/updateNotification'), {
