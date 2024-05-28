@@ -30,6 +30,9 @@ async function app() {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../ping', { prefix: fastify.config.prefix }));  
+  fastify.register(require('../services/checkList/getCheckListDue'), {
+    prefix: fastify.config.prefix,
+  });
 
   // Api private
   fastify.register(async function (fastify, opts) {
@@ -82,9 +85,6 @@ async function app() {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/checkList/postSTaskInstance'), {
-    prefix: fastify.config.prefix,
-  });
-  fastify.register(require('../services/checkList/getCheckListDue'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/checklistBranch/getCheckBranch'), {

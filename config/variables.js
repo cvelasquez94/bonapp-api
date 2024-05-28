@@ -31,7 +31,6 @@ module.exports = {
   storage: {
     url: process.env.STORAGE_URL,
     auth: process.env.STORAGE_AUTH,
-    environment: process.env.ENVIRONMENT,
     bucket: {
       tenancy: process.env.TENANCYID,
       user: process.env.USERID,
@@ -40,4 +39,6 @@ module.exports = {
       region: process.env.REGION
     }
   },
+  environment: process.env.ENVIRONMENT,
+  apiUrl: process.env.API_URL,
 };
