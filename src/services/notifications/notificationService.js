@@ -1,6 +1,7 @@
 const moment = require('moment-timezone');
 const admin = require('../../config/firebaseConfig');
 const fetch = require('node-fetch');
+const variables = require('../../../config/variables');
 
 async function sendNotification(
   {
@@ -51,7 +52,8 @@ function shouldSendNotification(scheduleTime) {
 async function createNotification(noti) {
   const timeInChile = moment.tz('America/Santiago');
   const { userId, nameChecklist, messageId, bodyMenssage, jwt } = noti;
-  const url = 'https://bonapp-api.onrender.com/base/v1/createNotification';
+  const apisUrl = variables.apiUrl;
+  const url = apisUrl +'createNotification';
   const data = {
     userId: userId,
     messageId: messageId,
