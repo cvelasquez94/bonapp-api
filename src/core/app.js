@@ -29,6 +29,9 @@ async function app() {
   fastify.register(require('../services/login/signIn'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/login/forgetPassword'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../ping', { prefix: fastify.config.prefix }));  
   fastify.register(require('../services/checkList/getCheckListDue'), {
     prefix: fastify.config.prefix,
@@ -60,10 +63,6 @@ async function app() {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/users/deleteUser'), {
-    prefix: fastify.config.prefix,
-  });
- 
-  fastify.register(require('../services/login/forgetPassword'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/checkList/getChecklistAll'), {

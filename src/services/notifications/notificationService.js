@@ -25,6 +25,20 @@ async function sendNotification(
     notification: {
       title: `${nameChecklist}`,
       body: bodyMenssage,
+
+    },
+    android: {
+      notification: {
+        sound: "default",
+        //defaultSound: true,
+        lightSettings: {
+          color: "#0033FF",
+          lightOffDurationMillis: 1000,
+          lightOnDurationMillis: 1000,
+        },
+         visibility: "public",
+         priority: "max",
+      },
     },
     token: deviceToken,
   };
