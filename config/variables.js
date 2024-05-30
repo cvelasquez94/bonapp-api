@@ -36,9 +36,11 @@ module.exports = {
       user: process.env.USERID,
       fingerprint: process.env.KEYFINGERPRINT,
       privateKey: process.env.PRIVATEKEY,
-      region: process.env.REGION
+      region: process.env.REGION,
+      namespace: process.env.NAMESPACE,
+      bucketname: process.env.BUCKETNAME
     }
   },
-  environment: process.env.ENVIRONMENT,
+  environment: process.env.ENVIRONMENT || 'local',
   apiUrl: process.env.API_URL,
 };

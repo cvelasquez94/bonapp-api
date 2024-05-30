@@ -19,6 +19,7 @@ const config = {
   schemes: ['https', 'http'],
   email: variables.mail,
   storage: variables.storage,
+  environment: variables.environment
 }
 
 module.exports = config

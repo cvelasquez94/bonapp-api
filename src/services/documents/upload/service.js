@@ -7,6 +7,8 @@ module.exports = (fastify) => {
   const oci = require("oci-sdk");
   const common = require("oci-common");
   const ocio = require('oci-objectstorage')
+  const identity = require("oci-identity");
+
   const fs = require('fs');
   const path = require('path');
 
@@ -66,13 +68,21 @@ module.exports = (fastify) => {
   }
 
   const uploadToOCI = async (filePath, fileName) => {
-    console.log(bucket)
-    const provider = new common.SimpleAuthenticationDetailsProvider(bucket.tenancy, bucket.user, bucket.fingerprint, bucket.privateKey,null,bucket.privateKey.replace(/\\n/g, '\n'));
+    // console.log(bucket)
+    // const credencials
+    const provider = new common.SimpleAuthenticationDetailsProvider(bucket.tenancy, bucket.user, bucket.fingerprint, bucket.privateKey.replace(/\\n/g, '\n'),null, common.Region.SA_SANTIAGO_1);
+    // const provider = new common.ConfigFileAuthenticationDetailsProvider();
     console.log('provider')
-    const client = new ocio.ObjectStorageClient(provider);
+  
+    //const client = new ocio.ObjectStorageClient({ authenticationDetailsProvider: provider });
+    //const client = new ocio.ObjectStorageClient(provider);
+    const client = new ocio.ObjectStorageClient({ authenticationDetailsProvider: provider });
+    // const client = new identity.IdentityClient({
+    //   authenticationDetailsProvider: provider
+    // });
     console.log('cliente')
-    const namespace = "axmlczc5ez0w"; // Reemplaza con tu namespace de OCI
-    const bucketName = "bucket-bonapp"; // Reemplaza con el nombre de tu bucket
+    const namespace = bucket.namespace; // Reemplaza con tu namespace de OCI
+    const bucketName = bucket.bucketname; // Reemplaza con el nombre de tu bucket todo env
   
     try {
       const fileStream = fs.createReadStream(filePath);
