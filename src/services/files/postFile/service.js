@@ -40,6 +40,7 @@ module.exports = (fastify) => {
           const filret = await File.create({...body, 
                                             FilePath: `files/${FileName}`,
                                             FileSize: filesize,
+                                            FileType: typeFormate(body.FileType)
                                           }, { transaction: t });
 
           if(body.branches){

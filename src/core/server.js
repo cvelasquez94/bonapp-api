@@ -1,7 +1,11 @@
 'use strict';
 const config = require('../../config/config');
 const { app, logger } = require('./app');
-require('../cron/scheduleCron');
+
+if(config.environment === 'PROD'){
+  console.log(config.environment, 'asd');
+  require('../cron/scheduleCron');
+}
 
 async function start() {
   try {

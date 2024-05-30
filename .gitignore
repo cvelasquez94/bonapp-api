@@ -6,5 +6,5 @@
 /.scannerwork
 /config/secrets.js
 .vscode
-.env
+.env*
 /*.pdf
