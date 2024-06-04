@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'file_id',
         //as: 'fileBranch',
       });
+      File.belongsTo(models.Categories, {
+        foreignKey: 'Category_ID',
+      as: 'fileCategory',
+    });
     }
   }
   File.init(
@@ -53,7 +57,15 @@ module.exports = (sequelize, DataTypes) => {
       Description: {
         type: DataTypes.TEXT,
         allowNull: true
-      }
+      },
+      Category_ID: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: Model.Categories,
+          key: 'id',
+        },
+      },
     },
     {
       sequelize,

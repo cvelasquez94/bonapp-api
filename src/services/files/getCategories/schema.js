@@ -1,17 +1,17 @@
 const schema = {
   tags: ['Files'],
-  summary: 'getFiles',
-  description: 'getFiles',
+  summary: 'getCategories',
+  description: 'getCategories',
   query: {
     type: 'object',
     properties: {
       branch_id: {
         type: 'integer',
       },
-      category_id: {
-        type: 'integer',
+      type: {
+        type: 'string',
       },
-      search_text: {
+      subtype: {
         type: 'string',
       },
     },
