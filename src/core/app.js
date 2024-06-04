@@ -158,9 +158,6 @@ async function app() {
   fastify.register(require('../services/tokenUser/createTokenUser'), {
     prefix: fastify.config.prefix,
   });
-  fastify.register(require('../services/files/getFiles'), {
-    prefix: fastify.config.prefix
-  });
   fastify.register(require('../services/role/createRole'), {
     prefix: fastify.config.prefix
   });
@@ -197,6 +194,9 @@ async function app() {
   fastify.register(require('../services/restaurant/updateRestaurant'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/files/getFiles'), {
+    prefix: fastify.config.prefix
+  });
   fastify.register(require('../services/files/postFile'), {
     prefix: fastify.config.prefix,
   });
@@ -208,6 +208,9 @@ async function app() {
   });
   fastify.register(require('../services/files/getPreSignedUrl'), {
     prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/files/getCategories'), {
+    prefix: fastify.config.prefix
   });
   fastify.register(require('../services/stripes'), {
     prefix: fastify.config.prefix,
