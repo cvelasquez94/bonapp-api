@@ -10,6 +10,7 @@ const schema = {
       FileSize: { type : 'integer' },
       FilePath: { type: 'string' },
       Category: { type: 'string' },
+      Category_ID: { type : 'integer' },
       Preview: { type: 'string'},
       Description: { type: 'string' },
     },
