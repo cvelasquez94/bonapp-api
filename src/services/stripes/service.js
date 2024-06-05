@@ -1,6 +1,6 @@
 
 module.exports = (fastify) => {
-  async function getStrip(category, search) {
+  async function getStrip(category, search, screen) {
     try {
         const srtip = [{
             ID: 1,

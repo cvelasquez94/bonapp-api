@@ -8,7 +8,8 @@ const schema = {
         category: {
           type: 'string',
         },
-        search: { type: 'string'}
+        search: { type: 'string'},
+        screen: { type: 'string'},
       }
     },
     response: {
