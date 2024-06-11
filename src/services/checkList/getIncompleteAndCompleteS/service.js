@@ -38,7 +38,7 @@ module.exports = (fastify) => {
         await Checklist.findAll({
           include: [
             {
-              model: ChecklistBranch.scope('defaultScope'),
+              model: ChecklistBranch.scope('dateNow', {method: ['dateNow', dateTimeStr]}),
               as: 'ChecklistBranch',
               required: true,
               where: { branch_id: branchId },
@@ -100,7 +100,7 @@ module.exports = (fastify) => {
         await Checklist.findAll({
           include: [
             {
-              model: ChecklistBranch.scope('defaultScope'),
+              model: ChecklistBranch.scope('dateNow', {method: ['dateNow', dateTimeStr]}),
               as: 'ChecklistBranch',
               required: true,
               where: { branch_id: branchId, user_id: userId },

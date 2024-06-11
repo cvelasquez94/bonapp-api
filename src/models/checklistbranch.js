@@ -72,38 +72,49 @@ module.exports = (sequelize, DataTypes) => {
     {
       defaultScope: {
         where: {
-        [Op.and]: [
-              { 
               enable: {
                 [Op.gt]: 0
               },
-              start_date:
-                //{ [Op.lte]: TODAY_START }
-                sequelize.where(sequelize.fn("DATE", sequelize.col("ChecklistBranch.start_date")), "<=", sequelize.fn("DATE",TODAY_START.toISOString().split('T')[0]))
-              ,
-              [Op.or]: [
-                {end_date:
-                  sequelize.where(sequelize.fn("DATE", sequelize.col("ChecklistBranch.end_date")), ">=", sequelize.fn("DATE",TODAY_START.toISOString().split('T')[0]))
-                },
-                {end_date: {[Op.is]: null}},
-              ]
-              },               
-              ,
-                sequelize.literal(
-                  `CASE WHEN freqType is null then 1=1 
-                        WHEN freqType = 'd' THEN DATEDIFF(CURDATE(),start_date) % freqValue = 0
-                        WHEN freqType = 'w' THEN 
-                                            CASE WHEN weekday(CURDATE()) = 0 THEN monday > 0
-                                             WHEN weekday(CURDATE()) = 1 THEN tuesday > 0
-                                             WHEN weekday(CURDATE()) = 2 THEN wednesday > 0
-                                             WHEN weekday(CURDATE()) = 3 THEN thursday > 0
-                                             WHEN weekday(CURDATE()) = 4 THEN friday > 0
-                                             WHEN weekday(CURDATE()) = 5 THEN saturday > 0 
-                                             WHEN weekday(CURDATE()) = 6 THEN sunday > 0 END
-                        END`
-                )
-            ],
           },
+      },
+      scopes: {
+        dateNow (value) {
+          return {
+            where: {
+              [Op.and]: [
+                    { 
+                    enable: {
+                      [Op.gt]: 0
+                    },
+                    start_date:
+                      //{ [Op.lte]: TODAY_START }
+                      sequelize.where(sequelize.col("ChecklistBranch.start_date"), "<=", sequelize.fn('STR_TO_DATE',value,'%d-%m-%Y'))
+                    ,
+                    [Op.or]: [
+                      {end_date:
+                        sequelize.where(sequelize.col("ChecklistBranch.end_date"), ">=", sequelize.fn('STR_TO_DATE',value,'%d-%m-%Y'))
+                      },
+                      {end_date: {[Op.is]: null}},
+                    ]
+                    },               
+                    ,
+                      sequelize.literal(
+                        `CASE WHEN freqType is null then 1=1 
+                              WHEN freqType = 'd' THEN DATEDIFF(CURDATE(),start_date) % freqValue = 0
+                              WHEN freqType = 'w' THEN 
+                                                  CASE WHEN weekday(CURDATE()) = 0 THEN monday > 0
+                                                   WHEN weekday(CURDATE()) = 1 THEN tuesday > 0
+                                                   WHEN weekday(CURDATE()) = 2 THEN wednesday > 0
+                                                   WHEN weekday(CURDATE()) = 3 THEN thursday > 0
+                                                   WHEN weekday(CURDATE()) = 4 THEN friday > 0
+                                                   WHEN weekday(CURDATE()) = 5 THEN saturday > 0 
+                                                   WHEN weekday(CURDATE()) = 6 THEN sunday > 0 END
+                              END`
+                      )
+                  ],
+                },
+          }
+        }
       },
       
       sequelize,
