@@ -75,7 +75,7 @@ module.exports = (fastify) => {
             ],
           },
           {
-                model: ChecklistBranch.scope('defaultScope'),
+                model: ChecklistBranch.scope('dateNow', {method: ['dateNow', dateTimeStr]}),
                 as: 'ChecklistBranch',
                 required: true,
                 where: { branch_id: branchid },

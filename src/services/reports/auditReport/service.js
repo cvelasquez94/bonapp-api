@@ -2,9 +2,8 @@ const PDFDocument = require('pdfkit');
 const fetch = require('node-fetch');
 const imageSize = require('image-size')
 const { Op } = require('sequelize');
-const { mail } = require('../../utils');
+const { mail } = require('../../../utils');
 let nameBranch;
-
 
 module.exports = (fastify) => {
   const {
@@ -24,6 +23,8 @@ module.exports = (fastify) => {
     ChecklistBranch,
   } = fastify.db;
 
+
+  const { getMailBody } = require('../getMailBody/service')(fastify);
 
 const getImageFromBucket = async (url) => {
   const response = await fetch(url, {
@@ -683,6 +684,12 @@ const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height)
     }
     else
     {
+      let mailBodyR;
+      try{
+        mailBodyR = await getMailBody('AuditReport');
+      }catch{console.log(`No existe: getMailBody('AuditReport')`)}
+
+      const mailBody = mailBodyR ? mailBodyR.text : undefined;
       
       const mailOptions = {
         to: destinatarios.emails,
@@ -698,7 +705,7 @@ const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height)
       // // Enviar correo
       // await transporter.sendMail(mailOptions);
 
-      await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName)
+      await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName, mailBody)
 
       const urlPut = `${fastify.config.storage.url}Reports/user_${userId}/${attachFileName}` //`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
 

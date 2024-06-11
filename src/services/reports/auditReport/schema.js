@@ -1,7 +1,7 @@
 const schema = {
-  tags: ['Audit'],
+  tags: ['Reports'],
   summary: 'auditReport',
-  description: 'subTasks',
+  description: 'auditReport',
   query: {
     type: 'object',
     properties: {

@@ -22,24 +22,36 @@ const sendEmail = async ({ user, pass, mailOptions }) => {
   return await transporter.sendMail(options);
 };
 
-exports.sendAuditEmail = (options, nomAuditor) => {
-  const mailBody = `
+exports.sendAuditEmail = async (options, nombreAuditor, mailBody) => {
+  if(!mailBody){
+    mailBody = `
   Estimado equipo,
 
     Espero que este correo le encuentre bien. Como se acordó previamente, he completado nuestra auditoría programada en su restaurante hoy dia. 
     Quisiera agradecerles por su cooperación y disposición durante este proceso.
     Quedo a su disposición para discutir cualquier aspecto de nuestra auditoría en mayor detalle o para brindar asistencia adicional según sea necesario.
     
-  Saludos cordiales, ${nomAuditor}.`;
+  Saludos cordiales, ${nombreAuditor}.`;
+  }else{
+    const regex = /\${nombreAuditor}/ig;
+    mailBody = mailBody.replace(regex, nombreAuditor);
+  }
+
+  const esHtml = mailBody.includes("<html>") ? true : false;
 
   const mailOptions = {
     ...options,
-    text: mailBody,
+    //text: mailBody,
+    //html: mailBody,
+    text: !esHtml ? mailBody : undefined,
+    html:  esHtml ? mailBody : undefined,
     from: {
       name: 'Audit BonApp',
       address: user
           },
   };
+
+
   return sendEmail({ user, pass, mailOptions });
 };
 

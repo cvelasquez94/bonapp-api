@@ -125,7 +125,13 @@ async function app() {
   fastify.register(require('../services/subTask/getSubTask'), {
     prefix: fastify.config.prefix,
   });
-  fastify.register(require('../services/auditReport'), {
+  fastify.register(require('../services/reports/auditReport'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/reports/getMailBody'), {
+    prefix: fastify.config.prefix,
+  });
+  fastify.register(require('../services/reports/postMailBody'), {
     prefix: fastify.config.prefix,
   });
   fastify.register(require('../services/checkList/getCheckListFilter'), {
