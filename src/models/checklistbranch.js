@@ -87,12 +87,11 @@ module.exports = (sequelize, DataTypes) => {
                       [Op.gt]: 0
                     },
                     start_date:
-                      //{ [Op.lte]: TODAY_START }
-                      sequelize.where(sequelize.col("ChecklistBranch.start_date"), "<=", sequelize.fn('STR_TO_DATE',value,'%d-%m-%Y'))
+                      sequelize.where(sequelize.fn('DATE',sequelize.col("ChecklistBranch.start_date")), "<=", sequelize.fn('STR_TO_DATE',value,'%d-%m-%Y'))
                     ,
                     [Op.or]: [
                       {end_date:
-                        sequelize.where(sequelize.col("ChecklistBranch.end_date"), ">=", sequelize.fn('STR_TO_DATE',value,'%d-%m-%Y'))
+                        sequelize.where(sequelize.fn('DATE',sequelize.col("ChecklistBranch.end_date")), ">=", sequelize.fn('STR_TO_DATE',value,'%d-%m-%Y'))
                       },
                       {end_date: {[Op.is]: null}},
                     ]
