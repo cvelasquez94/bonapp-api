@@ -1,6 +1,9 @@
 'use strict'
 
+const { sendLogToLoggly } = require('../core/logger')
+
 function errorHandler(error, request, reply) {
+  console.log('errorHandler errorHandler')
   const statusCode = error.status || error.statusCode || 500
 
   const toLog = {
@@ -13,6 +16,8 @@ function errorHandler(error, request, reply) {
   }
 
   request.log.error(error)
+  sendLogToLoggly('error', toLog, { stack: error.stack })
+  // logger.error(error)
 
   reply.code(statusCode).send(toLog)
 }

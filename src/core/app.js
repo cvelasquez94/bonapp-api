@@ -229,6 +229,7 @@ async function app() {
   })
 
   fastify.ready((err) => {
+    console.log('fastify.ready')
     if (err) throw err;
   });
 
