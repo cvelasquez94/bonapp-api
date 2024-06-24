@@ -1,5 +1,5 @@
 'use strict';
-const { Model } = require('sequelize');
+const { Model, Op } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Notifications extends Model {
@@ -25,6 +25,13 @@ module.exports = (sequelize, DataTypes) => {
       sentTime: DataTypes.DATE,
     },
     {
+      defaultScope: {
+        where: {
+          sentTime: {
+            [Op.gte]: sequelize.literal('DATE_SUB(NOW(), INTERVAL 7 DAY)'),
+            },
+          },
+      },
       sequelize,
       modelName: 'Notifications',
     }
