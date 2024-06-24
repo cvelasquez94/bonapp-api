@@ -3,7 +3,7 @@ module.exports = (fastify) => {
 
   async function updateNotification(body) {
     try {
-      const existsNoti = await Notifications.findOne({
+      const existsNoti = await Notifications.unscoped().findOne({
         where: { id: body.id },
       });
       if (!existsNoti) {
