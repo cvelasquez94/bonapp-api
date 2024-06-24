@@ -155,6 +155,9 @@ async function app() {
   fastify.register(require('../services/notifications/getNotifications'), {
     prefix: fastify.config.prefix,
   });
+  fastify.register(require('../services/notifications/getPendingNotificationCount'), {
+    prefix: fastify.config.prefix,
+  });
   fastify.register(require('../services/notifications/updateNotification'), {
     prefix: fastify.config.prefix,
   });
