@@ -7,7 +7,7 @@ module.exports = (fastify) => {
          where: { user_id: user_id, read: 0 },
         });
       if (!data) {
-        throw new Error('Notificaciones no encontrados');
+        return 0;
       }
       //console.log(data);
       return data;
