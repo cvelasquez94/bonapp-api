@@ -694,6 +694,7 @@ const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height)
       const mailOptions = {
         to: destinatarios.emails,
         subject: subject,
+        secure: true,
         attachments: [
           {
             filename: attachFileName,
