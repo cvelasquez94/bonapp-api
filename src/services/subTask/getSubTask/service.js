@@ -17,7 +17,7 @@ module.exports = (fastify) => {
             }
           },
           include: [{
-            model: MainTask.scope('defaultScope'),
+            model: MainTask.unscoped(),
             as: 'mainTask',
             include: [{
               model: Checklist,
