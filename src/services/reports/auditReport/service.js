@@ -704,8 +704,46 @@ const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height)
   
       // // Enviar correo
       // await transporter.sendMail(mailOptions);
+      
+//CASE STREAT JIR BON-235
+let mailBodyTmp = mailBody;
 
-      await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName, mailBody)
+if(arrayIdChecklist == 162){
+  mailBodyTmp =
+`
+Buenos días.
+
+Se comparte el resultado de la Auditoría de Seguridad Alimentaria realizada el día de hoy en el local.
+
+Por favor imprimir este documento y guardarlo en la carpeta correspondiente.
+
+Enviar dentro de las 72 horas siguientes los planes de acción a ejecutar.
+
+Muchas gracias.`
+}
+else if(arrayIdChecklist == 161){
+  mailBodyTmp =
+`
+Buenos dias.
+
+Se comparte el resultado de la Auditoría de Prevencion de Riesgos realizada el día de hoy en el local.
+
+Por favor imprimir este documento y guardarlo en la carpeta de Prevención de Riesgos.
+
+Revisar las oportunidades de mejora para resolver a la brevedad posible.
+
+Saludos cordiales
+
+
+
+Nicolas Contreras Aguirre.
+
+Prevención de Riesgos Streat Burger.`
+}
+
+await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName, mailBodyTmp)
+
+//await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName, mailBody)
 
       const urlPut = `${fastify.config.storage.url}Reports/user_${userId}/${attachFileName}` //`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
 
