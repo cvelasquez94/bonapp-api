@@ -694,7 +694,6 @@ const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height)
       const mailOptions = {
         to: destinatarios.emails,
         subject: subject,
-        secure: true,
         attachments: [
           {
             filename: attachFileName,
@@ -703,57 +702,18 @@ const ratio = Math.min(maxWidth / dimension.width, maxHeight / dimension.height)
         ],
       };
   
+      // // Enviar correo
+      // await transporter.sendMail(mailOptions);
 
-      //CASE STREAT JIR BON-235
-      let mailBodyTmp = mailBody;
-
-      if(arrayIdChecklist == 162){
-        mailBodyTmp =
-`<!DOCTYPE html>
-<html>
-<p><strong>Buenos días.<br><br>
-
-Se comparte el resultado de la Auditoría de Seguridad Alimentaria realizada el día de hoy en el local.<br><br>
-
-Por favor imprimir este documento y guardarlo en la carpeta correspondiente. <br><br>
-
-Enviar dentro de las 72 horas siguientes los planes de acción a ejecutar. <br><br>
-
-Muchas gracias.
-</strong></p>
-</html>`
-      }
-      else if(arrayIdChecklist == 161){
-        mailBodyTmp =
-`<!DOCTYPE html>
-<html>
-<p><strong>Buenos dias.<br><br>
-
-Se comparte el resultado de la Auditoría de Prevencion de Riesgos realizada el día de hoy en el local.<br><br>
-
-Por favor imprimir este documento y guardarlo en la carpeta de Prevención de Riesgos.<br><br>
-
-Revisar las oportunidades de mejora para resolver a la brevedad posible.<br><br>
-
-Saludos cordiales<br><br><br>
-
-
-
-Nicolas Contreras Aguirre.<br><br>
-
-Prevención de Riesgos Streat Burger.
-</strong></p>
-</html>`
-      }
-
-      await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName, mailBodyTmp)
-
-      //await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName, mailBody)
-      
+      await mail.sendAuditEmail(mailOptions, mailAuditor.dataValues.firstName, mailBody)
 
       const urlPut = `${fastify.config.storage.url}Reports/user_${userId}/${attachFileName}` //`${fastify.config.storage.url}${fastify.config.storage.environment}/${attachFileName.replaceAll('/','_')}`.replaceAll(' ','_')
 
+      //console.log( '_urlPUT: ' + urlPut)
+
       const responsePut = await putFileToBucket(urlPut, contentType, pdfReport)
+
+      //console.log(responsePut, ' respPUT')
       
       const dataInsert = {
         name: attachFileName,
