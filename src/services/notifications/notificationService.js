@@ -3,6 +3,7 @@ const admin = require('../../config/firebaseConfig');
 const fetch = require('node-fetch');
 const variables = require('../../../config/variables');
 
+
 async function sendNotification(
   {
     deviceToken,
@@ -11,7 +12,8 @@ async function sendNotification(
     branchName,
     interval,
     jwt,
-    userFrom
+    userFrom,
+    pendingNotif,
   }
 ) {
   console.log(`Mock send notification to ${jwt}`);
@@ -21,11 +23,23 @@ async function sendNotification(
   } else {
     bodyMenssage = `Tu checklist ${nameChecklist} en ${branchName} termina en ${interval} minutos.`;
   }
+  
   const message = {
     notification: {
       title: `${nameChecklist}`,
       body: bodyMenssage,
-
+    },
+    data:{
+      userID: userId.toString(),
+      pendingNotificationCount: pendingNotif ? pendingNotif.toString() : '0',
+    },
+    apns:{
+      payload:{
+        aps:{
+          contentAvailable: true,
+          priority: "high",
+      }
+    }
     },
     android: {
       notification: {
@@ -42,7 +56,7 @@ async function sendNotification(
     },
     token: deviceToken,
   };
-
+  
   const res = await admin.messaging().send(message);
   const noti = await createNotification({
     userId,
